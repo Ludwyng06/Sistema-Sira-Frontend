@@ -1,0 +1,55 @@
+@import "tailwindcss";
+
+/* Identidad visual: Manual de Identidad Visual UNIPUTUMAYO 01-2025 (04-frontend §2).
+   Naranja y verde: solo fondo o borde, nunca como color de texto sobre blanco. */
+@theme {
+  --color-azul: #18668f;
+  --color-azul-oscuro: #0f4a69;
+  --color-naranja: #f5a51d;
+  --color-verde: #80bf1f;
+  --color-gris: #595957;
+  --color-gris-claro: #b2b6b9;
+  --color-texto: #222222;
+  --color-fondo: #ffffff;
+  --color-fondo-suave: #f4f7f9;
+
+  --font-titulo: var(--font-raleway), ui-sans-serif, system-ui, sans-serif;
+  --font-texto: var(--font-roboto), ui-sans-serif, system-ui, sans-serif;
+}
+
+html {
+  background: var(--color-fondo);
+  color: var(--color-texto);
+}
+
+body {
+  font-family: var(--font-texto);
+  min-width: 320px;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-titulo);
+  color: var(--color-azul-oscuro);
+}
+
+/* Foco visible con el azul institucional (RNF-09). */
+:focus-visible {
+  outline: 3px solid var(--color-azul);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* Sobre fondos azules el foco se invierte para mantener el contraste. */
+.sobre-azul :focus-visible {
+  outline-color: var(--color-fondo);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
