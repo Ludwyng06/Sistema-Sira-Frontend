@@ -64,21 +64,33 @@ function construirUrl(ruta: string, query?: OpcionesApi["query"]): string {
   return texto ? `${url}?${texto}` : url;
 }
 
-async function refrescarSesion(): Promise<boolean> {
-  if (typeof window === "undefined") return false;
-  try {
-    const res = await fetch(construirUrl("/auth/refrescar"), {
-      method: "POST",
-      credentials: "include",
-    });
-    if (!res.ok) return false;
-    const cuerpo = (await res.json()) as { accessToken?: string };
-    if (!cuerpo.accessToken) return false;
-    tokenAcceso = cuerpo.accessToken;
-    return true;
-  } catch {
-    return false;
-  }
+let refrescoEnCurso: Promise<boolean> | null = null;
+
+/**
+ * Renueva el access token con la cookie httpOnly. Las llamadas simultáneas
+ * comparten una sola petición: la API rota el token de refresco y el segundo
+ * intento con el token ya revocado cerraría la sesión.
+ */
+export function restaurarSesion(): Promise<boolean> {
+  if (typeof window === "undefined") return Promise.resolve(false);
+  refrescoEnCurso ??= (async () => {
+    try {
+      const res = await fetch(construirUrl("/auth/refrescar"), {
+        method: "POST",
+        credentials: "include",
+      });
+      if (!res.ok) return false;
+      const cuerpo = (await res.json()) as { accessToken?: string };
+      if (!cuerpo.accessToken) return false;
+      tokenAcceso = cuerpo.accessToken;
+      return true;
+    } catch {
+      return false;
+    } finally {
+      refrescoEnCurso = null;
+    }
+  })();
+  return refrescoEnCurso;
 }
 
 async function aErrorApi(res: Response): Promise<ErrorApi> {
@@ -123,7 +135,7 @@ export async function api<T>(ruta: string, opciones: OpcionesApi = {}): Promise<
   let res: Response;
   try {
     res = await ejecutar();
-    if (res.status === 401 && (await refrescarSesion())) {
+    if (res.status === 401 && (await restaurarSesion())) {
       res = await ejecutar();
     }
   } catch {

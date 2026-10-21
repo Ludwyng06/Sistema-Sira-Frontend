@@ -1,10 +1,5 @@
 import Link from "next/link";
-
-const enlaces = [
-  { href: "/", texto: "Espacios" },
-  { href: "/mis-solicitudes", texto: "Mis solicitudes" },
-  { href: "/ingresar", texto: "Ingresar" },
-];
+import { NavegacionPrincipal } from "./NavegacionPrincipal";
 
 export function EncabezadoInstitucional() {
   return (
@@ -18,20 +13,7 @@ export function EncabezadoInstitucional() {
             Uniputumayo · Reserva de espacios
           </span>
         </Link>
-        <nav aria-label="Principal">
-          <ul className="flex flex-wrap gap-x-5 gap-y-1">
-            {enlaces.map((e) => (
-              <li key={e.href}>
-                <Link
-                  href={e.href}
-                  className="inline-block py-1 font-medium underline-offset-4 hover:underline"
-                >
-                  {e.texto}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </nav>
+        <NavegacionPrincipal />
       </div>
     </header>
   );
