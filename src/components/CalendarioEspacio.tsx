@@ -167,6 +167,13 @@ function VistaCalendario({
         nowIndicator
         eventInteractive
         eventDidMount={alMontar}
+        // Los botones ya tienen nombre accesible; el ícono es decorativo.
+        viewDidMount={(info) =>
+          info.el
+            .closest(".fc")
+            ?.querySelectorAll(".fc-icon")
+            .forEach((icono) => icono.setAttribute("aria-hidden", "true"))
+        }
         selectable={Boolean(onSeleccion)}
         selectMirror
         selectOverlap={false}

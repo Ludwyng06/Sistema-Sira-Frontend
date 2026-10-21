@@ -85,3 +85,24 @@ h4 {
 .fc button {
   min-height: 2rem;
 }
+
+/* FullCalendar pinta el texto del evento en blanco: se fuerza el color por estado para cumplir el contraste 4,5:1. */
+.fc-event.estado-retenida,
+.fc-event.estado-retenida .fc-event-main,
+.fc-event.estado-retenida .fc-event-time,
+.fc-event.estado-retenida .fc-event-title,
+.fc-event.estado-bloqueo,
+.fc-event.estado-bloqueo .fc-event-main,
+.fc-event.estado-bloqueo .fc-event-time,
+.fc-event.estado-bloqueo .fc-event-title,
+.fc-event.estado-seleccion,
+.fc-event.estado-seleccion .fc-event-main,
+.fc-event.estado-seleccion .fc-event-time,
+.fc-event.estado-seleccion .fc-event-title {
+  color: var(--color-texto);
+}
+.fc-event.estado-confirmada .fc-event-main,
+.fc-event.estado-confirmada .fc-event-time,
+.fc-event.estado-confirmada .fc-event-title {
+  color: #fff;
+}

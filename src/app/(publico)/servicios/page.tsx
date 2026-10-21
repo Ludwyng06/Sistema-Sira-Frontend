@@ -80,12 +80,12 @@ async function Catalogo() {
                       {s.anticipacionMinimaDias === 1 ? "día" : "días"} de anticipación
                     </dd>
                   </div>
-                  {s.requiereConfirmacion && (
-                    <p className="w-fit rounded border-l-4 border-naranja bg-fondo-suave px-2 py-0.5">
-                      El proveedor confirma la disponibilidad
-                    </p>
-                  )}
                 </dl>
+                {s.requiereConfirmacion && (
+                  <p className="w-fit rounded border-l-4 border-naranja bg-fondo-suave px-2 py-0.5 text-sm">
+                    El proveedor confirma la disponibilidad
+                  </p>
+                )}
               </li>
             ))}
           </ul>
