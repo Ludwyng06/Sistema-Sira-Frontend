@@ -2,11 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
 import { CalendarDays, ChevronLeft } from "lucide-react";
+import { CalendarioEspacio } from "@/components/CalendarioEspacio";
 import { EstadoError } from "@/components/EstadoError";
 import { Foto } from "@/components/Foto";
 import { IndicadorAforo } from "@/components/IndicadorAforo";
 import { obtenerEspacio, resolver } from "@/lib/inventario";
 import { pesos } from "@/lib/formato";
+import { resolverEspacioId } from "@/lib/espacio-id";
 import { EsqueletoEspacio } from "./esqueleto-espacio";
 
 type Props = PageProps<"/espacios/[codigo]">;
@@ -51,6 +53,7 @@ async function FichaDelEspacio({ params }: { params: Props["params"] }) {
     return <EstadoError mensaje={resultado.mensaje} />;
   }
   const espacio = resultado.datos;
+  const espacioId = await resolverEspacioId(espacio.codigo).catch(() => null);
   const volver = `/sedes/${espacio.sede.codigo}/bloques/${espacio.bloque.codigo}`;
   const fotos = espacio.fotos.map((f) => ({ url: f.urlDetalle, alt: f.alt }));
 
@@ -171,19 +174,24 @@ async function FichaDelEspacio({ params }: { params: Props["params"] }) {
         </section>
       </div>
 
-      <section
-        aria-labelledby="titulo-calendario"
-        className="flex items-start gap-3 rounded-lg border border-dashed border-gris-claro bg-fondo-suave p-4"
-      >
-        <CalendarDays aria-hidden className="mt-1 size-6 shrink-0 text-azul-oscuro" />
-        <div>
-          <h2 id="titulo-calendario" className="text-lg font-bold">
-            Disponibilidad
-          </h2>
-          <p className="text-gris">
-            El calendario de este espacio estará disponible próximamente.
+      <section aria-labelledby="titulo-calendario" className="flex flex-col gap-3">
+        <h2 id="titulo-calendario" className="text-2xl font-bold">
+          Disponibilidad
+        </h2>
+        {espacioId ? (
+          <CalendarioEspacio espacioId={espacioId} />
+        ) : (
+          <p className="rounded-lg border border-dashed border-gris-claro bg-fondo-suave p-4 text-gris">
+            No pudimos cargar el calendario de este espacio en este momento.
           </p>
-        </div>
+        )}
+        <Link
+          href={`/solicitar?espacio=${espacio.codigo}`}
+          className="inline-flex w-fit items-center gap-2 rounded bg-azul px-5 py-3 font-medium text-white hover:bg-azul-oscuro"
+        >
+          <CalendarDays aria-hidden className="size-5" />
+          Solicitar este espacio
+        </Link>
       </section>
     </div>
   );

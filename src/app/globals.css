@@ -53,3 +53,35 @@ h4 {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* Calendario: el estado se comunica con color, patrón y etiqueta de texto (RNF-09). */
+.estado-retenida {
+  background-color: #fde9bf;
+  background-image: repeating-linear-gradient(45deg, transparent 0 6px, rgb(245 165 29 / 55%) 6px 8px);
+  border: 1px solid var(--color-naranja);
+  color: var(--color-texto);
+}
+.estado-confirmada {
+  background-color: var(--color-azul);
+  border: 1px solid var(--color-azul-oscuro);
+  color: #fff;
+}
+.estado-bloqueo {
+  background-color: #e3e5e6;
+  background-image: radial-gradient(rgb(89 89 87 / 45%) 1.2px, transparent 1.4px);
+  background-size: 7px 7px;
+  border: 1px solid var(--color-gris);
+  color: var(--color-texto);
+}
+.estado-seleccion {
+  background-color: rgb(128 191 31 / 30%);
+  border: 2px dashed var(--color-azul-oscuro);
+  color: var(--color-texto);
+}
+.fc .fc-event {
+  cursor: default;
+}
+.fc a,
+.fc button {
+  min-height: 2rem;
+}
