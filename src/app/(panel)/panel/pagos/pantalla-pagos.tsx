@@ -32,7 +32,7 @@ const POR_PAGINA = 20;
 
 export function PantallaPagos() {
   const { tieneRol } = useSesion();
-  const puedeVerificar = tieneRol("TESORERIA", "ADMINISTRADOR");
+  const puedeVerificar = tieneRol("TESORERIA");
   const [estado, setEstado] = useState<EstadoOrden>("EN_VERIFICACION");
   const [pagina, setPagina] = useState(1);
   const [aviso, setAviso] = useState<string | null>(null);

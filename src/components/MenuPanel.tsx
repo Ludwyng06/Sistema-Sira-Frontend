@@ -14,23 +14,14 @@ interface Entrada {
 }
 
 export const ENTRADAS_PANEL: Entrada[] = [
-  { href: "/panel", texto: "Tablero", roles: [] },
+  { href: "/panel", texto: "Tablero", roles: ["ADMINISTRADOR", "APROBADOR", "TESORERIA", "AUDITOR"] },
   {
     href: "/panel/aprobaciones",
     texto: "Aprobaciones",
     roles: ["RESPONSABLE_ESPACIO", "APROBADOR", "ADMINISTRADOR", "AUDITOR"],
   },
-  { href: "/panel/pagos", texto: "Pagos", roles: ["TESORERIA", "ADMINISTRADOR", "AUDITOR"] },
-  {
-    href: "/panel/calendario",
-    texto: "Calendario",
-    roles: ["RESPONSABLE_ESPACIO", "ADMINISTRADOR", "AUDITOR"],
-  },
-  {
-    href: "/panel/actas",
-    texto: "Actas",
-    roles: ["RESPONSABLE_ESPACIO", "ADMINISTRADOR", "AUDITOR"],
-  },
+  { href: "/panel/pagos", texto: "Pagos", roles: ["TESORERIA", "AUDITOR"] },
+  { href: "/panel/actas", texto: "Actas", roles: ["RESPONSABLE_ESPACIO"] },
   { href: "/panel/inventario", texto: "Inventario", roles: ["ADMINISTRADOR", "AUDITOR"] },
   { href: "/panel/auditoria", texto: "Bitácora", roles: ["ADMINISTRADOR", "AUDITOR"] },
   { href: "/panel/configuracion", texto: "Configuración", roles: ["ADMINISTRADOR"] },

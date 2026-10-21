@@ -6,7 +6,7 @@ export const metadata: Metadata = { title: "Actas" };
 
 export default function Actas() {
   return (
-    <GuardiaSesion roles={["RESPONSABLE_ESPACIO", "ADMINISTRADOR", "AUDITOR"]}>
+    <GuardiaSesion roles={["RESPONSABLE_ESPACIO"]}>
       <PantallaActas />
     </GuardiaSesion>
   );

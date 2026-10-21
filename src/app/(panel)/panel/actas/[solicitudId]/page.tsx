@@ -7,7 +7,7 @@ export const metadata: Metadata = { title: "Acta" };
 
 export default function PaginaActa(props: PageProps<"/panel/actas/[solicitudId]">) {
   return (
-    <GuardiaSesion roles={["RESPONSABLE_ESPACIO", "ADMINISTRADOR"]}>
+    <GuardiaSesion roles={["RESPONSABLE_ESPACIO"]}>
       <Suspense>
         <Contenido params={props.params} searchParams={props.searchParams} />
       </Suspense>
