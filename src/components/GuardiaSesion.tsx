@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect, type ReactNode } from "react";
+import { Suspense, useEffect, type ReactNode } from "react";
 import { Lock } from "lucide-react";
 import type { Rol } from "@/lib/tipos-auth";
 import { Esqueleto, RegionCargando } from "./Esqueleto";
@@ -13,7 +13,29 @@ import { useSesion } from "./SesionProvider";
  * muestra "No tienes acceso". La autorización real la hace siempre la API.
  * `roles` vacío = cualquier usuario autenticado; `soloPersonal` = cualquier rol de panel.
  */
-export function GuardiaSesion({
+export function GuardiaSesion(props: {
+  roles?: Rol[];
+  soloPersonal?: boolean;
+  children: ReactNode;
+}) {
+  // usePathname solo existe al responder la petición: va dentro de Suspense para poder prerenderizar.
+  return (
+    <Suspense fallback={<CargandoSesion />}>
+      <Guardia {...props} />
+    </Suspense>
+  );
+}
+
+function CargandoSesion() {
+  return (
+    <RegionCargando etiqueta="Verificando tu sesión">
+      <Esqueleto className="h-8 w-64" />
+      <Esqueleto className="mt-4 h-40 w-full" />
+    </RegionCargando>
+  );
+}
+
+function Guardia({
   roles = [],
   soloPersonal = false,
   children,
@@ -32,14 +54,7 @@ export function GuardiaSesion({
     }
   }, [estado, router, ruta]);
 
-  if (estado !== "autenticado") {
-    return (
-      <RegionCargando etiqueta="Verificando tu sesión">
-        <Esqueleto className="h-8 w-64" />
-        <Esqueleto className="mt-4 h-40 w-full" />
-      </RegionCargando>
-    );
-  }
+  if (estado !== "autenticado") return <CargandoSesion />;
 
   const permitido =
     (roles.length === 0 || tieneRol(...roles)) && (!soloPersonal || esPersonal);
