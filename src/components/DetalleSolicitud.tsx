@@ -8,6 +8,7 @@ import { EstadoError } from "@/components/EstadoError";
 import { DialogoConfirmacion } from "@/components/DialogoConfirmacion";
 import { InsigniaEstado } from "@/components/InsigniaEstado";
 import { LineaTiempoSolicitud } from "@/components/LineaTiempoSolicitud";
+import { PanelPago } from "@/components/PanelPago";
 import { ResumenCotizacion } from "@/components/ResumenCotizacion";
 import { Alerta, Boton } from "@/components/formularios";
 import { useSesion } from "@/components/SesionProvider";
@@ -252,6 +253,10 @@ export function DetalleSolicitud({
       )}
 
       {s.cotizacion && <ResumenCotizacion cotizacion={s.cotizacion} esExenta={s.esExenta} />}
+
+      {modo === "solicitante" && !s.esExenta && (s.estado === "COTIZADA" || s.estado === "PAGO_PENDIENTE") && (
+        <PanelPago solicitudId={s.id} consecutivo={s.consecutivo} alCambiar={recargar} />
+      )}
 
       <DialogoConfirmacion
         abierto={accion === "cancelar"}
