@@ -50,6 +50,10 @@ export type OpcionesApi = Omit<RequestInit, "body"> & {
   query?: Record<string, string | number | boolean | null | undefined>;
   /** Cuerpo JSON. */
   json?: unknown;
+  /** Cuerpo multipart (subida de archivos). El navegador fija el Content-Type. */
+  formData?: FormData;
+  /** Devuelve el cuerpo como Blob (descarga de PDF o comprobantes). */
+  blob?: boolean;
 };
 
 function construirUrl(ruta: string, query?: OpcionesApi["query"]): string {
@@ -115,7 +119,7 @@ async function aErrorApi(res: Response): Promise<ErrorApi> {
 }
 
 export async function api<T>(ruta: string, opciones: OpcionesApi = {}): Promise<T> {
-  const { query, json, headers, ...resto } = opciones;
+  const { query, json, formData, blob, headers, ...resto } = opciones;
 
   const ejecutar = () => {
     const cabeceras = new Headers(headers);
@@ -128,7 +132,7 @@ export async function api<T>(ruta: string, opciones: OpcionesApi = {}): Promise<
       ...resto,
       headers: cabeceras,
       credentials: typeof window === "undefined" ? undefined : "include",
-      body: json !== undefined ? JSON.stringify(json) : undefined,
+      body: formData ?? (json !== undefined ? JSON.stringify(json) : undefined),
     });
   };
 
@@ -149,5 +153,6 @@ export async function api<T>(ruta: string, opciones: OpcionesApi = {}): Promise<
 
   if (!res.ok) throw await aErrorApi(res);
   if (res.status === 204) return undefined as T;
+  if (blob) return (await res.blob()) as T;
   return (await res.json()) as T;
 }
