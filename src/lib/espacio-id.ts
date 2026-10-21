@@ -29,13 +29,22 @@ async function cargarMapa(): Promise<Map<string, string>> {
   return new Map(r.espacios.map((e) => [e.codigo, e.espacioId]));
 }
 
-export async function resolverEspacioId(codigo: string): Promise<string | null> {
-  const codigoNormal = codigo.toUpperCase();
+async function mapa(): Promise<Map<string, string>> {
   if (!cache || cache.hasta < Date.now()) {
     pendiente ??= cargarMapa().finally(() => {
       pendiente = null;
     });
     cache = { mapa: await pendiente, hasta: Date.now() + VIGENCIA_MS };
   }
-  return cache.mapa.get(codigoNormal) ?? null;
+  return cache.mapa;
+}
+
+export async function resolverEspacioId(codigo: string): Promise<string | null> {
+  return (await mapa()).get(codigo.toUpperCase()) ?? null;
+}
+
+/** Para mostrar el código de un espacio a partir del id que traen las reservas. */
+export async function resolverCodigoPorId(espacioId: string): Promise<string | null> {
+  for (const [codigo, id] of await mapa()) if (id === espacioId) return codigo;
+  return null;
 }

@@ -53,3 +53,57 @@ export const cancelarSolicitud = (id: string, motivo: string) =>
     method: "POST",
     json: { motivo },
   });
+
+export type CrearSolicitud = Esquemas["CrearSolicitudDto"];
+export type ActualizarSolicitud = Esquemas["ActualizarSolicitudDto"];
+export type SolicitudEnviada = Esquemas["SolicitudEnviadaDto"];
+export type Documento = Esquemas["DocumentoDto"];
+export type TipoDocumento = Documento["tipo"];
+
+export const TIPOS_DOCUMENTO: Record<TipoDocumento, string> = {
+  CARTA_SOLICITUD: "Carta de solicitud",
+  RUT: "RUT",
+  CAMARA_COMERCIO: "Cámara de comercio",
+  CEDULA_REPRESENTANTE: "Cédula del representante",
+  POLIZA: "Póliza",
+  ORDEN_SERVICIO: "Orden de servicio",
+  OTRO: "Otro documento",
+};
+
+const ruta = (id: string) => `/solicitudes/${encodeURIComponent(id)}`;
+
+export const crearSolicitud = (datos: CrearSolicitud) =>
+  api<Solicitud>("/solicitudes", { method: "POST", json: datos });
+
+export const actualizarSolicitud = (id: string, datos: ActualizarSolicitud) =>
+  api<Solicitud>(ruta(id), { method: "PATCH", json: datos });
+
+export const agregarReserva = (id: string, espacioId: string, inicio: string, fin: string) =>
+  api<ReservaItem>(`${ruta(id)}/reservas`, { method: "POST", json: { espacioId, inicio, fin } });
+
+export const quitarReserva = (id: string, itemId: string) =>
+  api<void>(`${ruta(id)}/reservas/${encodeURIComponent(itemId)}`, { method: "DELETE" });
+
+export const agregarServicio = (id: string, servicioId: string, cantidad: number) =>
+  api<ServicioItem>(`${ruta(id)}/servicios`, { method: "POST", json: { servicioId, cantidad } });
+
+export const quitarServicio = (id: string, itemId: string) =>
+  api<void>(`${ruta(id)}/servicios/${encodeURIComponent(itemId)}`, { method: "DELETE" });
+
+export const enviarSolicitud = (id: string) =>
+  api<SolicitudEnviada>(`${ruta(id)}/enviar`, { method: "POST" });
+
+export const listarDocumentos = (id: string) => api<Documento[]>(`${ruta(id)}/documentos`);
+
+export function subirDocumento(id: string, tipo: TipoDocumento, archivo: File) {
+  const formulario = new FormData();
+  formulario.set("tipo", tipo);
+  formulario.set("archivo", archivo);
+  return api<Documento>(`${ruta(id)}/documentos`, { method: "POST", formData: formulario });
+}
+
+export const quitarDocumento = (id: string, documentoId: string) =>
+  api<void>(`${ruta(id)}/documentos/${encodeURIComponent(documentoId)}`, { method: "DELETE" });
+
+export const descargarCotizacionPdf = (id: string) =>
+  api<Blob>(`${ruta(id)}/cotizacion.pdf`, { blob: true });
