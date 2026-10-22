@@ -22,6 +22,7 @@
 
   --font-titulo: var(--font-raleway), ui-sans-serif, system-ui, sans-serif;
   --font-texto: var(--font-roboto), ui-sans-serif, system-ui, sans-serif;
+  --font-marca: var(--font-montserrat), var(--font-raleway), ui-sans-serif, system-ui, sans-serif;
 
   --shadow-tarjeta: 0 1px 2px rgb(11 46 64 / 6%), 0 8px 24px -12px rgb(11 46 64 / 22%);
   --shadow-elevada: 0 2px 4px rgb(11 46 64 / 8%), 0 18px 40px -16px rgb(11 46 64 / 35%);

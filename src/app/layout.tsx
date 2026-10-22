@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Raleway, Roboto } from "next/font/google";
+import { Montserrat, Raleway, Roboto } from "next/font/google";
 import { Avisos } from "@/components/Avisos";
 import { SesionProvider } from "@/components/SesionProvider";
 import "./globals.css";
@@ -8,6 +8,14 @@ const raleway = Raleway({
   variable: "--font-raleway",
   subsets: ["latin"],
   weight: ["600", "700", "800", "900"],
+  display: "swap",
+});
+
+/** Lo más parecido en Google Fonts al rótulo del logo (Heavitas, que no se puede usar como fuente web). */
+const montserrat = Montserrat({
+  variable: "--font-montserrat",
+  subsets: ["latin"],
+  weight: ["800", "900"],
   display: "swap",
 });
 
@@ -29,7 +37,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="es" className={`${raleway.variable} ${roboto.variable}`}>
+    <html lang="es" className={`${raleway.variable} ${roboto.variable} ${montserrat.variable}`}>
       <body className="flex min-h-dvh flex-col bg-fondo font-texto text-texto antialiased">
         <SesionProvider>{children}</SesionProvider>
         <Avisos />

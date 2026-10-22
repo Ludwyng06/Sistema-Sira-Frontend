@@ -56,14 +56,14 @@ export function Marca({
           variante === "blanco" ? "border-white/70 text-white" : "border-azul text-tinta",
         )}
       >
-        <span className={clsx("font-titulo font-black tracking-tight", grande ? "text-2xl" : "text-base")}>
+        <span className={clsx("font-marca font-black tracking-tight", grande ? "text-2xl" : "text-base")}>
           UNI
         </span>
-        <span className={clsx("font-titulo font-black tracking-tight", grande ? "text-4xl" : "text-xl")}>
+        <span className={clsx("font-marca font-black tracking-tight", grande ? "text-4xl" : "text-xl")}>
           PUTUMAYO
         </span>
         {detalle && (
-          <span className={clsx("mt-1 font-medium", grande ? "text-sm" : "text-xs")}>{detalle}</span>
+          <span className={clsx("mt-1 font-texto font-medium", grande ? "text-sm" : "text-xs")}>{detalle}</span>
         )}
       </span>
     </span>
