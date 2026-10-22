@@ -80,6 +80,41 @@ export function Selector({
   );
 }
 
+/** Horarios de 6:00 a. m. a 10:00 p. m., cada 15 minutos. Valor "HH:MM" (hora de Bogotá). */
+const HORARIOS = Array.from({ length: (22 - 6) * 4 + 1 }, (_, i) => {
+  const minutos = 6 * 60 + i * 15;
+  return etiquetaHora(`${String(Math.floor(minutos / 60)).padStart(2, "0")}:${String(minutos % 60).padStart(2, "0")}`);
+});
+
+function etiquetaHora(valor: string): { valor: string; texto: string } {
+  const [h, m] = valor.split(":").map(Number) as [number, number];
+  return { valor, texto: `${h % 12 || 12}:${String(m).padStart(2, "0")} ${h < 12 ? "a. m." : "p. m."}` };
+}
+
+/**
+ * Selector de hora propio: igual en todos los navegadores y con el formato de la Institución
+ * ("8:00 a. m."). Reemplaza al selector nativo, que se ve distinto en cada navegador.
+ */
+export function CampoHora({
+  id,
+  etiqueta,
+  ayuda,
+  ...props
+}: Omit<ComponentProps<"select">, "id" | "children"> & { id: string; etiqueta: string; ayuda?: string }) {
+  const actual = String(props.value ?? props.defaultValue ?? "");
+  const opciones =
+    actual && !HORARIOS.some((h) => h.valor === actual) ? [...HORARIOS, etiquetaHora(actual)].sort((x, y) => x.valor.localeCompare(y.valor)) : HORARIOS;
+  return (
+    <Selector id={id} etiqueta={etiqueta} ayuda={ayuda} {...props}>
+      {opciones.map((h) => (
+        <option key={h.valor} value={h.valor}>
+          {h.texto}
+        </option>
+      ))}
+    </Selector>
+  );
+}
+
 export function AreaTexto({
   id,
   etiqueta,

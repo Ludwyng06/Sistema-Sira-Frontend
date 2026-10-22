@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { CalendarioEspacio } from "@/components/CalendarioEspacio";
 import { IndicadorAforo } from "@/components/IndicadorAforo";
-import { Alerta, Boton, Campo, Selector } from "@/components/formularios";
+import { Alerta, Boton, Campo, CampoHora, Selector } from "@/components/formularios";
 import { ErrorApi } from "@/lib/api";
 import { resolverCodigoPorId, resolverEspacioId } from "@/lib/espacio-id";
 import { fecha, hora, pesos } from "@/lib/formato";
@@ -172,17 +172,15 @@ export function PasoHorario({
             value={franja.dia}
             onChange={(e) => setFranja({ ...franja, dia: e.target.value })}
           />
-          <Campo
+          <CampoHora
             id="horaInicio"
             etiqueta="Desde"
-            type="time"
             value={franja.horaInicio}
             onChange={(e) => setFranja({ ...franja, horaInicio: e.target.value })}
           />
-          <Campo
+          <CampoHora
             id="horaFin"
             etiqueta="Hasta"
-            type="time"
             value={franja.horaFin}
             onChange={(e) => setFranja({ ...franja, horaFin: e.target.value })}
           />

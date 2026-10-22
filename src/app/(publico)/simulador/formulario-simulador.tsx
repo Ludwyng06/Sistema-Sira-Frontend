@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
-import { Alerta, Boton, Campo, Selector } from "@/components/formularios";
+import { Alerta, Boton, Campo, CampoHora, Selector } from "@/components/formularios";
 import { ErrorApi } from "@/lib/api";
 import { calcularTarifa, type CalcularTarifa, type TarifaCalculada } from "@/lib/disponibilidad";
 import { resolverEspacioId } from "@/lib/espacio-id";
@@ -86,8 +86,8 @@ export function FormularioSimulador({
         </Selector>
         <Campo id="dia" etiqueta="Día del evento" type="date" required />
         <div className="grid gap-4 sm:grid-cols-2">
-          <Campo id="horaInicio" etiqueta="Desde" type="time" defaultValue="08:00" required />
-          <Campo id="horaFin" etiqueta="Hasta" type="time" defaultValue="12:00" required />
+          <CampoHora id="horaInicio" etiqueta="Desde" defaultValue="08:00" required />
+          <CampoHora id="horaFin" etiqueta="Hasta" defaultValue="12:00" required />
         </div>
         {error && <Alerta tipo="error">{error}</Alerta>}
         <Boton type="submit" cargando={enviando}>

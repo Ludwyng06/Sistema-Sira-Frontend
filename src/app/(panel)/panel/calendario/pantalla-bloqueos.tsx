@@ -3,7 +3,7 @@
 import { useState, type FormEvent } from "react";
 import { CalendarioEspacio } from "@/components/CalendarioEspacio";
 import { DialogoConfirmacion } from "@/components/DialogoConfirmacion";
-import { Alerta, AreaTexto, Boton, Campo, Selector } from "@/components/formularios";
+import { Alerta, AreaTexto, Boton, Campo, CampoHora, Selector } from "@/components/formularios";
 import { ErrorApi } from "@/lib/api";
 import {
   anularBloqueo,
@@ -116,8 +116,8 @@ export function PantallaBloqueos({
           />
           <Campo id="dia" etiqueta="Día (o primer día)" type="date" required />
           <div className="grid grid-cols-2 gap-4">
-            <Campo id="horaInicio" etiqueta="Desde" type="time" defaultValue="08:00" required />
-            <Campo id="horaFin" etiqueta="Hasta" type="time" defaultValue="10:00" required />
+            <CampoHora id="horaInicio" etiqueta="Desde" defaultValue="08:00" required />
+            <CampoHora id="horaFin" etiqueta="Hasta" defaultValue="10:00" required />
           </div>
           <Selector id="rrule" etiqueta="Repetición">
             {REPETICIONES.map((r) => (

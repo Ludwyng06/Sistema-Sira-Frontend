@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { Search } from "lucide-react";
 import { EstadoError } from "@/components/EstadoError";
+import { Campo, CampoHora } from "@/components/formularios";
 import { EstadoVacio } from "@/components/EstadoVacio";
 import { IndicadorAforo } from "@/components/IndicadorAforo";
 import { Esqueleto, RegionCargando } from "@/components/Esqueleto";
@@ -55,7 +56,6 @@ async function Contenido({ searchParams }: { searchParams: PageProps<"/buscar">[
       )
     : null;
 
-  const campo = "rounded-lg border border-gris/70 bg-fondo px-3.5 py-2.5 transition-colors hover:border-azul focus:border-azul";
   return (
     <>
       <form
@@ -63,22 +63,20 @@ async function Contenido({ searchParams }: { searchParams: PageProps<"/buscar">[
         method="get"
         className="flex flex-wrap items-end gap-4 rounded-lg border border-gris-claro bg-fondo-suave p-4"
       >
-        <div className="flex flex-col gap-1">
-          <label htmlFor="fecha" className="font-medium">Día</label>
-          <input id="fecha" name="fecha" type="date" required defaultValue={fecha} className={campo} />
-        </div>
-        <div className="flex flex-col gap-1">
-          <label htmlFor="horaInicio" className="font-medium">Desde</label>
-          <input id="horaInicio" name="horaInicio" type="time" required defaultValue={horaInicio ?? "08:00"} className={campo} />
-        </div>
-        <div className="flex flex-col gap-1">
-          <label htmlFor="horaFin" className="font-medium">Hasta</label>
-          <input id="horaFin" name="horaFin" type="time" required defaultValue={horaFin ?? "12:00"} className={campo} />
-        </div>
-        <div className="flex flex-col gap-1">
-          <label htmlFor="asistentes" className="font-medium">Personas</label>
-          <input id="asistentes" name="asistentes" type="number" min={1} inputMode="numeric" required defaultValue={asistentes} placeholder="Ej. 60" className={`${campo} w-28`} />
-        </div>
+        <Campo id="fecha" etiqueta="Día" type="date" required defaultValue={fecha} />
+        <CampoHora id="horaInicio" etiqueta="Desde" required defaultValue={horaInicio ?? "08:00"} />
+        <CampoHora id="horaFin" etiqueta="Hasta" required defaultValue={horaFin ?? "12:00"} />
+        <Campo
+          id="asistentes"
+          etiqueta="Personas"
+          type="number"
+          min={1}
+          inputMode="numeric"
+          required
+          defaultValue={asistentes}
+          placeholder="Ej. 60"
+          className="w-32"
+        />
         <button
           type="submit"
           className="inline-flex items-center gap-2 rounded-lg bg-azul px-5 py-2.5 font-bold text-white shadow-[0_2px_0_0_var(--color-azul-oscuro)] transition duration-200 hover:-translate-y-px hover:bg-azul-oscuro motion-reduce:transition-none motion-reduce:hover:translate-y-0"
