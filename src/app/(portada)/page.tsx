@@ -8,6 +8,7 @@ import { Contenedor } from "@/components/MarcoInstitucional";
 import { TarjetaBloque } from "@/components/TarjetaBloque";
 import { TarjetaEspacio } from "@/components/TarjetaEspacio";
 import { BordeRasgado } from "@/components/marca/BordeRasgado";
+import { EscenaCampus } from "@/components/marca/EscenaCampus";
 import { Logo } from "@/components/marca/Logo";
 import { SolRadial } from "@/components/marca/SolRadial";
 import {
@@ -41,8 +42,11 @@ export default function Inicio(props: PageProps<"/">) {
 function Portada() {
   return (
     <section aria-labelledby="titulo-portada" className="relative overflow-hidden bg-papel">
-      <div className="grid lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)]">
-        <div className="anim-aparecer flex flex-col justify-center gap-6 px-4 py-12 sm:px-6 lg:py-20 lg:pl-[max(1.5rem,calc((100vw-72rem)/2+1.5rem))] lg:pr-14">
+      <div className="grid lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)] xl:grid-cols-[minmax(0,0.85fr)_minmax(0,1.1fr)_minmax(0,0.95fr)]">
+        <div className="hidden xl:block">
+          <EscenaCampus />
+        </div>
+        <div className="anim-aparecer flex flex-col justify-center gap-6 px-4 py-12 sm:px-6 lg:py-20 lg:pl-[max(1.5rem,calc((100vw-72rem)/2+1.5rem))] lg:pr-14 xl:pl-4 xl:pr-12">
           <p className="w-fit border-b-2 border-turquesa pb-1 font-titulo text-sm font-extrabold uppercase tracking-[0.2em] text-azul-oscuro">
             Sede Mocoa · Reserva de espacios
           </p>

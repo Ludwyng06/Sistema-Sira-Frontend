@@ -175,6 +175,69 @@ h4 {
   animation-fill-mode: forwards;
 }
 
+/* Escena del campus (portada): se arma al cargar y luego solo derivan nubes, luces y aves. */
+@keyframes escena-nube {
+  from {
+    transform: translateX(-170px);
+  }
+  to {
+    transform: translateX(570px);
+  }
+}
+@keyframes escena-ave {
+  from {
+    transform: translate(-70px, 12px);
+  }
+  50% {
+    transform: translate(210px, -18px);
+  }
+  to {
+    transform: translate(490px, 8px);
+  }
+}
+@keyframes escena-aleta {
+  from {
+    transform: scaleY(0);
+  }
+  to {
+    transform: scaleY(1);
+  }
+}
+@keyframes escena-luz {
+  0%,
+  100% {
+    opacity: 0;
+  }
+  35%,
+  65% {
+    opacity: 0.85;
+  }
+}
+@keyframes escena-brizna {
+  50% {
+    transform: rotate(7deg);
+  }
+}
+.escena-nube {
+  animation: escena-nube 90s linear infinite;
+}
+.escena-ave {
+  animation: escena-ave 48s linear infinite;
+}
+.escena-aleta {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  animation: escena-aleta 0.9s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+.escena-luz {
+  animation: escena-luz 6s ease-in-out infinite;
+}
+.escena-brizna {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  animation: escena-brizna 4.5s ease-in-out infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
