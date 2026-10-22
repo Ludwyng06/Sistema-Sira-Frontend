@@ -170,3 +170,32 @@ h4 {
 .fc-event.estado-confirmada .fc-event-title {
   color: #fff;
 }
+
+/* FullCalendar con los colores de la U. */
+.fc {
+  --fc-border-color: rgb(178 182 185 / 55%);
+  --fc-button-bg-color: var(--color-azul);
+  --fc-button-border-color: var(--color-azul);
+  --fc-button-hover-bg-color: var(--color-azul-oscuro);
+  --fc-button-hover-border-color: var(--color-azul-oscuro);
+  --fc-button-active-bg-color: var(--color-tinta);
+  --fc-button-active-border-color: var(--color-tinta);
+  --fc-today-bg-color: var(--color-turquesa-suave);
+  --fc-now-indicator-color: var(--color-naranja);
+  --fc-page-bg-color: #fff;
+  font-family: var(--font-texto);
+}
+.fc .fc-toolbar-title {
+  font-family: var(--font-titulo);
+  font-weight: 800;
+  color: var(--color-tinta);
+}
+.fc .fc-button {
+  font-weight: 700;
+  border-radius: 0.5rem;
+}
+.fc .fc-col-header-cell-cushion,
+.fc .fc-daygrid-day-number {
+  color: var(--color-tinta);
+  text-decoration: none;
+}
