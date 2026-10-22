@@ -11,6 +11,8 @@
   --color-tinta: #0b2e40;
   --color-naranja: #f5a51d;
   --color-verde: #80bf1f;
+  --color-error: #b3261e;
+  --color-error-suave: #fdecea;
   --color-gris: #595957;
   --color-gris-claro: #b2b6b9;
   --color-texto: #1d2b33;
@@ -129,6 +131,47 @@ h4 {
 }
 .retardo-3 {
   animation-delay: 0.24s;
+}
+
+/* Avisos flotantes: entran con un pequeño rebote, salen deslizándose y la barra marca el tiempo. */
+@keyframes aviso-entra {
+  from {
+    opacity: 0;
+    transform: translate3d(2.25rem, 0, 0) scale(0.96);
+  }
+  60% {
+    opacity: 1;
+    transform: translate3d(-0.3rem, 0, 0) scale(1.01);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes aviso-sale {
+  to {
+    opacity: 0;
+    transform: translate3d(2.25rem, 0, 0) scale(0.96);
+  }
+}
+@keyframes aviso-barra {
+  from {
+    transform: scaleX(1);
+  }
+  to {
+    transform: scaleX(0);
+  }
+}
+.anim-aviso-entra {
+  animation: aviso-entra 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+.anim-aviso-sale {
+  animation: aviso-sale 0.28s ease-in both;
+}
+.anim-aviso-barra {
+  animation-name: aviso-barra;
+  animation-timing-function: linear;
+  animation-fill-mode: forwards;
 }
 
 @media (prefers-reduced-motion: reduce) {

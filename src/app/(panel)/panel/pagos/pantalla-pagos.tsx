@@ -20,6 +20,7 @@ import {
   type OrdenPagoResumen,
 } from "@/lib/pagos";
 import { useConsulta } from "@/lib/useConsulta";
+import { avisar } from "@/lib/avisos";
 
 const PESTANAS: { estado: EstadoOrden; texto: string }[] = [
   { estado: "EN_VERIFICACION", texto: "Por verificar" },
@@ -35,7 +36,6 @@ export function PantallaPagos() {
   const puedeVerificar = tieneRol("TESORERIA");
   const [estado, setEstado] = useState<EstadoOrden>("EN_VERIFICACION");
   const [pagina, setPagina] = useState(1);
-  const [aviso, setAviso] = useState<string | null>(null);
   const [rechazando, setRechazando] = useState<OrdenPagoResumen | null>(null);
   const [errorSoporte, setErrorSoporte] = useState<string | null>(null);
   const { resultado, recargar } = useConsulta(
@@ -58,7 +58,7 @@ export function PantallaPagos() {
   async function aprobar(orden: OrdenPagoResumen) {
     try {
       await verificarPago(orden.id, "APROBADA");
-      setAviso(`Pago ${orden.referencia} aprobado. La solicitud quedó confirmada.`);
+      avisar.exito(`Pago ${orden.referencia} aprobado. La solicitud quedó confirmada.`);
       recargar();
     } catch (e) {
       setErrorSoporte(e instanceof Error ? e.message : "No pudimos aprobar el pago.");
@@ -94,8 +94,6 @@ export function PantallaPagos() {
           </button>
         ))}
       </div>
-
-      {aviso && <Alerta tipo="exito">{aviso}</Alerta>}
       {errorSoporte && <Alerta tipo="error">{errorSoporte}</Alerta>}
 
       {resultado.estado === "cargando" && (
@@ -183,7 +181,7 @@ export function PantallaPagos() {
         alConfirmar={async (observacion) => {
           if (!rechazando) return;
           await verificarPago(rechazando.id, "RECHAZADA", observacion);
-          setAviso(`Pago ${rechazando.referencia} rechazado. El solicitante podrá generar una nueva orden.`);
+          avisar.exito(`Pago ${rechazando.referencia} rechazado. El solicitante podrá generar una nueva orden.`);
           recargar();
         }}
         alCerrar={() => setRechazando(null)}

@@ -6,6 +6,7 @@ import { useState, type FormEvent } from "react";
 import { Alerta, Boton, Campo } from "@/components/formularios";
 import { useSesion } from "@/components/SesionProvider";
 import { ErrorApi } from "@/lib/api";
+import { avisar } from "@/lib/avisos";
 
 /** Solo rutas internas: evita redirecciones a otros sitios. */
 function destinoSeguro(siguiente?: string): string | null {
@@ -48,7 +49,7 @@ export function FormularioIngreso({
         if (window.location.pathname === "/ingresar") window.location.assign(destino);
       }, 4000);
     } catch (e) {
-      setError(e instanceof ErrorApi ? e.message : "No pudimos iniciar tu sesión. Intenta de nuevo.");
+      avisar.error(e, "No pudimos iniciar tu sesión. Intenta de nuevo.");
       if (e instanceof ErrorApi && e.codigo.includes("CORREO")) setCorreoSinVerificar(correo);
       setEnviando(false);
     }

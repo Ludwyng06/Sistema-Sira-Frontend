@@ -6,7 +6,6 @@ import { ChevronLeft } from "lucide-react";
 import { Esqueleto, RegionCargando } from "@/components/Esqueleto";
 import { EstadoError } from "@/components/EstadoError";
 import { Alerta, AreaTexto, Boton, Campo, Selector } from "@/components/formularios";
-import { ErrorApi } from "@/lib/api";
 import {
   crearActa,
   descargarActaPdf,
@@ -22,6 +21,7 @@ import {
 } from "@/lib/actas";
 import { obtenerSolicitud } from "@/lib/solicitudes";
 import { useConsulta } from "@/lib/useConsulta";
+import { avisar } from "@/lib/avisos";
 
 interface FilaChecklist {
   cantidadEncontrada: string;
@@ -163,7 +163,7 @@ function CuerpoActa({
       });
       setActa(creada);
     } catch (e) {
-      setError(e instanceof ErrorApi ? e.message : "No pudimos guardar el acta. Intenta de nuevo.");
+      avisar.error(e, "No pudimos guardar el acta. Intenta de nuevo.");
     } finally {
       setEnviando(false);
     }
@@ -177,7 +177,7 @@ function CuerpoActa({
       window.open(url, "_blank", "noopener");
       setTimeout(() => URL.revokeObjectURL(url), 60_000);
     } catch (e) {
-      setError(e instanceof ErrorApi ? e.message : "No pudimos abrir el PDF.");
+      avisar.error(e, "No pudimos abrir el PDF.");
     }
   }
 

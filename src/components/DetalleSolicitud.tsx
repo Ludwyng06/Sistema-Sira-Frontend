@@ -10,7 +10,7 @@ import { InsigniaEstado } from "@/components/InsigniaEstado";
 import { LineaTiempoSolicitud } from "@/components/LineaTiempoSolicitud";
 import { PanelPago } from "@/components/PanelPago";
 import { ResumenCotizacion } from "@/components/ResumenCotizacion";
-import { Alerta, Boton } from "@/components/formularios";
+import { Boton } from "@/components/formularios";
 import { useSesion } from "@/components/SesionProvider";
 import { fecha, hora, pesos } from "@/lib/formato";
 import {
@@ -22,6 +22,7 @@ import {
   type SolicitudDetalle,
 } from "@/lib/solicitudes";
 import { useConsulta } from "@/lib/useConsulta";
+import { avisar } from "@/lib/avisos";
 
 type Accion =
   | "cancelar"
@@ -47,7 +48,6 @@ export function DetalleSolicitud({
   const { resultado, recargar } = useConsulta(() => obtenerSolicitud(id), [id]);
   const { tieneRol } = useSesion();
   const [accion, setAccion] = useState<Accion>(null);
-  const [aviso, setAviso] = useState<string | null>(null);
 
   const volver = (
     <Link
@@ -108,13 +108,13 @@ export function DetalleSolicitud({
       resultado: resultadoDecision,
       motivo: motivo || undefined,
     });
-    setAviso("Tu decisión quedó registrada.");
+    avisar.exito("Tu decisión quedó registrada.");
     recargar();
   }
 
   async function cancelar(motivo: string) {
     const r = await cancelarSolicitud(s.id, motivo);
-    setAviso(
+    avisar.exito(
       r.valorReembolso > 0
         ? `Solicitud cancelada. Se reembolsará ${pesos(r.valorReembolso)} (${r.porcentajeReembolso} %).`
         : "Solicitud cancelada.",
@@ -134,8 +134,6 @@ export function DetalleSolicitud({
           <span className="text-gris">{ESTADOS[s.estado].proxima}</span>
         </div>
       </header>
-
-      {aviso && <Alerta tipo="exito">{aviso}</Alerta>}
 
       {(puedeCancelar || puedeDecidir) && (
         <div className="flex flex-wrap gap-3">

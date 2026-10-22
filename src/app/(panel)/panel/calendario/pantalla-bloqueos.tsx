@@ -4,7 +4,6 @@ import { useState, type FormEvent } from "react";
 import { CalendarioEspacio } from "@/components/CalendarioEspacio";
 import { DialogoConfirmacion } from "@/components/DialogoConfirmacion";
 import { Alerta, AreaTexto, Boton, Campo, CampoHora, Selector } from "@/components/formularios";
-import { ErrorApi } from "@/lib/api";
 import {
   anularBloqueo,
   crearBloqueo,
@@ -16,6 +15,7 @@ import { resolverEspacioId } from "@/lib/espacio-id";
 import { fecha, hora } from "@/lib/formato";
 import { useConsulta } from "@/lib/useConsulta";
 import { aInstanteUtc } from "@/lib/zona";
+import { avisar } from "@/lib/avisos";
 
 const REPETICIONES = [
   { valor: "", texto: "No se repite" },
@@ -45,12 +45,18 @@ export function PantallaBloqueos({
     setError(null);
     setAviso(null);
     if (espacioId.resultado.estado !== "listo" || !espacioId.resultado.datos) {
-      return setError("No pudimos identificar el espacio. Intenta de nuevo en unos minutos.");
+      return avisar.errorManual({ titulo: "No pudimos identificar el espacio", porQue: "La conexión con el servidor falló un momento al buscarlo.", queHacer: "Espera unos segundos e inténtalo de nuevo." });
     }
     const dia = texto(d, "dia");
     const repeticion = texto(d, "rrule");
     const hasta = texto(d, "repetirHasta");
-    if (repeticion && !hasta) return setError("Elige hasta qué día se repite el bloqueo.");
+    if (repeticion && !hasta) {
+      return avisar.errorManual({
+        titulo: "Falta la fecha final",
+        porQue: "Un bloqueo que se repite necesita saber hasta cuándo.",
+        queHacer: "Elige el día en “Repetir hasta el”.",
+      });
+    }
     setEnviando(true);
     try {
       const creado = await crearBloqueo({
@@ -64,11 +70,11 @@ export function PantallaBloqueos({
         repetirHasta: repeticion ? aInstanteUtc(hasta, "23:59") : undefined,
       });
       setCreados((previos) => [creado, ...previos]);
-      setAviso(`Bloqueo creado: ${creado.franjasCreadas} ${creado.franjasCreadas === 1 ? "franja" : "franjas"}.`);
+      avisar.exito(`Bloqueo creado: ${creado.franjasCreadas} ${creado.franjasCreadas === 1 ? "franja" : "franjas"}.`);
       setVersion((v) => v + 1);
     } catch (e) {
       // Un choque con una reserva responde 409 con el mensaje de la API.
-      setError(e instanceof ErrorApi ? e.message : "No pudimos crear el bloqueo.");
+      avisar.error(e, "No pudimos crear el bloqueo.");
     } finally {
       setEnviando(false);
     }
@@ -166,7 +172,7 @@ export function PantallaBloqueos({
           if (!anulando) return;
           const r = await anularBloqueo(anulando.id, motivo);
           setCreados((previos) => previos.filter((b) => b.id !== anulando.id));
-          setAviso(`Bloqueo anulado: ${r.franjasLiberadas} franjas volvieron a quedar libres.`);
+          avisar.exito(`Bloqueo anulado: ${r.franjasLiberadas} franjas volvieron a quedar libres.`);
           setVersion((v) => v + 1);
         }}
         alCerrar={() => setAnulando(null)}

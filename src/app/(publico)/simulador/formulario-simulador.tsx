@@ -2,11 +2,11 @@
 
 import { useState, type FormEvent } from "react";
 import { Alerta, Boton, Campo, CampoHora, Selector } from "@/components/formularios";
-import { ErrorApi } from "@/lib/api";
 import { calcularTarifa, type CalcularTarifa, type TarifaCalculada } from "@/lib/disponibilidad";
 import { resolverEspacioId } from "@/lib/espacio-id";
 import { fecha, pesos } from "@/lib/formato";
 import { aInstanteUtc } from "@/lib/zona";
+import { avisar } from "@/lib/avisos";
 
 const SOLICITANTES = [
   { valor: "PERSONA_NATURAL", texto: "Persona natural" },
@@ -48,7 +48,7 @@ export function FormularioSimulador({
       const codigo = String(d.get("espacio"));
       const espacioId = await resolverEspacioId(codigo);
       if (!espacioId) {
-        setError("No pudimos identificar el espacio. Intenta de nuevo en unos minutos.");
+        avisar.errorManual({ titulo: "No pudimos identificar el espacio", porQue: "La conexión con el servidor falló un momento al buscarlo.", queHacer: "Espera unos segundos e inténtalo de nuevo." });
         return;
       }
       const dia = String(d.get("dia"));
@@ -61,7 +61,7 @@ export function FormularioSimulador({
         }),
       );
     } catch (e) {
-      setError(e instanceof ErrorApi ? e.message : "No pudimos calcular la tarifa. Intenta de nuevo.");
+      avisar.error(e, "No pudimos calcular la tarifa. Intenta de nuevo.");
     } finally {
       setEnviando(false);
     }

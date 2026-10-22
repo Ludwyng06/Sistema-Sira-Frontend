@@ -4,6 +4,7 @@ import { useId, useRef, useState, type DragEvent } from "react";
 import clsx from "clsx";
 import { Upload } from "lucide-react";
 import { Alerta } from "./formularios";
+import { avisar } from "@/lib/avisos";
 
 const TIPOS_PERMITIDOS = ["application/pdf", "image/png", "image/jpeg"];
 const TAMANO_MAXIMO = 10 * 1024 * 1024;
@@ -30,11 +31,19 @@ export function CargadorArchivos({
   function recibir(archivo: File | undefined) {
     if (!archivo) return;
     if (!TIPOS_PERMITIDOS.includes(archivo.type)) {
-      setError("Solo se aceptan archivos PDF, PNG o JPG.");
+      avisar.errorManual({
+        titulo: "Ese archivo no sirve",
+        porQue: "Solo aceptamos PDF, PNG o JPG.",
+        queHacer: "Conviértelo a uno de esos formatos o elige otro archivo.",
+      });
       return;
     }
     if (archivo.size > TAMANO_MAXIMO) {
-      setError("El archivo supera los 10 MB. Elige uno más liviano.");
+      avisar.errorManual({
+        titulo: "El archivo pesa demasiado",
+        porQue: "El máximo es de 10 MB por archivo.",
+        queHacer: "Comprímelo o toma una foto más liviana.",
+      });
       return;
     }
     setError(null);

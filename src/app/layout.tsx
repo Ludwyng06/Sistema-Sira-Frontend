@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Raleway, Roboto } from "next/font/google";
+import { Avisos } from "@/components/Avisos";
 import { SesionProvider } from "@/components/SesionProvider";
 import "./globals.css";
 
@@ -31,6 +32,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     <html lang="es" className={`${raleway.variable} ${roboto.variable}`}>
       <body className="flex min-h-dvh flex-col bg-fondo font-texto text-texto antialiased">
         <SesionProvider>{children}</SesionProvider>
+        <Avisos />
       </body>
     </html>
   );

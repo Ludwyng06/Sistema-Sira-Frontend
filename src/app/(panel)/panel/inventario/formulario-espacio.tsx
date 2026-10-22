@@ -5,7 +5,6 @@ import { DialogoConfirmacion } from "@/components/DialogoConfirmacion";
 import { Esqueleto, RegionCargando } from "@/components/Esqueleto";
 import { EstadoError } from "@/components/EstadoError";
 import { Alerta, AreaTexto, Boton, Campo, Selector } from "@/components/formularios";
-import { ErrorApi } from "@/lib/api";
 import {
   actualizarEspacio,
   archivarEspacio,
@@ -17,6 +16,7 @@ import {
 import { listarTiposEspacio, obtenerEspacio } from "@/lib/inventario";
 import { useConsulta } from "@/lib/useConsulta";
 import type { Seleccion } from "./pantalla-inventario";
+import { avisar } from "@/lib/avisos";
 
 const texto = (d: FormData, k: string) => String(d.get(k) ?? "").trim();
 const numero = (d: FormData, k: string) => Number(d.get(k));
@@ -83,7 +83,7 @@ export function FormularioEspacio({
           minutosMontaje: numero(d, "minutosMontaje"),
           minutosDesmontaje: numero(d, "minutosDesmontaje"),
         } as ActualizarEspacio);
-        setAviso("Los cambios del espacio quedaron guardados.");
+        avisar.exito("Los cambios del espacio quedaron guardados.");
       } else {
         const creado = await crearEspacio({
           sede: seleccion.sede,
@@ -101,11 +101,11 @@ export function FormularioEspacio({
           requiereAval: d.get("requiereAval") === "on",
           esReservable: d.get("esReservable") === "on",
         });
-        setAviso(`El espacio ${creado.codigo} se creó.`);
+        avisar.exito(`El espacio ${creado.codigo} se creó.`);
       }
       alCambiar();
     } catch (e) {
-      setError(e instanceof ErrorApi ? e.message : "No pudimos guardar el espacio.");
+      avisar.error(e, "No pudimos guardar el espacio.");
     } finally {
       setEnviando(false);
     }

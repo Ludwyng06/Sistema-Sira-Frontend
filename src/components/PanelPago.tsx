@@ -3,10 +3,10 @@
 import { useState } from "react";
 import { CargadorArchivos } from "@/components/CargadorArchivos";
 import { Alerta, Boton } from "@/components/formularios";
-import { ErrorApi } from "@/lib/api";
 import { fecha, hora, pesos } from "@/lib/formato";
 import { crearOrden, ETIQUETAS_ORDEN, subirSoporte, type OrdenPago } from "@/lib/pagos";
 import { descargarCotizacionPdf } from "@/lib/solicitudes";
+import { avisar } from "@/lib/avisos";
 
 /**
  * Pago por consignación de una solicitud cotizada. En solicitudes exentas este componente no se
@@ -25,7 +25,6 @@ export function PanelPago({
   const [cargando, setCargando] = useState(false);
   const [subiendo, setSubiendo] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [aviso, setAviso] = useState<string | null>(null);
 
   async function obtenerOrden() {
     setCargando(true);
@@ -33,7 +32,7 @@ export function PanelPago({
     try {
       setOrden(await crearOrden(solicitudId));
     } catch (e) {
-      setError(e instanceof ErrorApi ? e.message : "No pudimos generar la orden de pago.");
+      avisar.error(e, "No pudimos generar la orden de pago.");
     } finally {
       setCargando(false);
     }
@@ -45,10 +44,10 @@ export function PanelPago({
     setError(null);
     try {
       setOrden(await subirSoporte(orden.id, archivo));
-      setAviso("Recibimos tu comprobante. Tesorería lo verificará.");
+      avisar.exito("Recibimos tu comprobante. Tesorería lo verificará.");
       alCambiar();
     } catch (e) {
-      setError(e instanceof ErrorApi ? e.message : "No pudimos subir el comprobante.");
+      avisar.error(e, "No pudimos subir el comprobante.");
     } finally {
       setSubiendo(false);
     }
@@ -62,7 +61,7 @@ export function PanelPago({
       window.open(url, "_blank", "noopener");
       setTimeout(() => URL.revokeObjectURL(url), 60_000);
     } catch (e) {
-      setError(e instanceof ErrorApi ? e.message : "No pudimos abrir la cotización.");
+      avisar.error(e, "No pudimos abrir la cotización.");
     }
   }
 
@@ -72,7 +71,6 @@ export function PanelPago({
         Pago
       </h2>
       {error && <Alerta tipo="error">{error}</Alerta>}
-      {aviso && <Alerta tipo="exito">{aviso}</Alerta>}
 
       <div className="flex flex-wrap gap-3">
         <Boton variante="secundario" onClick={abrirCotizacion}>

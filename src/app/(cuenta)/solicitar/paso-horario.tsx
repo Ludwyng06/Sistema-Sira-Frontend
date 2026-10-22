@@ -5,7 +5,6 @@ import { useState } from "react";
 import { CalendarioEspacio } from "@/components/CalendarioEspacio";
 import { IndicadorAforo } from "@/components/IndicadorAforo";
 import { Alerta, Boton, Campo, CampoHora, Selector } from "@/components/formularios";
-import { ErrorApi } from "@/lib/api";
 import { resolverCodigoPorId, resolverEspacioId } from "@/lib/espacio-id";
 import { fecha, hora, pesos } from "@/lib/formato";
 import { obtenerEspacio } from "@/lib/inventario";
@@ -13,6 +12,7 @@ import { agregarReserva, quitarReserva } from "@/lib/solicitudes";
 import { useConsulta } from "@/lib/useConsulta";
 import { aInstanteUtc, partesBogota } from "@/lib/zona";
 import type { ContextoAsistente, EspacioOpcion } from "./asistente";
+import { avisar } from "@/lib/avisos";
 
 interface Franja {
   dia: string;
@@ -71,10 +71,22 @@ export function PasoHorario({
 
   async function agregar() {
     setError(null);
-    if (!personasValidas) return setError("Escribe para cuántas personas es el evento.");
-    if (!seleccion) return setError("Elige el día y una hora de inicio anterior a la de fin.");
+    if (!personasValidas) {
+      return avisar.errorManual({
+        titulo: "Faltan las personas",
+        porQue: "Con ese número vemos si el espacio tiene capacidad y avisamos si sobra demasiado.",
+        queHacer: "Escribe cuántas personas van en el campo de arriba.",
+      });
+    }
+    if (!seleccion) {
+      return avisar.errorManual({
+        titulo: "Falta completar el horario",
+        porQue: "Cada horario necesita un día, una hora de inicio y una hora de fin posterior.",
+        queHacer: "Elige el día y revisa que “Hasta” sea después de “Desde”.",
+      });
+    }
     if (espacioId.resultado.estado !== "listo" || !espacioId.resultado.datos) {
-      return setError("No pudimos identificar el espacio. Intenta de nuevo en unos minutos.");
+      return avisar.errorManual({ titulo: "No pudimos identificar el espacio", porQue: "La conexión con el servidor falló un momento al buscarlo.", queHacer: "Espera unos segundos e inténtalo de nuevo." });
     }
     setAgregando(true);
     try {
@@ -82,8 +94,9 @@ export function PasoHorario({
       await agregarReserva(id, espacioId.resultado.datos, seleccion.inicio, seleccion.fin);
       recargar();
       setFranja((f) => ({ ...f, dia: "" }));
+      avisar.exito("Horario agregado", "Quedó en tu borrador. El espacio se retiene cuando envíes la solicitud, no antes.");
     } catch (e) {
-      setError(e instanceof ErrorApi ? e.message : "No pudimos agregar el horario. Intenta de nuevo.");
+      avisar.error(e, "No pudimos agregar el horario. Intenta de nuevo.");
     } finally {
       setAgregando(false);
     }
@@ -96,7 +109,7 @@ export function PasoHorario({
       await quitarReserva(borrador.id, itemId);
       recargar();
     } catch (e) {
-      setError(e instanceof ErrorApi ? e.message : "No pudimos quitar el horario.");
+      avisar.error(e, "No pudimos quitar el horario.");
     }
   }
 

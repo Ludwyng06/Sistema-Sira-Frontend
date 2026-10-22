@@ -5,7 +5,6 @@ import { CargadorArchivos } from "@/components/CargadorArchivos";
 import { Esqueleto } from "@/components/Esqueleto";
 import { Alerta, Boton, Selector } from "@/components/formularios";
 import { useSesion } from "@/components/SesionProvider";
-import { ErrorApi } from "@/lib/api";
 import {
   actualizarSolicitud,
   listarDocumentos,
@@ -16,6 +15,7 @@ import {
 } from "@/lib/solicitudes";
 import { useConsulta } from "@/lib/useConsulta";
 import type { ContextoAsistente } from "./asistente";
+import { avisar } from "@/lib/avisos";
 
 /**
  * Paso 4: identificación. Quien usa correo institucional declara si el uso es institucional;
@@ -54,7 +54,7 @@ export function PasoIdentificacion({
       await actualizarSolicitud(id, { declaraUsoInstitucional: valor === "INSTITUCIONAL" });
       recargar();
     } catch (e) {
-      setError(e instanceof ErrorApi ? e.message : "No pudimos guardar tu elección.");
+      avisar.error(e, "No pudimos guardar tu elección.");
     }
   }
 
@@ -65,7 +65,7 @@ export function PasoIdentificacion({
       await subirDocumento(id, tipo, archivo);
       documentos.recargar();
     } catch (e) {
-      setError(e instanceof ErrorApi ? e.message : "No pudimos subir el documento.");
+      avisar.error(e, "No pudimos subir el documento.");
     } finally {
       setSubiendo(false);
     }
@@ -77,7 +77,7 @@ export function PasoIdentificacion({
       await quitarDocumento(id, documentoId);
       documentos.recargar();
     } catch (e) {
-      setError(e instanceof ErrorApi ? e.message : "No pudimos quitar el documento.");
+      avisar.error(e, "No pudimos quitar el documento.");
     }
   }
 

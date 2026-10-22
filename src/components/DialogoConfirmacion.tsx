@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useId, useRef, useState, type FormEvent, type ReactNode } from "react";
-import { ErrorApi } from "@/lib/api";
+import { explicarError, type Explicacion } from "@/lib/mensajes";
 import { Alerta, AreaTexto, Boton } from "./formularios";
 
 /**
@@ -35,7 +35,7 @@ export function DialogoConfirmacion({
   const idMotivo = useId();
   const [motivo, setMotivo] = useState("");
   const [enviando, setEnviando] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<Explicacion | null>(null);
 
   useEffect(() => {
     const el = dialogo.current;
@@ -58,7 +58,7 @@ export function DialogoConfirmacion({
       await alConfirmar(motivo.trim());
       cerrar();
     } catch (e) {
-      setError(e instanceof ErrorApi ? e.message : "No pudimos completar la acción. Intenta de nuevo.");
+      setError(explicarError(e, "No pudimos completar la acción. Intenta de nuevo."));
     } finally {
       setEnviando(false);
     }
@@ -86,7 +86,11 @@ export function DialogoConfirmacion({
             required
           />
         )}
-        {error && <Alerta tipo="error">{error}</Alerta>}
+        {error && (
+          <Alerta tipo="error" titulo={error.titulo} queHacer={error.queHacer}>
+            {error.porQue}
+          </Alerta>
+        )}
         <div className="flex flex-wrap justify-end gap-3">
           <Boton variante="secundario" onClick={cerrar} disabled={enviando}>
             Volver

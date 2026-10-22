@@ -15,10 +15,10 @@ import {
   type RolAsignar,
   type UsuarioAdmin,
 } from "@/lib/administracion";
-import { ErrorApi } from "@/lib/api";
 import { fecha } from "@/lib/formato";
 import { ETIQUETAS_ROL, type Rol } from "@/lib/tipos-auth";
 import { useConsulta } from "@/lib/useConsulta";
+import { avisar } from "@/lib/avisos";
 
 const ROLES = Object.keys(ETIQUETAS_ROL) as Rol[];
 const POR_PAGINA = 20;
@@ -26,7 +26,6 @@ const POR_PAGINA = 20;
 export function PantallaConfiguracion() {
   const [busqueda, setBusqueda] = useState("");
   const [pagina, setPagina] = useState(1);
-  const [aviso, setAviso] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [editando, setEditando] = useState<UsuarioAdmin | null>(null);
   const [desactivando, setDesactivando] = useState<UsuarioAdmin | null>(null);
@@ -45,10 +44,10 @@ export function PantallaConfiguracion() {
     setError(null);
     try {
       await cambiarEstadoUsuario(u.id, true);
-      setAviso(`La cuenta de ${u.correo} quedó activa.`);
+      avisar.exito(`La cuenta de ${u.correo} quedó activa.`);
       recargar();
     } catch (e) {
-      setError(e instanceof ErrorApi ? e.message : "No pudimos activar la cuenta.");
+      avisar.error(e, "No pudimos activar la cuenta.");
     }
   }
 
@@ -63,8 +62,6 @@ export function PantallaConfiguracion() {
         <Campo id="busqueda" etiqueta="Buscar por correo o nombre" defaultValue={busqueda} className="w-72" />
         <Boton type="submit">Buscar</Boton>
       </form>
-
-      {aviso && <Alerta tipo="exito">{aviso}</Alerta>}
       {error && <Alerta tipo="error">{error}</Alerta>}
 
       {resultado.estado === "cargando" && (
@@ -131,7 +128,7 @@ export function PantallaConfiguracion() {
         alConfirmar={async () => {
           if (!desactivando) return;
           await cambiarEstadoUsuario(desactivando.id, false);
-          setAviso(`La cuenta de ${desactivando.correo} quedó desactivada y sus sesiones se cerraron.`);
+          avisar.exito(`La cuenta de ${desactivando.correo} quedó desactivada y sus sesiones se cerraron.`);
           recargar();
         }}
         alCerrar={() => setDesactivando(null)}
@@ -147,7 +144,7 @@ export function PantallaConfiguracion() {
           usuario={editando}
           alCerrar={() => setEditando(null)}
           alGuardar={(u) => {
-            setAviso(`Los roles de ${u.correo} se actualizaron.`);
+            avisar.exito(`Los roles de ${u.correo} se actualizaron.`);
             recargar();
           }}
         />
@@ -204,7 +201,7 @@ function EditorRoles({
       alGuardar(actualizado);
       alCerrar();
     } catch (e) {
-      setError(e instanceof ErrorApi ? e.message : "No pudimos guardar los roles.");
+      avisar.error(e, "No pudimos guardar los roles.");
     } finally {
       setGuardando(false);
     }

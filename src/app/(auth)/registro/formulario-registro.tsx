@@ -4,9 +4,9 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 import { Alerta, Boton, Campo, Selector } from "@/components/formularios";
-import { ErrorApi } from "@/lib/api";
 import { registrar } from "@/lib/auth";
 import { VERSION_POLITICA, type Registro } from "@/lib/tipos-auth";
+import { avisar } from "@/lib/avisos";
 
 type TipoElegible = Exclude<Registro["tipo"], "INTERNO">;
 
@@ -66,7 +66,7 @@ export function FormularioRegistro() {
       });
       router.push(`/verificar-correo?correo=${encodeURIComponent(correo)}&enviado=1`);
     } catch (e) {
-      setError(e instanceof ErrorApi ? e.message : "No pudimos crear tu cuenta. Intenta de nuevo.");
+      avisar.error(e, "No pudimos crear tu cuenta. Intenta de nuevo.");
       setEnviando(false);
     }
   }

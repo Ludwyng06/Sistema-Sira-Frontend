@@ -9,6 +9,7 @@ import { fecha, hora, pesos } from "@/lib/formato";
 import { enviarSolicitud, type SolicitudEnviada } from "@/lib/solicitudes";
 import { useConsulta } from "@/lib/useConsulta";
 import type { ContextoAsistente } from "./asistente";
+import { avisar } from "@/lib/avisos";
 
 interface Problema {
   codigo: string;
@@ -67,8 +68,9 @@ export function PasoResumen({
         setProblemas(detalles?.problemas ?? []);
         setConflictos(detalles?.conflictos ?? []);
         setSugerencias(detalles?.sugerencias ?? []);
+        avisar.error(e, "No pudimos enviar la solicitud. Intenta de nuevo.");
       } else {
-        setError("No pudimos enviar la solicitud. Intenta de nuevo.");
+        avisar.error(e, "No pudimos enviar la solicitud. Intenta de nuevo.");
       }
       setEnviando(false);
     }

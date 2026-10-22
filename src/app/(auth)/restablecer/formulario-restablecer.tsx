@@ -4,8 +4,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 import { Alerta, Boton, Campo } from "@/components/formularios";
-import { ErrorApi } from "@/lib/api";
 import { restablecer } from "@/lib/auth";
+import { avisar } from "@/lib/avisos";
 
 export function FormularioRestablecer({ token }: { token?: string }) {
   const router = useRouter();
@@ -42,7 +42,7 @@ export function FormularioRestablecer({ token }: { token?: string }) {
       await restablecer(token as string, contrasena);
       router.push("/ingresar?restablecido=1");
     } catch (e) {
-      setError(e instanceof ErrorApi ? e.message : "No pudimos cambiar tu contraseña. Intenta de nuevo.");
+      avisar.error(e, "No pudimos cambiar tu contraseña. Intenta de nuevo.");
       setEnviando(false);
     }
   }

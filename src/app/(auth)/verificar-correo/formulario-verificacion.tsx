@@ -3,8 +3,8 @@
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 import { Alerta, Boton, Campo } from "@/components/formularios";
-import { ErrorApi } from "@/lib/api";
 import { reenviarCodigo, verificarCorreo } from "@/lib/auth";
+import { avisar } from "@/lib/avisos";
 
 export function FormularioVerificacion({
   correoInicial = "",
@@ -34,14 +34,18 @@ export function FormularioVerificacion({
       });
       router.push("/ingresar?verificado=1");
     } catch (e) {
-      setError(e instanceof ErrorApi ? e.message : "No pudimos verificar el código. Intenta de nuevo.");
+      avisar.error(e, "No pudimos verificar el código. Intenta de nuevo.");
       setEnviando(false);
     }
   }
 
   async function reenviar() {
     if (!correo.trim()) {
-      setError("Escribe tu correo para reenviarte el código.");
+      avisar.errorManual({
+        titulo: "Falta tu correo",
+        porQue: "El código se envía al correo con el que te registraste.",
+        queHacer: "Escríbelo en el primer campo y vuelve a pulsar “Reenviar el código”.",
+      });
       return;
     }
     setReenviando(true);
@@ -50,7 +54,7 @@ export function FormularioVerificacion({
       const respuesta = await reenviarCodigo(correo.trim());
       setAviso(respuesta.mensaje);
     } catch (e) {
-      setError(e instanceof ErrorApi ? e.message : "No pudimos reenviar el código. Intenta de nuevo.");
+      avisar.error(e, "No pudimos reenviar el código. Intenta de nuevo.");
     } finally {
       setReenviando(false);
     }

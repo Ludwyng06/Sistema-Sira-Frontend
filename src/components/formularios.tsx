@@ -1,5 +1,5 @@
 import clsx from "clsx";
-import { CircleAlert, CircleCheck, Loader2 } from "lucide-react";
+import { CircleAlert, CircleCheck, Loader2, X } from "lucide-react";
 import type { ComponentProps, ReactNode } from "react";
 
 const claseControl =
@@ -158,12 +158,21 @@ export function AreaTexto({
   );
 }
 
-/** Mensaje de la API o de éxito; nunca solo color: lleva ícono y texto. */
+/**
+ * Mensaje dentro de la página. Con `titulo` y `queHacer` explica qué pasó y qué sigue;
+ * con `onCerrar` se puede descartar. Nunca depende solo del color: lleva ícono y texto.
+ */
 export function Alerta({
   tipo,
+  titulo,
+  queHacer,
+  onCerrar,
   children,
 }: {
   tipo: "error" | "exito" | "info";
+  titulo?: string;
+  queHacer?: string;
+  onCerrar?: () => void;
   children: ReactNode;
 }) {
   const Icono = tipo === "exito" ? CircleCheck : CircleAlert;
@@ -171,14 +180,43 @@ export function Alerta({
     <div
       role={tipo === "error" ? "alert" : "status"}
       className={clsx(
-        "flex items-start gap-2 rounded-lg border-l-4 bg-fondo-suave px-4 py-3",
-        tipo === "error" && "border-azul-oscuro",
-        tipo === "exito" && "border-verde",
-        tipo === "info" && "border-naranja",
+        "anim-aparecer relative flex items-start gap-3 overflow-hidden rounded-xl bg-fondo-suave py-3 pl-5 pr-4",
+        onCerrar && "pr-11",
       )}
     >
-      <Icono aria-hidden className="mt-0.5 size-5 shrink-0 text-azul-oscuro" />
-      <div>{children}</div>
+      <span
+        aria-hidden
+        className={clsx(
+          "absolute inset-y-0 left-0 w-1.5",
+          tipo === "error" && "bg-error",
+          tipo === "exito" && "bg-verde",
+          tipo === "info" && "bg-naranja",
+        )}
+      />
+      <Icono
+        aria-hidden
+        className={clsx("mt-0.5 size-5 shrink-0", tipo === "error" ? "text-error" : "text-azul-oscuro")}
+      />
+      <div className="flex flex-col gap-1">
+        {titulo && <p className="font-titulo font-extrabold text-tinta">{titulo}</p>}
+        <div>{children}</div>
+        {queHacer && (
+          <p className="text-sm">
+            <span className="font-bold text-azul-oscuro">Qué hacer: </span>
+            {queHacer}
+          </p>
+        )}
+      </div>
+      {onCerrar && (
+        <button
+          type="button"
+          onClick={onCerrar}
+          aria-label="Cerrar mensaje"
+          className="absolute right-2 top-2 flex size-8 items-center justify-center rounded-full text-gris hover:bg-white hover:text-tinta"
+        >
+          <X aria-hidden className="size-5" />
+        </button>
+      )}
     </div>
   );
 }

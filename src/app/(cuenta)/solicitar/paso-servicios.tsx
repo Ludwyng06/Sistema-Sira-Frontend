@@ -4,12 +4,12 @@ import { useState } from "react";
 import { Esqueleto, RegionCargando } from "@/components/Esqueleto";
 import { EstadoError } from "@/components/EstadoError";
 import { Alerta, Boton, Campo } from "@/components/formularios";
-import { ErrorApi } from "@/lib/api";
 import { pesos } from "@/lib/formato";
 import { CATEGORIAS, listarServicios, UNIDADES_COBRO } from "@/lib/servicios";
 import { agregarServicio, quitarServicio } from "@/lib/solicitudes";
 import { useConsulta } from "@/lib/useConsulta";
 import type { ContextoAsistente } from "./asistente";
+import { avisar } from "@/lib/avisos";
 
 /** Paso 2: servicios complementarios (opcional). */
 export function PasoServicios({
@@ -36,7 +36,7 @@ export function PasoServicios({
       await agregarServicio(borrador!.id, servicioId, Number(cantidades[servicioId] ?? 1) || 1);
       recargar();
     } catch (e) {
-      setError(e instanceof ErrorApi ? e.message : "No pudimos agregar el servicio.");
+      avisar.error(e, "No pudimos agregar el servicio.");
     } finally {
       setOcupado(null);
     }
@@ -48,7 +48,7 @@ export function PasoServicios({
       await quitarServicio(borrador!.id, itemId);
       recargar();
     } catch (e) {
-      setError(e instanceof ErrorApi ? e.message : "No pudimos quitar el servicio.");
+      avisar.error(e, "No pudimos quitar el servicio.");
     }
   }
 

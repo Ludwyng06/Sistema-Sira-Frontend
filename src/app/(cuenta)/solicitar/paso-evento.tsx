@@ -2,9 +2,9 @@
 
 import { useState, type FocusEvent, type FormEvent } from "react";
 import { Alerta, AreaTexto, Boton, Campo } from "@/components/formularios";
-import { ErrorApi } from "@/lib/api";
 import { actualizarSolicitud, type ActualizarSolicitud } from "@/lib/solicitudes";
 import { TITULO_PROVISIONAL, type ContextoAsistente } from "./asistente";
+import { avisar } from "@/lib/avisos";
 
 const texto = (d: FormData, k: string) => String(d.get(k) ?? "").trim();
 
@@ -56,7 +56,7 @@ export function PasoEvento({
       alContinuar();
     } catch (e) {
       // Lo escrito se conserva: el formulario no se reinicia.
-      setError(e instanceof ErrorApi ? e.message : "No pudimos guardar los datos. Intenta de nuevo.");
+      avisar.error(e, "No pudimos guardar los datos. Intenta de nuevo.");
       setEnviando(false);
     }
   }

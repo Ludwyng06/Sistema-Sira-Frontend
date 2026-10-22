@@ -3,8 +3,8 @@
 import Link from "next/link";
 import { useState, type FormEvent } from "react";
 import { Alerta, Boton, Campo } from "@/components/formularios";
-import { ErrorApi } from "@/lib/api";
 import { recuperar } from "@/lib/auth";
+import { avisar } from "@/lib/avisos";
 
 export function FormularioRecuperar() {
   const [enviando, setEnviando] = useState(false);
@@ -20,7 +20,7 @@ export function FormularioRecuperar() {
       const respuesta = await recuperar(String(datos.get("correo") ?? "").trim());
       setMensaje(respuesta.mensaje);
     } catch (e) {
-      setError(e instanceof ErrorApi ? e.message : "No pudimos enviar el enlace. Intenta de nuevo.");
+      avisar.error(e, "No pudimos enviar el enlace. Intenta de nuevo.");
     } finally {
       setEnviando(false);
     }
