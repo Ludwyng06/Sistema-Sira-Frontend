@@ -12,7 +12,7 @@ const unico = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v
 export default function Solicitar(props: PageProps<"/solicitar">) {
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="text-3xl font-extrabold sm:text-4xl">Solicitar un espacio</h1>
+      <h1 className="text-4xl font-black sm:text-5xl">Solicitar un espacio</h1>
       <Suspense
         fallback={
           <RegionCargando etiqueta="Cargando el asistente">

@@ -20,7 +20,7 @@ export default function Buscar(props: PageProps<"/buscar">) {
   return (
     <div className="flex flex-col gap-8">
       <header className="flex flex-col gap-2">
-        <h1 className="text-3xl font-extrabold sm:text-4xl">Buscar por fecha y hora</h1>
+        <h1 className="text-4xl font-black sm:text-5xl">Buscar por fecha y hora</h1>
         <p className="max-w-prose text-gris">
           Dinos cuándo es tu evento y cuántas personas van. Te mostramos los espacios libres donde
           caben, del que mejor se ajusta al que más espacio deja.
@@ -55,7 +55,7 @@ async function Contenido({ searchParams }: { searchParams: PageProps<"/buscar">[
       )
     : null;
 
-  const campo = "rounded border border-gris bg-fondo px-3 py-2";
+  const campo = "rounded-lg border border-gris/70 bg-fondo px-3.5 py-2.5 transition-colors hover:border-azul focus:border-azul";
   return (
     <>
       <form
@@ -81,7 +81,7 @@ async function Contenido({ searchParams }: { searchParams: PageProps<"/buscar">[
         </div>
         <button
           type="submit"
-          className="inline-flex items-center gap-2 rounded bg-azul px-4 py-2 font-medium text-white hover:bg-azul-oscuro"
+          className="inline-flex items-center gap-2 rounded-lg bg-azul px-5 py-2.5 font-bold text-white shadow-[0_2px_0_0_var(--color-azul-oscuro)] transition duration-200 hover:-translate-y-px hover:bg-azul-oscuro motion-reduce:transition-none motion-reduce:hover:translate-y-0"
         >
           <Search aria-hidden className="size-4" />
           Buscar

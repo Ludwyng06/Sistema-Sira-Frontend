@@ -79,7 +79,7 @@ export function CentroNotificaciones() {
                   )}
                 >
                   <p className="font-bold">
-                    {!n.leida && <span className="mr-2 rounded bg-azul px-2 py-0.5 text-sm text-white">Nueva</span>}
+                    {!n.leida && <span className="mr-2 rounded-full bg-azul px-2.5 py-0.5 text-sm font-bold text-white">Nueva</span>}
                     {n.titulo}
                   </p>
                   <p>{n.cuerpo}</p>

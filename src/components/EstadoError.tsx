@@ -32,7 +32,7 @@ export function EstadoError({
         type="button"
         onClick={reintentar}
         disabled={pendiente}
-        className="inline-flex items-center gap-2 rounded bg-azul px-4 py-2 font-medium text-white hover:bg-azul-oscuro disabled:opacity-70"
+        className="inline-flex items-center gap-2 rounded-lg bg-azul px-5 py-2.5 font-bold text-white shadow-[0_2px_0_0_var(--color-azul-oscuro)] transition duration-200 hover:-translate-y-px hover:bg-azul-oscuro motion-reduce:transition-none motion-reduce:hover:translate-y-0 disabled:opacity-70"
       >
         <RotateCw aria-hidden className="size-4" />
         {pendiente ? "Reintentando…" : "Reintentar"}

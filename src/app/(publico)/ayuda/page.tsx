@@ -58,7 +58,7 @@ export default function Ayuda() {
   return (
     <div className="flex flex-col gap-10">
       <header className="flex flex-col gap-2">
-        <h1 className="text-3xl font-extrabold sm:text-4xl">Ayuda</h1>
+        <h1 className="text-4xl font-black sm:text-5xl">Ayuda</h1>
         <p className="max-w-prose text-gris">
           Cómo reservar un espacio de la sede Mocoa, paso a paso.
         </p>

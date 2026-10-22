@@ -26,7 +26,7 @@ export function PantallaActas() {
   return (
     <div className="flex flex-col gap-6">
       <header className="flex flex-col gap-1">
-        <h1 className="text-3xl font-extrabold sm:text-4xl">Actas</h1>
+        <h1 className="text-4xl font-black sm:text-5xl">Actas</h1>
         <p className="text-gris">Entrega y devolución de los espacios y sus elementos.</p>
       </header>
 
@@ -78,7 +78,7 @@ export function PantallaActas() {
                 </p>
                 <Link
                   href={`/panel/actas/${s.id}?tipo=${pestana.tipo}`}
-                  className="w-fit rounded bg-azul px-4 py-2 font-medium text-white hover:bg-azul-oscuro"
+                  className="w-fit rounded-lg bg-azul px-5 py-2.5 font-bold text-white shadow-[0_2px_0_0_var(--color-azul-oscuro)] transition duration-200 hover:-translate-y-px hover:bg-azul-oscuro motion-reduce:transition-none motion-reduce:hover:translate-y-0"
                 >
                   {pestana.accion}
                 </Link>

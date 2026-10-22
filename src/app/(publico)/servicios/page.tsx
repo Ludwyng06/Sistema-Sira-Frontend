@@ -18,7 +18,7 @@ export default function PaginaServicios() {
   return (
     <div className="flex flex-col gap-8">
       <header className="flex flex-col gap-2">
-        <h1 className="text-3xl font-extrabold sm:text-4xl">Servicios complementarios</h1>
+        <h1 className="text-4xl font-black sm:text-5xl">Servicios complementarios</h1>
         <p className="max-w-prose text-gris">
           Además del espacio, puedes pedir servicios para tu evento. Los eliges en el paso 2 de la
           solicitud y su valor se confirma en la cotización.

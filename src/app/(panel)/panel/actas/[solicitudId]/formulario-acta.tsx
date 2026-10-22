@@ -89,7 +89,7 @@ export function FormularioActa({
     <div className="flex flex-col gap-6">
       {volver}
       <header className="flex flex-col gap-1">
-        <h1 className="text-3xl font-extrabold sm:text-4xl">{titulo}</h1>
+        <h1 className="text-4xl font-black sm:text-5xl">{titulo}</h1>
         <p className="text-gris">
           {solicitud.consecutivo} · {solicitud.objetoEvento}
         </p>
@@ -197,7 +197,7 @@ function CuerpoActa({
           <Boton onClick={abrirPdf}>Abrir el PDF</Boton>
           <Link
             href="/panel/actas"
-            className="inline-flex items-center rounded border border-azul px-4 py-2 font-medium text-azul-oscuro hover:bg-fondo-suave"
+            className="inline-flex items-center rounded-lg border-2 border-azul px-4 py-2 font-bold text-azul-oscuro hover:bg-turquesa-suave"
           >
             Volver a las actas
           </Link>

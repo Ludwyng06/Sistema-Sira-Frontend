@@ -43,7 +43,7 @@ export function Tablero() {
   return (
     <div className="flex flex-col gap-8">
       <header className="flex flex-col gap-1">
-        <h1 className="text-3xl font-extrabold sm:text-4xl">Tablero</h1>
+        <h1 className="text-4xl font-black sm:text-5xl">Tablero</h1>
         <p className="text-gris">
           Del {fecha(t.desde)} al {fecha(t.hasta)}.
         </p>

@@ -1,11 +1,15 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { connection } from "next/server";
 import { Suspense } from "react";
 import { CalendarDays, ChevronLeft } from "lucide-react";
 import { CalendarioEspacio } from "@/components/CalendarioEspacio";
 import { EstadoError } from "@/components/EstadoError";
 import { Foto } from "@/components/Foto";
 import { IndicadorAforo } from "@/components/IndicadorAforo";
+import { BordeRasgado } from "@/components/marca/BordeRasgado";
+import { IlustracionBloque } from "@/components/marca/IlustracionBloque";
+import { SolRadial } from "@/components/marca/SolRadial";
 import { obtenerEspacio, resolver } from "@/lib/inventario";
 import { pesos } from "@/lib/formato";
 import { resolverEspacioId } from "@/lib/espacio-id";
@@ -53,60 +57,75 @@ async function FichaDelEspacio({ params }: { params: Props["params"] }) {
     return <EstadoError mensaje={resultado.mensaje} />;
   }
   const espacio = resultado.datos;
+  // La búsqueda del id depende de la fecha de hoy: se pide al atender la petición, no al prerenderizar.
+  await connection();
   const espacioId = await resolverEspacioId(espacio.codigo).catch(() => null);
   const volver = `/sedes/${espacio.sede.codigo}/bloques/${espacio.bloque.codigo}`;
   const fotos = espacio.fotos.map((f) => ({ url: f.urlDetalle, alt: f.alt }));
 
   return (
     <div className="flex flex-col gap-8">
-      <Link
-        href={volver}
-        className="inline-flex w-fit items-center gap-1 text-azul-oscuro underline underline-offset-4"
-      >
-        <ChevronLeft aria-hidden className="size-4" />
-        Volver a {espacio.bloque.nombre}
-      </Link>
-
-      <header className="flex flex-col gap-2">
-        <p className="font-bold tracking-wide text-gris">
-          {espacio.codigo} · {espacio.tipo.nombre.toLowerCase()} · piso{" "}
-          {espacio.piso}
-        </p>
-        <h1 className="text-3xl font-extrabold sm:text-4xl">{espacio.nombre}</h1>
-        <IndicadorAforo
-          capacidad={espacio.capacidadPersonas}
-          aforo={espacio.aforo}
-          grande
-        />
+      <header className="sobre-azul relative isolate overflow-hidden rounded-3xl bg-gradient-to-br from-turquesa via-azul to-azul-oscuro text-white shadow-elevada">
+        <div aria-hidden className="absolute inset-0 -z-10">
+          <SolRadial className="absolute -right-16 -top-24 size-80 opacity-[0.16]" />
+          <IlustracionBloque
+            codigo={espacio.bloque.codigo}
+            className="absolute bottom-0 right-6 hidden h-48 w-80 opacity-45 md:block"
+          />
+        </div>
+        <div className="flex flex-col gap-5 px-6 pb-12 pt-6 sm:px-10 sm:pt-8">
+          <Link
+            href={volver}
+            className="inline-flex w-fit items-center gap-1 font-medium text-white underline-offset-4 hover:underline"
+          >
+            <ChevronLeft aria-hidden className="size-4" />
+            Volver a {espacio.bloque.nombre}
+          </Link>
+          <div className="flex flex-col gap-2">
+            <p className="w-fit rounded-full bg-white/15 px-3 py-1 text-sm font-bold tracking-wide">
+              {espacio.codigo} · {espacio.tipo.nombre.toLowerCase()} · piso {espacio.piso}
+            </p>
+            <h1 className="max-w-xl text-4xl font-black leading-[1.02] text-white sm:text-6xl">
+              {espacio.nombre}
+            </h1>
+          </div>
+          <div className="flex flex-wrap items-center gap-4">
+            <div className="rounded-2xl bg-white p-3 pr-5 text-tinta shadow-tarjeta">
+              <IndicadorAforo capacidad={espacio.capacidadPersonas} aforo={espacio.aforo} grande />
+            </div>
+            <Link
+              href={`/solicitar?espacio=${espacio.codigo}`}
+              className="inline-flex items-center gap-2 rounded-lg bg-white px-5 py-3 font-bold text-azul-oscuro transition duration-200 hover:-translate-y-px hover:bg-turquesa-suave motion-reduce:transition-none motion-reduce:hover:translate-y-0"
+            >
+              <CalendarDays aria-hidden className="size-5" />
+              Solicitar este espacio
+            </Link>
+          </div>
+        </div>
+        <BordeRasgado ocupa="abajo" tamano="fino" semilla={espacio.codigo.charCodeAt(2)} className="absolute inset-x-0 bottom-0 text-fondo" />
       </header>
 
-      <section aria-labelledby="titulo-fotos" className="flex flex-col gap-3">
-        <h2 id="titulo-fotos" className="text-2xl font-bold">
-          Fotos
-        </h2>
-        {fotos.length === 0 ? (
-          <Foto
-            foto={null}
-            className="h-48 w-full rounded-lg border border-gris-claro"
-            marcador="Este espacio aún no tiene fotos"
-          />
-        ) : (
+      {fotos.length > 0 && (
+        <section aria-labelledby="titulo-fotos" className="flex flex-col gap-3">
+          <h2 id="titulo-fotos" className="text-2xl font-black">
+            Fotos
+          </h2>
           <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {fotos.map((f) => (
               <li key={f.url}>
-                <Foto foto={f} className="h-48 w-full rounded-lg" />
+                <Foto foto={f} className="h-48 w-full rounded-2xl" />
               </li>
             ))}
           </ul>
-        )}
-      </section>
+        </section>
+      )}
 
       {espacio.descripcion && (
-        <p className="max-w-prose">{espacio.descripcion}</p>
+        <p className="max-w-prose text-lg text-gris">{espacio.descripcion}</p>
       )}
       {espacio.condicionesUso && (
         <section aria-labelledby="titulo-condiciones" className="flex flex-col gap-2">
-          <h2 id="titulo-condiciones" className="text-2xl font-bold">
+          <h2 id="titulo-condiciones" className="text-2xl font-black">
             Condiciones de uso
           </h2>
           <p className="max-w-prose">{espacio.condicionesUso}</p>
@@ -115,7 +134,7 @@ async function FichaDelEspacio({ params }: { params: Props["params"] }) {
 
       <div className="grid gap-8 md:grid-cols-2">
         <section aria-labelledby="titulo-dotacion" className="flex flex-col gap-3">
-          <h2 id="titulo-dotacion" className="text-2xl font-bold">
+          <h2 id="titulo-dotacion" className="text-2xl font-black">
             Dotación
           </h2>
           {espacio.elementos.length === 0 ? (
@@ -136,7 +155,7 @@ async function FichaDelEspacio({ params }: { params: Props["params"] }) {
         </section>
 
         <section aria-labelledby="titulo-tarifas" className="flex flex-col gap-3">
-          <h2 id="titulo-tarifas" className="text-2xl font-bold">
+          <h2 id="titulo-tarifas" className="text-2xl font-black">
             Tarifas
           </h2>
           {espacio.tarifas.length === 0 ? (
@@ -175,7 +194,7 @@ async function FichaDelEspacio({ params }: { params: Props["params"] }) {
       </div>
 
       <section aria-labelledby="titulo-calendario" className="flex flex-col gap-3">
-        <h2 id="titulo-calendario" className="text-2xl font-bold">
+        <h2 id="titulo-calendario" className="text-2xl font-black">
           Disponibilidad
         </h2>
         {espacioId ? (
@@ -187,7 +206,7 @@ async function FichaDelEspacio({ params }: { params: Props["params"] }) {
         )}
         <Link
           href={`/solicitar?espacio=${espacio.codigo}`}
-          className="inline-flex w-fit items-center gap-2 rounded bg-azul px-5 py-3 font-medium text-white hover:bg-azul-oscuro"
+          className="inline-flex w-fit items-center gap-2 rounded-lg bg-azul px-5 py-3 font-bold text-white shadow-[0_2px_0_0_var(--color-azul-oscuro)] transition duration-200 hover:-translate-y-px hover:bg-azul-oscuro motion-reduce:transition-none motion-reduce:hover:translate-y-0"
         >
           <CalendarDays aria-hidden className="size-5" />
           Solicitar este espacio

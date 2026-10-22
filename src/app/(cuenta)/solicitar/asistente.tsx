@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useCallback, useState } from "react";
 import clsx from "clsx";
+import { Check } from "lucide-react";
 import { Esqueleto, RegionCargando } from "@/components/Esqueleto";
 import { EstadoError } from "@/components/EstadoError";
 import { Alerta } from "@/components/formularios";
@@ -102,23 +103,42 @@ export function Asistente({
 
   return (
     <div className="flex flex-col gap-6">
-      <ol aria-label="Pasos de la solicitud" className="flex flex-wrap gap-2">
-        {PASOS.map((nombre, i) => (
-          <li
-            key={nombre}
-            aria-current={i === paso ? "step" : undefined}
-            className={clsx(
-              "flex items-center gap-2 rounded px-3 py-1.5 text-sm font-medium",
-              i === paso ? "bg-azul text-white" : "border border-gris-claro text-gris",
-            )}
-          >
-            <span aria-hidden className="font-bold">
-              {i + 1}
-            </span>
-            {nombre}
-          </li>
-        ))}
-      </ol>
+      <nav aria-label="Avance de la solicitud" className="flex flex-col gap-3">
+        <ol className="grid grid-cols-5 gap-2">
+          {PASOS.map((nombre, i) => (
+            <li key={nombre} aria-current={i === paso ? "step" : undefined} className="flex flex-col gap-2">
+              <span
+                aria-hidden
+                className={clsx(
+                  "h-2 rounded-full transition-colors duration-500",
+                  i < paso ? "bg-azul" : i === paso ? "bg-turquesa" : "bg-gris-claro/50",
+                )}
+              />
+              <span
+                className={clsx(
+                  "hidden items-center gap-2 text-sm font-bold sm:flex",
+                  i === paso ? "text-tinta" : i < paso ? "text-azul-oscuro" : "text-gris",
+                )}
+              >
+                <span
+                  aria-hidden
+                  className={clsx(
+                    "flex size-6 items-center justify-center rounded-full text-xs",
+                    i < paso ? "bg-azul text-white" : i === paso ? "bg-tinta text-white" : "border border-gris-claro",
+                  )}
+                >
+                  {i < paso ? <Check className="size-3.5" /> : i + 1}
+                </span>
+                {nombre}
+              </span>
+              <span className="sr-only sm:hidden">{nombre}</span>
+            </li>
+          ))}
+        </ol>
+        <p className="font-titulo text-2xl font-black text-tinta sm:text-3xl">
+          <span className="text-turquesa">{paso + 1}.</span> {PASOS[paso]}
+        </p>
+      </nav>
 
       <p className="text-sm text-gris">
         Tu borrador se guarda solo. No se retiene el horario hasta que envíes la solicitud.

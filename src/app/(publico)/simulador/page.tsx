@@ -11,7 +11,7 @@ export default function Simulador() {
   return (
     <div className="flex flex-col gap-8">
       <header className="flex flex-col gap-2">
-        <h1 className="text-3xl font-extrabold sm:text-4xl">Simulador de tarifa</h1>
+        <h1 className="text-4xl font-black sm:text-5xl">Simulador de tarifa</h1>
         <p className="max-w-prose text-gris">
           Estima cuánto costaría alquilar un espacio, sin registrarte. El uso institucional no tiene
           costo.

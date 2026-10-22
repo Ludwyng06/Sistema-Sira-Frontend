@@ -55,7 +55,7 @@ export function PantallaConfiguracion() {
   return (
     <div className="flex flex-col gap-6">
       <header className="flex flex-col gap-1">
-        <h1 className="text-3xl font-extrabold sm:text-4xl">Configuración</h1>
+        <h1 className="text-4xl font-black sm:text-5xl">Configuración</h1>
         <p className="text-gris">Usuarios y roles del sistema.</p>
       </header>
 
@@ -239,7 +239,7 @@ function EditorRoles({
                     aria-label={`Dependencia del rol ${ETIQUETAS_ROL[rol]}`}
                     value={seleccion[rol] ?? ""}
                     onChange={(e) => setSeleccion((p) => ({ ...p, [rol]: e.target.value }))}
-                    className="ml-7 rounded border border-gris bg-fondo px-3 py-2"
+                    className="ml-7 rounded-lg border border-gris/70 bg-fondo px-3.5 py-2.5 transition-colors hover:border-azul focus:border-azul"
                     required={rol === "APROBADOR"}
                   >
                     <option value="">

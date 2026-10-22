@@ -45,6 +45,12 @@ h4 {
   letter-spacing: -0.015em;
 }
 
+/* Esta regla queda fuera de las capas de Tailwind y le gana a `text-white`:
+   sobre fondos de marca los títulos se pintan en blanco por la superficie. */
+.sobre-azul :is(h1, h2, h3, h4) {
+  color: #fff;
+}
+
 /* Foco visible con el azul institucional (RNF-09). */
 :focus-visible {
   outline: 3px solid var(--color-azul);

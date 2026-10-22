@@ -104,7 +104,7 @@ export function PasoResumen({
         ))}
         <Link
           href={`/mis-solicitudes/${enviada.id}`}
-          className="w-fit rounded bg-azul px-5 py-3 font-medium text-white hover:bg-azul-oscuro"
+          className="w-fit rounded-lg bg-azul px-5 py-3 font-bold text-white shadow-[0_2px_0_0_var(--color-azul-oscuro)] transition duration-200 hover:-translate-y-px hover:bg-azul-oscuro motion-reduce:transition-none motion-reduce:hover:translate-y-0"
         >
           Ver mi solicitud
         </Link>

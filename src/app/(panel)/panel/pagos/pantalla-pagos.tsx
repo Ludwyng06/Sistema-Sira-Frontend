@@ -68,7 +68,7 @@ export function PantallaPagos() {
   return (
     <div className="flex flex-col gap-6">
       <header className="flex flex-col gap-1">
-        <h1 className="text-3xl font-extrabold sm:text-4xl">Pagos</h1>
+        <h1 className="text-4xl font-black sm:text-5xl">Pagos</h1>
         <p className="text-gris">Verifica las consignaciones de las solicitudes cotizadas.</p>
       </header>
 
