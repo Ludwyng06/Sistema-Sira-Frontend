@@ -6,7 +6,10 @@ import { listarNotificaciones } from "@/lib/notificaciones";
 import { useConsulta } from "@/lib/useConsulta";
 import { useSesion } from "./SesionProvider";
 
-const claseEnlace = "inline-block py-1 font-medium underline-offset-4 hover:underline";
+const claseEnlace =
+  "relative inline-block py-1 font-medium text-white/90 hover:text-white after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 after:origin-left after:scale-x-0 after:bg-white after:transition-transform after:duration-300 hover:after:scale-x-100 motion-reduce:after:transition-none";
+const clasePildora =
+  "inline-flex items-center rounded-full bg-white px-4 py-1.5 font-bold text-azul-oscuro transition-colors hover:bg-turquesa-suave";
 
 /** Se monta solo con sesión: pide el conteo de no leídas. */
 function EnlaceNotificaciones() {
@@ -67,18 +70,18 @@ export function NavegacionPrincipal() {
             <li>
               <EnlaceNotificaciones />
             </li>
-            <li className="text-sm" aria-label="Sesión iniciada">
+            <li className="hidden max-w-[14rem] truncate text-sm text-white/80 lg:block" title={usuario.correo}>
               {usuario.correo}
             </li>
             <li>
-              <button type="button" onClick={cerrarSesion} className={claseEnlace}>
+              <button type="button" onClick={cerrarSesion} className={clasePildora}>
                 Salir
               </button>
             </li>
           </>
         ) : (
           <li>
-            <Link href="/ingresar" className={claseEnlace}>
+            <Link href="/ingresar" className={clasePildora}>
               Ingresar
             </Link>
           </li>

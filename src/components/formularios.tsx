@@ -3,7 +3,7 @@ import { CircleAlert, CircleCheck, Loader2 } from "lucide-react";
 import type { ComponentProps, ReactNode } from "react";
 
 const claseControl =
-  "w-full rounded border border-gris bg-fondo px-3 py-2 text-texto disabled:bg-fondo-suave disabled:text-gris aria-[invalid=true]:border-2 aria-[invalid=true]:border-azul-oscuro";
+  "w-full rounded-lg border border-gris/70 bg-fondo px-3.5 py-2.5 text-texto transition-colors placeholder:text-gris/70 hover:border-azul focus:border-azul disabled:bg-fondo-suave disabled:text-gris aria-[invalid=true]:border-2 aria-[invalid=true]:border-azul-oscuro";
 
 /** Campo con etiqueta visible, ayuda y error enlazados por aria. */
 export function Campo({
@@ -22,7 +22,7 @@ export function Campo({
   const descripcion = [ayuda && `${id}-ayuda`, error && `${id}-error`].filter(Boolean).join(" ");
   return (
     <div className={clsx("flex flex-col gap-1", className)}>
-      <label htmlFor={id} className="font-medium">
+      <label htmlFor={id} className="font-bold text-tinta">
         {etiqueta}
         {props.required && <span aria-hidden> *</span>}
       </label>
@@ -58,7 +58,7 @@ export function Selector({
 }: Omit<ComponentProps<"select">, "id"> & { id: string; etiqueta: string; ayuda?: string }) {
   return (
     <div className={clsx("flex flex-col gap-1", className)}>
-      <label htmlFor={id} className="font-medium">
+      <label htmlFor={id} className="font-bold text-tinta">
         {etiqueta}
         {props.required && <span aria-hidden> *</span>}
       </label>
@@ -96,7 +96,7 @@ export function AreaTexto({
   const descripcion = [ayuda && `${id}-ayuda`, error && `${id}-error`].filter(Boolean).join(" ");
   return (
     <div className={clsx("flex flex-col gap-1", className)}>
-      <label htmlFor={id} className="font-medium">
+      <label htmlFor={id} className="font-bold text-tinta">
         {etiqueta}
         {props.required && <span aria-hidden> *</span>}
       </label>
@@ -136,7 +136,7 @@ export function Alerta({
     <div
       role={tipo === "error" ? "alert" : "status"}
       className={clsx(
-        "flex items-start gap-2 rounded border-l-4 bg-fondo-suave px-4 py-3",
+        "flex items-start gap-2 rounded-lg border-l-4 bg-fondo-suave px-4 py-3",
         tipo === "error" && "border-azul-oscuro",
         tipo === "exito" && "border-verde",
         tipo === "info" && "border-naranja",
@@ -164,11 +164,12 @@ export function Boton({
       type="button"
       disabled={disabled || cargando}
       className={clsx(
-        "inline-flex items-center justify-center gap-2 rounded px-4 py-2 font-medium disabled:opacity-70",
-        variante === "primario" && "bg-azul text-white hover:bg-azul-oscuro",
+        "inline-flex items-center justify-center gap-2 rounded-lg px-5 py-2.5 font-bold transition duration-200 disabled:cursor-not-allowed disabled:opacity-60 motion-reduce:transition-none",
+        variante === "primario" &&
+          "bg-azul text-white shadow-[0_2px_0_0_var(--color-azul-oscuro)] hover:-translate-y-px hover:bg-azul-oscuro active:translate-y-0 motion-reduce:hover:translate-y-0",
         variante === "secundario" &&
-          "border border-azul bg-fondo text-azul-oscuro hover:bg-fondo-suave",
-        variante === "peligro" && "bg-azul-oscuro text-white hover:bg-texto",
+          "border-2 border-azul bg-fondo text-azul-oscuro hover:bg-turquesa-suave",
+        variante === "peligro" && "bg-tinta text-white hover:bg-texto",
         className,
       )}
       {...props}
@@ -179,7 +180,7 @@ export function Boton({
   );
 }
 
-/** Contenedor estrecho para formularios de acceso. */
+/** Encabezado y contenedor de los formularios de acceso (van sobre fondo blanco, sin tarjeta). */
 export function TarjetaFormulario({
   titulo,
   descripcion,
@@ -190,10 +191,10 @@ export function TarjetaFormulario({
   children: ReactNode;
 }) {
   return (
-    <section className="mx-auto flex w-full max-w-xl flex-col gap-5 rounded-lg border border-gris-claro p-6 shadow-sm">
-      <header className="flex flex-col gap-1">
-        <h1 className="text-3xl font-extrabold">{titulo}</h1>
-        {descripcion && <p className="text-gris">{descripcion}</p>}
+    <section className="anim-aparecer flex w-full flex-col gap-6">
+      <header className="flex flex-col gap-2">
+        <h1 className="text-4xl font-black tracking-tight sm:text-5xl">{titulo}</h1>
+        {descripcion && <p className="text-lg text-gris">{descripcion}</p>}
       </header>
       {children}
     </section>

@@ -1,8 +1,24 @@
 import type { ReactNode } from "react";
+import clsx from "clsx";
 import { EncabezadoInstitucional } from "./EncabezadoInstitucional";
 import { PieInstitucional } from "./PieInstitucional";
 
-export function MarcoInstitucional({ children }: { children: ReactNode }) {
+/** Contenedor de ancho normal para el contenido de las páginas. */
+export function Contenedor({ children, className }: { children: ReactNode; className?: string }) {
+  return <div className={clsx("mx-auto w-full max-w-6xl px-4 sm:px-6", className)}>{children}</div>;
+}
+
+/**
+ * Encabezado, contenido y pie. Con `completo` el contenido ocupa todo el ancho
+ * (la portada); cada sección decide su propio contenedor.
+ */
+export function MarcoInstitucional({
+  children,
+  completo = false,
+}: {
+  children: ReactNode;
+  completo?: boolean;
+}) {
   return (
     <>
       <a
@@ -12,10 +28,7 @@ export function MarcoInstitucional({ children }: { children: ReactNode }) {
         Saltar al contenido
       </a>
       <EncabezadoInstitucional />
-      <main
-        id="contenido"
-        className="mx-auto w-full max-w-6xl flex-1 px-4 py-8 sm:px-6"
-      >
+      <main id="contenido" className={clsx("flex-1", !completo && "mx-auto w-full max-w-6xl px-4 py-10 sm:px-6")}>
         {children}
       </main>
       <PieInstitucional />

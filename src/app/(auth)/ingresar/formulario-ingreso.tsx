@@ -40,7 +40,13 @@ export function FormularioIngreso({
         contrasena: String(datos.get("contrasena") ?? ""),
       });
       const personal = usuario.roles.some((r) => r.rol !== "SOLICITANTE");
-      router.push(destinoSeguro(siguiente) ?? (personal ? "/panel" : "/mis-solicitudes"));
+      const destino = destinoSeguro(siguiente) ?? (personal ? "/panel" : "/mis-solicitudes");
+      router.push(destino);
+      // Respaldo: si la navegación del cliente no avanza, se carga la página completa
+      // (la sesión se recupera con la cookie de refresco).
+      setTimeout(() => {
+        if (window.location.pathname === "/ingresar") window.location.assign(destino);
+      }, 4000);
     } catch (e) {
       setError(e instanceof ErrorApi ? e.message : "No pudimos iniciar tu sesión. Intenta de nuevo.");
       if (e instanceof ErrorApi && e.codigo.includes("CORREO")) setCorreoSinVerificar(correo);
