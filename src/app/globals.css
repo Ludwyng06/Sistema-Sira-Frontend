@@ -84,13 +84,37 @@ h4 {
     transform: translateY(-6px);
   }
 }
-.anim-girar {
-  animation: girar 160s linear infinite;
-  transform-origin: center;
+/* Deriva suave del sol: se aleja un poco y vuelve exactamente al mismo lugar. */
+@keyframes deriva {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) rotate(0deg) scale(1);
+  }
+  50% {
+    transform: translate3d(0.7rem, -0.55rem, 0) rotate(5deg) scale(1.035);
+  }
 }
-.anim-girar-inverso {
-  animation: girar 220s linear infinite reverse;
+@keyframes pulso-rayo {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+.anim-deriva {
+  animation: deriva 15s ease-in-out infinite;
   transform-origin: center;
+  will-change: transform;
+}
+.anim-deriva-b {
+  animation: deriva 19s ease-in-out -9s infinite;
+  transform-origin: center;
+  will-change: transform;
+}
+.anim-pulso-rayo {
+  animation: pulso-rayo 5.6s ease-in-out infinite;
 }
 .anim-aparecer {
   animation: aparecer 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) both;

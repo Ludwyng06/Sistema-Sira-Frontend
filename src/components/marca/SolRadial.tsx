@@ -18,27 +18,35 @@ const RAYOS_TRAZADOS = Array.from({ length: RAYOS }, (_, i) => {
 
 /**
  * Sol radial inspirado en el logo de la Institución. Es decorativo (aria-hidden)
- * y toma el color de `currentColor`. Con `girar` rota muy despacio.
+ * y toma el color de `currentColor`. Todo el conjunto (rayos, anillos y arco) se mueve
+ * junto: una deriva lenta de ida y vuelta, casi imperceptible, y una onda tenue de luz
+ * en los rayos. `fase` desfasa el movimiento cuando hay dos soles en la misma pantalla.
  */
 export function SolRadial({
-  girar = true,
+  fase = 0,
   className,
 }: {
-  girar?: boolean;
+  fase?: 0 | 1;
   className?: string;
 }) {
   return (
     <svg
       aria-hidden
       viewBox="-104 -104 208 208"
-      className={clsx("block", className)}
+      className={clsx("block", fase === 1 ? "anim-deriva-b" : "anim-deriva", className)}
       fill="currentColor"
       stroke="currentColor"
       strokeLinejoin="round"
     >
-      <g className={girar ? "anim-girar" : undefined}>
+      <g>
         {RAYOS_TRAZADOS.map((d, i) => (
-          <path key={i} d={d} strokeWidth="2.4" />
+          <path
+            key={i}
+            d={d}
+            strokeWidth="2.4"
+            className="anim-pulso-rayo"
+            style={{ animationDelay: `${(i * 0.28).toFixed(2)}s` }}
+          />
         ))}
       </g>
       <circle r="31" fill="none" strokeWidth="5" />

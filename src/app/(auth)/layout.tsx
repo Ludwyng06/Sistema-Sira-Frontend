@@ -32,7 +32,7 @@ export default function LayoutAuth({ children }: LayoutProps<"/">) {
         <aside className="sobre-azul relative isolate hidden bg-gradient-to-l from-turquesa via-azul to-azul-oscuro text-white lg:flex">
           <div aria-hidden className="absolute inset-0 -z-10 overflow-hidden">
             <SolRadial className="absolute -left-28 -top-32 size-[34rem] opacity-[0.14]" />
-            <SolRadial girar={false} className="absolute -bottom-52 -right-24 size-[26rem] opacity-[0.08]" />
+            <SolRadial fase={1} className="absolute -bottom-52 -right-24 size-[26rem] opacity-[0.08]" />
           </div>
           <BordeRasgado
             orientacion="vertical"

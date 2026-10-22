@@ -104,7 +104,7 @@ function Portada() {
           />
           <div aria-hidden className="absolute inset-0 -z-10 overflow-hidden">
             <SolRadial className="absolute -right-24 -top-28 size-[30rem] opacity-[0.16]" />
-            <SolRadial girar={false} className="absolute -bottom-44 -left-20 size-[24rem] opacity-[0.08]" />
+            <SolRadial fase={1} className="absolute -bottom-44 -left-20 size-[24rem] opacity-[0.08]" />
           </div>
           <div className="flex flex-col items-center gap-7 px-8 py-14 text-center">
             <Logo variante="blanco" alto={150} titulo="Uniputumayo" prioridad className="anim-flotar drop-shadow-lg" />
