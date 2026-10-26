@@ -132,7 +132,7 @@ export function Paginador({
   const paginas = Math.ceil(total / porPagina);
   if (paginas <= 1) return null;
   const clase =
-    "rounded-lg border-2 border-azul px-4 py-2 font-bold text-azul-oscuro hover:bg-turquesa-suave";
+    "rounded-campo border-2 border-azul px-4 py-2 font-bold text-azul-oscuro hover:bg-turquesa-suave";
   return (
     <nav aria-label="Paginación" className="flex flex-wrap items-center gap-4">
       {pagina > 1 && (

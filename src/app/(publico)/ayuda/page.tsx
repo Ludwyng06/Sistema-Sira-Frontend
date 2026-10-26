@@ -70,7 +70,7 @@ export default function Ayuda() {
         </h2>
         <ol className="grid gap-4 sm:grid-cols-2">
           {PASOS.map((p, i) => (
-            <li key={p.titulo} className="flex gap-3 rounded-lg border border-gris-claro p-4">
+            <li key={p.titulo} className="flex gap-3 rounded-campo border border-gris-claro p-4">
               <span
                 aria-hidden
                 className="flex size-8 shrink-0 items-center justify-center rounded-full bg-azul font-bold text-white"
@@ -92,7 +92,7 @@ export default function Ayuda() {
         </h2>
         <div className="flex flex-col gap-3">
           {PREGUNTAS.map((p) => (
-            <details key={p.pregunta} className="rounded-lg border border-gris-claro p-4">
+            <details key={p.pregunta} className="rounded-campo border border-gris-claro p-4">
               <summary className="cursor-pointer py-1 font-medium">{p.pregunta}</summary>
               <p className="mt-2 max-w-prose text-gris">{p.respuesta}</p>
             </details>

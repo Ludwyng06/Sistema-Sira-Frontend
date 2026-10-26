@@ -83,14 +83,14 @@ export function PantallaConfiguracion() {
           <>
             <ul className="flex flex-col gap-3">
               {resultado.datos.datos.map((u) => (
-                <li key={u.id} className="flex flex-col gap-2 rounded-lg border border-gris-claro p-4 shadow-sm">
+                <li key={u.id} className="flex flex-col gap-2 rounded-campo border border-gris-claro p-4 shadow-sm">
                   <div className="flex flex-wrap items-baseline justify-between gap-2">
                     <p className="font-bold text-azul-oscuro">{u.correo}</p>
-                    <p className="rounded border border-gris-claro px-2 text-sm">
+                    <p className="rounded-campo border border-gris-claro px-2 text-base">
                       {u.activo ? "Activa" : "Desactivada"}
                     </p>
                   </div>
-                  <p className="text-sm text-gris">
+                  <p className="text-base text-gris">
                     {u.nombre ?? "Sin perfil"} · {u.roles.length === 0 ? "Sin roles" : u.roles.map((r) => ETIQUETAS_ROL[r.rol]).join(", ")}
                     {u.ultimoIngresoEn && <> · último ingreso {fecha(u.ultimoIngresoEn)}</>}
                   </p>
@@ -212,7 +212,7 @@ function EditorRoles({
       ref={dialogo}
       onClose={alCerrar}
       aria-label={`Roles de ${usuario.correo}`}
-      className="m-auto w-[min(92vw,32rem)] rounded-lg border border-gris-claro p-0 shadow-xl backdrop:bg-texto/50"
+      className="m-auto w-[min(92vw,32rem)] rounded-campo border border-gris-claro p-0 shadow-xl backdrop:bg-texto/50"
     >
       <form onSubmit={guardar} className="flex flex-col gap-4 p-6">
         <h2 className="text-xl font-bold">Roles de {usuario.correo}</h2>
@@ -236,7 +236,7 @@ function EditorRoles({
                     aria-label={`Dependencia del rol ${ETIQUETAS_ROL[rol]}`}
                     value={seleccion[rol] ?? ""}
                     onChange={(e) => setSeleccion((p) => ({ ...p, [rol]: e.target.value }))}
-                    className="ml-7 rounded-lg border border-gris/70 bg-fondo px-3.5 py-2.5 transition-colors hover:border-azul focus:border-azul"
+                    className="ml-7 rounded-campo border border-gris/70 bg-fondo px-3.5 py-2.5 transition-colors hover:border-azul focus:border-azul"
                     required={rol === "APROBADOR"}
                   >
                     <option value="">

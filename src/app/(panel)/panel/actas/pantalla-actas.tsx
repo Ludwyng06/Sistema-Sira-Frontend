@@ -39,7 +39,7 @@ export function PantallaActas() {
             aria-selected={indice === i}
             onClick={() => setIndice(i)}
             className={clsx(
-              "rounded px-4 py-2 font-medium",
+              "rounded-campo px-4 py-2 font-medium",
               indice === i
                 ? "bg-azul text-white"
                 : "border border-gris-claro text-azul-oscuro hover:bg-fondo-suave",
@@ -69,16 +69,16 @@ export function PantallaActas() {
             {resultado.datos.datos.map((s) => (
               <li
                 key={s.id}
-                className="flex flex-col gap-2 rounded-lg border border-gris-claro p-4 shadow-sm"
+                className="flex flex-col gap-2 rounded-campo border border-gris-claro p-4 shadow-sm"
               >
                 <p className="font-bold text-azul-oscuro">{s.consecutivo}</p>
                 <p className="font-medium">{s.objetoEvento}</p>
-                <p className="text-sm text-gris">
+                <p className="text-base text-gris">
                   {s.asistentesEstimados} personas · creada el {fecha(s.creadoEn)}
                 </p>
                 <Link
                   href={`/panel/actas/${s.id}?tipo=${pestana.tipo}`}
-                  className="w-fit rounded-lg bg-azul px-5 py-2.5 font-bold text-white shadow-[0_2px_0_0_var(--color-azul-oscuro)] transition duration-200 hover:-translate-y-px hover:bg-azul-oscuro motion-reduce:transition-none motion-reduce:hover:translate-y-0"
+                  className="w-fit rounded-campo bg-azul px-5 py-2.5 font-bold text-white shadow-[0_2px_0_0_var(--color-azul-oscuro)] transition duration-200 hover:-translate-y-px hover:bg-azul-oscuro motion-reduce:transition-none motion-reduce:hover:translate-y-0"
                 >
                   {pestana.accion}
                 </Link>

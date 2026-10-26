@@ -41,7 +41,7 @@ export function IndicadorAforo({
       {etiqueta && aforo && (
         <p
           className={clsx(
-            "w-fit rounded px-2 py-0.5 text-sm font-medium",
+            "w-fit rounded-campo px-2 py-0.5 text-base font-medium",
             nivel === "NO_CABE" && "border border-dashed border-gris text-gris",
             nivel === "SOBRA_ESPACIO" &&
               "border-l-4 border-naranja bg-fondo-suave text-texto",

@@ -74,16 +74,16 @@ export function CentroNotificaciones() {
                 <li
                   key={n.id}
                   className={clsx(
-                    "flex flex-col gap-1 rounded-lg border p-4",
+                    "flex flex-col gap-1 rounded-campo border p-4",
                     n.leida ? "border-gris-claro" : "border-l-4 border-azul bg-fondo-suave",
                   )}
                 >
                   <p className="font-bold">
-                    {!n.leida && <span className="mr-2 rounded-full bg-azul px-2.5 py-0.5 text-sm font-bold text-white">Nueva</span>}
+                    {!n.leida && <span className="mr-2 rounded-full bg-azul px-2.5 py-0.5 text-base font-bold text-white">Nueva</span>}
                     {n.titulo}
                   </p>
                   <p>{n.cuerpo}</p>
-                  <p className="text-sm text-gris">
+                  <p className="text-base text-gris">
                     {fecha(n.creadaEn)} · {hora(n.creadaEn)}
                   </p>
                   <div className="flex flex-wrap gap-4">

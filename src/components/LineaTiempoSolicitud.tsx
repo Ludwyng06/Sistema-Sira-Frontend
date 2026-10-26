@@ -40,7 +40,7 @@ export function LineaTiempoSolicitud({ solicitud }: { solicitud: SolicitudDetall
             className="absolute -left-[1.6rem] top-1.5 size-3 rounded-full border-2 border-azul bg-fondo"
           />
           <p className="font-medium">{h.titulo}</p>
-          <p className="text-sm text-gris">
+          <p className="text-base text-gris">
             {fecha(h.cuando)} · {hora(h.cuando)}
           </p>
           {h.detalle && <p className="mt-1 max-w-prose">Motivo: {h.detalle}</p>}

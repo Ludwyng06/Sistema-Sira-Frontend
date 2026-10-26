@@ -11,7 +11,7 @@ export function EsqueletoBloque() {
       <Esqueleto className="mb-4 h-8 w-32" />
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {[0, 1, 2].map((i) => (
-          <div key={i} className="overflow-hidden rounded-lg border border-gris-claro">
+          <div key={i} className="overflow-hidden rounded-campo border border-gris-claro">
             <Esqueleto className="h-32 w-full rounded-none" />
             <div className="flex flex-col gap-2 p-4">
               <Esqueleto className="h-4 w-32" />

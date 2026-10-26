@@ -197,7 +197,7 @@ function CuerpoActa({
           <Boton onClick={abrirPdf}>Abrir el PDF</Boton>
           <Link
             href="/panel/actas"
-            className="inline-flex items-center rounded-lg border-2 border-azul px-4 py-2 font-bold text-azul-oscuro hover:bg-turquesa-suave"
+            className="inline-flex items-center rounded-campo border-2 border-azul px-4 py-2 font-bold text-azul-oscuro hover:bg-turquesa-suave"
           >
             Volver a las actas
           </Link>
@@ -219,7 +219,7 @@ function CuerpoActa({
         ) : (
           <ul className="flex flex-col gap-3">
             {elementos.map((e) => (
-              <li key={e.id} className="flex flex-col gap-3 rounded-lg border border-gris-claro p-4">
+              <li key={e.id} className="flex flex-col gap-3 rounded-campo border border-gris-claro p-4">
                 <p className="font-bold">
                   {e.nombre}{" "}
                   <span className="font-normal text-gris">
@@ -263,7 +263,7 @@ function CuerpoActa({
         {novedades.length === 0 && <p className="text-gris">Sin novedades registradas.</p>}
         <ul className="flex flex-col gap-3">
           {novedades.map((n, i) => (
-            <li key={n.clave} className="flex flex-col gap-3 rounded-lg border border-gris-claro p-4">
+            <li key={n.clave} className="flex flex-col gap-3 rounded-campo border border-gris-claro p-4">
               <p className="font-bold">Novedad {i + 1}</p>
               <Selector
                 id={`novedad-elemento-${n.clave}`}

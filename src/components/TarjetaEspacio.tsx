@@ -10,7 +10,7 @@ export function TarjetaEspacio({ espacio }: { espacio: TipoTarjeta }) {
   return (
     <article
       className={clsx(
-        "flex flex-col overflow-hidden rounded-lg border bg-fondo",
+        "flex flex-col overflow-hidden rounded-campo border bg-fondo",
         noCabe
           ? "border-dashed border-gris-claro bg-fondo-suave"
           : "border-gris-claro shadow-sm",
@@ -18,7 +18,7 @@ export function TarjetaEspacio({ espacio }: { espacio: TipoTarjeta }) {
     >
       <Foto foto={espacio.portada} className="h-32 w-full" />
       <div className="flex flex-1 flex-col gap-2 p-4">
-        <p className="text-sm font-bold tracking-wide text-gris">
+        <p className="text-base font-bold tracking-wide text-gris">
           {espacio.codigo} · {espacio.tipo.nombre.toLowerCase()}
         </p>
         <h4 className="text-lg font-bold">
@@ -31,7 +31,7 @@ export function TarjetaEspacio({ espacio }: { espacio: TipoTarjeta }) {
           aforo={espacio.aforo}
         />
         {espacio.dotacion.length > 0 && (
-          <ul className="text-sm text-gris">
+          <ul className="text-base text-gris">
             {espacio.dotacion.map((d) => (
               <li key={d.nombre}>
                 {d.cantidad} × {d.nombre}
@@ -39,7 +39,7 @@ export function TarjetaEspacio({ espacio }: { espacio: TipoTarjeta }) {
             ))}
           </ul>
         )}
-        <p className="mt-auto pt-2 text-sm">
+        <p className="mt-auto pt-2 text-base">
           {espacio.tarifaDesde !== null ? (
             <>
               Desde <strong>{pesos(espacio.tarifaDesde)}</strong> por hora

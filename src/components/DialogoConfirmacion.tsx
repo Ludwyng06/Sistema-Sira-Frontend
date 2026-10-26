@@ -69,7 +69,7 @@ export function DialogoConfirmacion({
       ref={dialogo}
       onClose={cerrar}
       aria-labelledby={idTitulo}
-      className="m-auto w-[min(92vw,32rem)] rounded-lg border border-gris-claro p-0 shadow-xl backdrop:bg-texto/50"
+      className="m-auto w-[min(92vw,32rem)] rounded-campo border border-gris-claro p-0 shadow-xl backdrop:bg-texto/50"
     >
       <form onSubmit={alEnviar} className="flex flex-col gap-4 p-6">
         <h2 id={idTitulo} className="text-xl font-bold">

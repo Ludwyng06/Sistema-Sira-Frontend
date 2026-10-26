@@ -176,7 +176,7 @@ export function FormularioRegistro() {
       <Boton type="submit" cargando={enviando}>
         {enviando ? "Creando cuenta…" : "Crear cuenta"}
       </Boton>
-      <p className="text-sm">
+      <p className="text-base">
         ¿Ya tienes cuenta?{" "}
         <Link href="/ingresar" className="text-azul-oscuro underline underline-offset-4">
           Ingresar

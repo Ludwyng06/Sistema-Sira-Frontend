@@ -36,7 +36,7 @@ export function MenuPanel() {
 
   return (
     <nav aria-label="Panel" className="md:w-60 md:shrink-0">
-      <ul className="flex flex-wrap gap-1.5 rounded-2xl bg-tinta p-2 md:sticky md:top-4 md:flex-col md:gap-1 md:p-3">
+      <ul className="flex flex-wrap gap-1.5 rounded-tarjeta bg-tinta p-2 md:sticky md:top-4 md:flex-col md:gap-1 md:p-3">
         {visibles.map((e) => {
           const activa = e.href === "/panel" ? ruta === "/panel" : ruta.startsWith(e.href);
           return (
@@ -45,7 +45,7 @@ export function MenuPanel() {
                 href={e.href}
                 aria-current={activa ? "page" : undefined}
                 className={clsx(
-                  "block rounded-lg px-3.5 py-2.5 font-bold transition-colors",
+                  "block rounded-campo px-3.5 py-2.5 font-bold transition-colors",
                   activa ? "bg-white text-tinta" : "text-white/85 hover:bg-white/10 hover:text-white",
                 )}
               >

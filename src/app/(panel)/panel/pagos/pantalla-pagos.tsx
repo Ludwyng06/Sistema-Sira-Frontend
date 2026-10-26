@@ -84,7 +84,7 @@ export function PantallaPagos() {
               setPagina(1);
             }}
             className={clsx(
-              "rounded px-4 py-2 font-medium",
+              "rounded-campo px-4 py-2 font-medium",
               estado === p.estado
                 ? "bg-azul text-white"
                 : "border border-gris-claro text-azul-oscuro hover:bg-fondo-suave",
@@ -120,7 +120,7 @@ export function PantallaPagos() {
               {resultado.datos.datos.map((o) => (
                 <li
                   key={o.id}
-                  className="flex flex-col gap-2 rounded-lg border border-gris-claro p-4 shadow-sm"
+                  className="flex flex-col gap-2 rounded-campo border border-gris-claro p-4 shadow-sm"
                 >
                   <div className="flex flex-wrap items-baseline justify-between gap-2">
                     <p className="font-bold text-azul-oscuro">
@@ -139,7 +139,7 @@ export function PantallaPagos() {
                     </p>
                     <p className="text-xl font-bold">{pesos(o.valor)}</p>
                   </div>
-                  <p className="text-sm text-gris">
+                  <p className="text-base text-gris">
                     {ETIQUETAS_ORDEN[o.estado]} · vence el {fecha(o.venceEn)} a las{" "}
                     {hora(o.venceEn)}
                     {o.pagadoEn && <> · pagado el {fecha(o.pagadoEn)}</>}

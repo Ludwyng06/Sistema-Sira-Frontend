@@ -78,7 +78,7 @@ export function DetalleSolicitud({
       return (
         <div className="flex flex-col gap-4">
           {volver}
-          <section className="rounded-lg border border-gris-claro bg-fondo-suave px-6 py-12 text-center">
+          <section className="rounded-campo border border-gris-claro bg-fondo-suave px-6 py-12 text-center">
             <h1 className="text-2xl font-bold">No encontramos esa solicitud</h1>
             <p className="mt-2 text-gris">Puede que el enlace esté mal o que no tengas acceso a ella.</p>
           </section>
@@ -227,7 +227,7 @@ export function DetalleSolicitud({
         {s.reservas.length === 0 ? (
           <p className="text-gris">Esta solicitud todavía no tiene horarios.</p>
         ) : (
-          <ul className="divide-y divide-gris-claro rounded-lg border border-gris-claro">
+          <ul className="divide-y divide-gris-claro rounded-campo border border-gris-claro">
             {s.reservas.map((r) => (
               <li key={r.id} className="flex flex-wrap justify-between gap-2 px-4 py-2">
                 <span>
@@ -245,7 +245,7 @@ export function DetalleSolicitud({
           <h2 id="titulo-servicios" className="text-2xl font-bold">
             Servicios
           </h2>
-          <ul className="divide-y divide-gris-claro rounded-lg border border-gris-claro">
+          <ul className="divide-y divide-gris-claro rounded-campo border border-gris-claro">
             {s.servicios.map((x) => (
               <li key={x.id} className="flex flex-wrap justify-between gap-2 px-4 py-2">
                 <span>

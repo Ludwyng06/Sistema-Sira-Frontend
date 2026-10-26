@@ -21,7 +21,7 @@ export default function LayoutAuth({ children }: LayoutProps<"/">) {
       <div className="grid min-h-dvh flex-1 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)]">
         {/* Móvil: franja breve con la marca y el sello */}
         <div className="sobre-azul relative flex items-center justify-between gap-4 bg-gradient-to-r from-azul to-azul-oscuro px-4 pb-9 pt-5 text-white lg:hidden">
-          <Link href="/" aria-label="Uniputumayo. Ir al inicio" className="rounded">
+          <Link href="/" aria-label="Uniputumayo. Ir al inicio" className="rounded-campo">
             <Marca variante="blanco" detalle="SIRA · Reserva de espacios" />
           </Link>
           <SelloEntrada className="size-16 shrink-0 -rotate-6 text-white/80" />
@@ -41,7 +41,7 @@ export default function LayoutAuth({ children }: LayoutProps<"/">) {
             className="absolute inset-y-0 -right-[31px] text-azul sm:-right-[47px]"
           />
           <div className="flex w-full flex-col justify-between gap-10 p-10 xl:p-14">
-            <Link href="/" aria-label="Uniputumayo. Ir al inicio" className="w-fit rounded">
+            <Link href="/" aria-label="Uniputumayo. Ir al inicio" className="w-fit rounded-campo">
               <Marca variante="blanco" tamano="grande" detalle="SIRA · Reserva de espacios" />
             </Link>
             <div className="flex flex-col items-center gap-8 text-center">

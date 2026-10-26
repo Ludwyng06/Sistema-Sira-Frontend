@@ -70,7 +70,7 @@ export function PantallaInventario() {
               alCerrar={() => setSeleccion(null)}
             />
           ) : (
-            <p className="rounded-lg border border-dashed border-gris-claro bg-fondo-suave p-8 text-center text-gris">
+            <p className="rounded-campo border border-dashed border-gris-claro bg-fondo-suave p-8 text-center text-gris">
               Elige un espacio del árbol para ver o editar sus datos.
             </p>
           )}
@@ -97,7 +97,7 @@ function NodoSede({
   const bloques = useConsulta(() => listarBloquesAdmin(sede.id), [sede.id]);
   const Icono = abierta ? ChevronDown : ChevronRight;
   return (
-    <li className="rounded-lg border border-gris-claro">
+    <li className="rounded-campo border border-gris-claro">
       <button
         type="button"
         aria-expanded={abierta}
@@ -111,7 +111,7 @@ function NodoSede({
         <div className="border-t border-gris-claro px-2 py-2">
           {bloques.resultado.estado === "cargando" && <Esqueleto className="h-10 w-full" />}
           {bloques.resultado.estado === "error" && (
-            <p className="px-2 text-sm text-gris">{bloques.resultado.mensaje}</p>
+            <p className="px-2 text-base text-gris">{bloques.resultado.mensaje}</p>
           )}
           {bloques.resultado.estado === "listo" && (
             <ul className="flex flex-col gap-1">
@@ -162,7 +162,7 @@ function NodoBloque({
         type="button"
         aria-expanded={abierto}
         onClick={() => setAbierto(!abierto)}
-        className="flex w-full items-center gap-2 rounded px-2 py-1.5 text-left font-medium hover:bg-fondo-suave"
+        className="flex w-full items-center gap-2 rounded-campo px-2 py-1.5 text-left font-medium hover:bg-fondo-suave"
       >
         <Icono aria-hidden className="size-4" />
         {bloque.nombre}
@@ -171,7 +171,7 @@ function NodoBloque({
         <ul className="ml-4 flex flex-col gap-1 border-l border-gris-claro pl-2">
           {espacios.resultado.estado === "cargando" && <Esqueleto className="h-8 w-full" />}
           {espacios.resultado.estado === "error" && (
-            <li className="text-sm text-gris">{espacios.resultado.mensaje}</li>
+            <li className="text-base text-gris">{espacios.resultado.mensaje}</li>
           )}
           {espacios.resultado.estado === "listo" &&
             espacios.resultado.datos?.datos.map((e) => {
@@ -185,7 +185,7 @@ function NodoBloque({
                       alElegir({ tipo: "espacio", codigo: e.codigo, sede: sedeCodigo, bloque: bloque.codigo })
                     }
                     className={clsx(
-                      "w-full rounded px-2 py-1.5 text-left",
+                      "w-full rounded-campo px-2 py-1.5 text-left",
                       activo ? "bg-azul text-white" : "hover:bg-fondo-suave",
                     )}
                   >
@@ -199,7 +199,7 @@ function NodoBloque({
               <button
                 type="button"
                 onClick={() => alElegir({ tipo: "nuevo", sede: sedeCodigo, bloque: bloque.codigo })}
-                className="flex items-center gap-1 rounded px-2 py-1.5 text-azul-oscuro underline underline-offset-4"
+                className="flex items-center gap-1 rounded-campo px-2 py-1.5 text-azul-oscuro underline underline-offset-4"
               >
                 <Plus aria-hidden className="size-4" />
                 Nuevo espacio

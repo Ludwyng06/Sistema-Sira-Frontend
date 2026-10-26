@@ -84,14 +84,14 @@ export function CalendarioEspacio({
 function LeyendaEstados() {
   const item = (clase: string, etiqueta: string) => (
     <li className="flex items-center gap-2">
-      <span aria-hidden className={`inline-block h-4 w-8 rounded ${clase}`} />
+      <span aria-hidden className={`inline-block h-4 w-8 rounded-campo ${clase}`} />
       {etiqueta}
     </li>
   );
   return (
-    <ul aria-label="Significado de los colores" className="flex flex-wrap gap-x-5 gap-y-1 text-sm">
+    <ul aria-label="Significado de los colores" className="flex flex-wrap gap-x-5 gap-y-1 text-base">
       <li className="flex items-center gap-2">
-        <span aria-hidden className="inline-block h-4 w-8 rounded border border-gris-claro bg-fondo" />
+        <span aria-hidden className="inline-block h-4 w-8 rounded-campo border border-gris-claro bg-fondo" />
         Libre
       </li>
       {item("estado-retenida", "En trámite")}
@@ -146,7 +146,7 @@ function VistaCalendario({
   }
 
   return (
-    <div className="rounded-lg border border-gris-claro bg-fondo p-2">
+    <div className="rounded-campo border border-gris-claro bg-fondo p-2">
       <FullCalendar
         key={clave}
         plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
@@ -241,7 +241,7 @@ function ListaPorDia({
   }
   if (porDia.size === 0) {
     return (
-      <p className="rounded-lg border border-gris-claro bg-fondo-suave p-4">
+      <p className="rounded-campo border border-gris-claro bg-fondo-suave p-4">
         Sin ocupaciones en los próximos {DIAS_LISTA} días: el espacio está libre.
       </p>
     );
@@ -249,11 +249,11 @@ function ListaPorDia({
   return (
     <ol className="flex flex-col gap-3">
       {[...porDia.entries()].map(([dia, franjas]) => (
-        <li key={dia} className="rounded-lg border border-gris-claro p-3">
+        <li key={dia} className="rounded-campo border border-gris-claro p-3">
           <h3 className="font-bold">{fecha(`${dia}T12:00:00-05:00`)}</h3>
           <ul className="mt-2 flex flex-col gap-2">
             {franjas.map((f, i) => (
-              <li key={i} className={`rounded px-3 py-2 ${CLASE[f.estado]}`}>
+              <li key={i} className={`rounded-campo px-3 py-2 ${CLASE[f.estado]}`}>
                 <span className="font-medium">{textoFranja(f)}</span>
                 {" · "}
                 {hora(f.inicio)} a {hora(f.fin)}

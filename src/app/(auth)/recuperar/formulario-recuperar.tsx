@@ -34,7 +34,7 @@ export function FormularioRecuperar() {
       <Boton type="submit" cargando={enviando}>
         {enviando ? "Enviando…" : "Enviar enlace"}
       </Boton>
-      <p className="text-sm">
+      <p className="text-base">
         <Link href="/ingresar" className="text-azul-oscuro underline underline-offset-4">
           Volver a ingresar
         </Link>

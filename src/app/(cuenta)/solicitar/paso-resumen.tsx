@@ -106,7 +106,7 @@ export function PasoResumen({
         ))}
         <Link
           href={`/mis-solicitudes/${enviada.id}`}
-          className="w-fit rounded-lg bg-azul px-5 py-3 font-bold text-white shadow-[0_2px_0_0_var(--color-azul-oscuro)] transition duration-200 hover:-translate-y-px hover:bg-azul-oscuro motion-reduce:transition-none motion-reduce:hover:translate-y-0"
+          className="w-fit rounded-campo bg-azul px-5 py-3 font-bold text-white shadow-[0_2px_0_0_var(--color-azul-oscuro)] transition duration-200 hover:-translate-y-px hover:bg-azul-oscuro motion-reduce:transition-none motion-reduce:hover:translate-y-0"
         >
           Ver mi solicitud
         </Link>
@@ -124,7 +124,7 @@ export function PasoResumen({
           {borrador.asistentesEstimados} personas ·{" "}
           {borrador.eventoPublico ? "evento público" : "evento privado"}
         </p>
-        <ul className="divide-y divide-gris-claro rounded-lg border border-gris-claro">
+        <ul className="divide-y divide-gris-claro rounded-campo border border-gris-claro">
           {borrador.reservas.map((r, i) => (
             <li key={r.id} className="flex flex-wrap justify-between gap-2 px-4 py-2">
               <span>
@@ -145,7 +145,7 @@ export function PasoResumen({
             </li>
           ))}
         </ul>
-        <p className="text-sm text-gris">
+        <p className="text-base text-gris">
           Son valores estimados con el tarifario. El valor definitivo, o el valor de referencia si tu uso
           es institucional, lo confirma la cotización.
         </p>

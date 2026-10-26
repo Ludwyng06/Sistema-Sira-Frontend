@@ -17,7 +17,7 @@ export function Foto({
     return (
       <div
         className={clsx(
-          "flex items-center justify-center gap-2 bg-fondo-suave text-sm text-gris",
+          "flex items-center justify-center gap-2 bg-fondo-suave text-base text-gris",
           className,
         )}
       >

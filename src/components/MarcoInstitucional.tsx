@@ -23,7 +23,7 @@ export function MarcoInstitucional({
     <>
       <a
         href="#contenido"
-        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded focus:bg-fondo focus:px-4 focus:py-2 focus:font-medium focus:text-azul-oscuro"
+        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-campo focus:bg-fondo focus:px-4 focus:py-2 focus:font-medium focus:text-azul-oscuro"
       >
         Saltar al contenido
       </a>

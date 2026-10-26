@@ -72,14 +72,14 @@ export function CargadorArchivos({
         onDragLeave={() => setEncima(false)}
         onDrop={soltar}
         className={clsx(
-          "flex cursor-pointer flex-col items-center gap-2 rounded-lg border-2 border-dashed px-4 py-6 text-center",
+          "flex cursor-pointer flex-col items-center gap-2 rounded-campo border-2 border-dashed px-4 py-6 text-center",
           encima ? "border-azul bg-fondo-suave" : "border-gris-claro",
           deshabilitado && "cursor-not-allowed opacity-60",
         )}
       >
         <Upload aria-hidden className="size-6 text-azul-oscuro" />
         <span className="font-medium">{etiqueta}</span>
-        <span className="text-sm text-gris">Arrastra el archivo aquí o haz clic. PDF, PNG o JPG, máximo 10 MB.</span>
+        <span className="text-base text-gris">Arrastra el archivo aquí o haz clic. PDF, PNG o JPG, máximo 10 MB.</span>
       </label>
       <input
         ref={entrada}
@@ -91,10 +91,10 @@ export function CargadorArchivos({
         className="sr-only"
       />
       {elegido && (
-        <div className="flex items-center gap-3 text-sm">
+        <div className="flex items-center gap-3 text-base">
           {elegido.vistaPrevia && (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={elegido.vistaPrevia} alt={`Vista previa de ${elegido.nombre}`} className="size-14 rounded object-cover" />
+            <img src={elegido.vistaPrevia} alt={`Vista previa de ${elegido.nombre}`} className="size-14 rounded-campo object-cover" />
           )}
           <span>Archivo elegido: {elegido.nombre}</span>
         </div>

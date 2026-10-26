@@ -75,10 +75,10 @@ export function PasoServicios({
             {catalogo.resultado.datos.map((s) => {
               const elegido = borrador.servicios.find((x) => x.servicioId === s.id);
               return (
-                <li key={s.id} className="flex flex-col gap-2 rounded-lg border border-gris-claro p-4">
-                  <p className="text-sm font-bold text-gris">{CATEGORIAS[s.categoria]}</p>
+                <li key={s.id} className="flex flex-col gap-2 rounded-campo border border-gris-claro p-4">
+                  <p className="text-base font-bold text-gris">{CATEGORIAS[s.categoria]}</p>
                   <h3 className="text-lg font-bold">{s.nombre}</h3>
-                  <p className="text-sm text-gris">
+                  <p className="text-base text-gris">
                     Se cobra {UNIDADES_COBRO[s.unidadCobro]} · {s.anticipacionMinimaDias}{" "}
                     {s.anticipacionMinimaDias === 1 ? "día" : "días"} de anticipación
                   </p>

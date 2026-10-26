@@ -65,7 +65,7 @@ async function FichaDelEspacio({ params }: { params: Props["params"] }) {
 
   return (
     <div className="flex flex-col gap-8">
-      <header className="sobre-azul relative isolate overflow-hidden rounded-3xl bg-gradient-to-br from-turquesa via-azul to-azul-oscuro text-white shadow-elevada">
+      <header className="sobre-azul relative isolate overflow-hidden rounded-tarjeta bg-gradient-to-br from-turquesa via-azul to-azul-oscuro text-white shadow-elevada">
         <div aria-hidden className="absolute inset-0 -z-10">
           <SolRadial className="absolute -right-16 -top-24 size-80 opacity-[0.16]" />
           <IlustracionBloque
@@ -82,7 +82,7 @@ async function FichaDelEspacio({ params }: { params: Props["params"] }) {
             Volver a {espacio.bloque.nombre}
           </Link>
           <div className="flex flex-col gap-2">
-            <p className="w-fit rounded-full bg-white/15 px-3 py-1 text-sm font-bold tracking-wide">
+            <p className="w-fit rounded-full bg-white/15 px-3 py-1 text-base font-bold tracking-wide">
               {espacio.codigo} · {espacio.tipo.nombre.toLowerCase()} · piso {espacio.piso}
             </p>
             <h1 className="max-w-xl text-4xl font-black leading-[1.02] text-white sm:text-6xl">
@@ -90,12 +90,12 @@ async function FichaDelEspacio({ params }: { params: Props["params"] }) {
             </h1>
           </div>
           <div className="flex flex-wrap items-center gap-4">
-            <div className="rounded-2xl bg-white p-3 pr-5 text-tinta shadow-tarjeta">
+            <div className="rounded-tarjeta bg-white p-3 pr-5 text-tinta shadow-tarjeta">
               <IndicadorAforo capacidad={espacio.capacidadPersonas} aforo={espacio.aforo} grande />
             </div>
             <Link
               href={`/solicitar?espacio=${espacio.codigo}`}
-              className="inline-flex items-center gap-2 rounded-lg bg-white px-5 py-3 font-bold text-azul-oscuro transition duration-200 hover:-translate-y-px hover:bg-turquesa-suave motion-reduce:transition-none motion-reduce:hover:translate-y-0"
+              className="inline-flex items-center gap-2 rounded-campo bg-white px-5 py-3 font-bold text-azul-oscuro transition duration-200 hover:-translate-y-px hover:bg-turquesa-suave motion-reduce:transition-none motion-reduce:hover:translate-y-0"
             >
               <CalendarDays aria-hidden className="size-5" />
               Solicitar este espacio
@@ -113,7 +113,7 @@ async function FichaDelEspacio({ params }: { params: Props["params"] }) {
           <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {fotos.map((f) => (
               <li key={f.url}>
-                <Foto foto={f} className="h-48 w-full rounded-2xl" />
+                <Foto foto={f} className="h-48 w-full rounded-tarjeta" />
               </li>
             ))}
           </ul>
@@ -140,7 +140,7 @@ async function FichaDelEspacio({ params }: { params: Props["params"] }) {
           {espacio.elementos.length === 0 ? (
             <p className="text-gris">Este espacio no tiene dotación registrada.</p>
           ) : (
-            <ul className="divide-y divide-gris-claro rounded-lg border border-gris-claro">
+            <ul className="divide-y divide-gris-claro rounded-campo border border-gris-claro">
               {espacio.elementos.map((d) => (
                 <li key={d.nombre} className="flex justify-between gap-4 px-4 py-2">
                   <span>{d.nombre}</span>
@@ -161,7 +161,7 @@ async function FichaDelEspacio({ params }: { params: Props["params"] }) {
           {espacio.tarifas.length === 0 ? (
             <p className="text-gris">Las tarifas se confirman en la cotización.</p>
           ) : (
-            <div className="overflow-x-auto rounded-lg border border-gris-claro">
+            <div className="overflow-x-auto rounded-campo border border-gris-claro">
               <table className="w-full text-left">
                 <caption className="sr-only">
                   Tarifas del espacio {espacio.codigo} por tipo de solicitante
@@ -200,13 +200,13 @@ async function FichaDelEspacio({ params }: { params: Props["params"] }) {
         {espacioId ? (
           <CalendarioEspacio espacioId={espacioId} />
         ) : (
-          <p className="rounded-lg border border-dashed border-gris-claro bg-fondo-suave p-4 text-gris">
+          <p className="rounded-campo border border-dashed border-gris-claro bg-fondo-suave p-4 text-gris">
             No pudimos cargar el calendario de este espacio en este momento.
           </p>
         )}
         <Link
           href={`/solicitar?espacio=${espacio.codigo}`}
-          className="inline-flex w-fit items-center gap-2 rounded-lg bg-azul px-5 py-3 font-bold text-white shadow-[0_2px_0_0_var(--color-azul-oscuro)] transition duration-200 hover:-translate-y-px hover:bg-azul-oscuro motion-reduce:transition-none motion-reduce:hover:translate-y-0"
+          className="inline-flex w-fit items-center gap-2 rounded-campo bg-azul px-5 py-3 font-bold text-white shadow-[0_2px_0_0_var(--color-azul-oscuro)] transition duration-200 hover:-translate-y-px hover:bg-azul-oscuro motion-reduce:transition-none motion-reduce:hover:translate-y-0"
         >
           <CalendarDays aria-hidden className="size-5" />
           Solicitar este espacio

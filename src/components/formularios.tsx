@@ -180,7 +180,7 @@ export function Alerta({
     <div
       role={tipo === "error" ? "alert" : "status"}
       className={clsx(
-        "anim-aparecer relative flex items-start gap-3 overflow-hidden rounded-xl bg-fondo-suave py-3 pl-5 pr-4",
+        "anim-aparecer relative flex items-start gap-3 overflow-hidden rounded-tarjeta bg-fondo-suave py-3 pl-5 pr-4",
         onCerrar && "pr-11",
       )}
     >

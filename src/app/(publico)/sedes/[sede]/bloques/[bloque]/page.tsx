@@ -91,7 +91,7 @@ async function ContenidoBloque({
                 }
               : null
           }
-          className="h-56 w-full rounded-lg border border-gris-claro"
+          className="h-56 w-full rounded-campo border border-gris-claro"
           marcador="El plano de este bloque aún no está disponible"
         />
       </section>
@@ -99,7 +99,7 @@ async function ContenidoBloque({
       <form
         action={`/sedes/${bloque.sede.codigo}/bloques/${bloque.codigo}`}
         method="get"
-        className="flex flex-wrap items-end gap-3 rounded-lg border border-gris-claro bg-fondo-suave p-4"
+        className="flex flex-wrap items-end gap-3 rounded-campo border border-gris-claro bg-fondo-suave p-4"
       >
         <div className="flex flex-col gap-1">
           <label htmlFor="tipo" className="font-medium">
@@ -109,7 +109,7 @@ async function ContenidoBloque({
             id="tipo"
             name="tipo"
             defaultValue={tipo ?? ""}
-            className="rounded-lg border border-gris/70 bg-fondo px-3.5 py-2.5 transition-colors hover:border-azul focus:border-azul"
+            className="rounded-campo border border-gris/70 bg-fondo px-3.5 py-2.5 transition-colors hover:border-azul focus:border-azul"
           >
             <option value="">Todos</option>
             {bloque.tipos.map((t) => (
@@ -131,12 +131,12 @@ async function ContenidoBloque({
             min={1}
             defaultValue={asistentes}
             placeholder="Ej. 35"
-            className="w-40 rounded-lg border border-gris/70 bg-fondo px-3.5 py-2.5 transition-colors hover:border-azul focus:border-azul"
+            className="w-40 rounded-campo border border-gris/70 bg-fondo px-3.5 py-2.5 transition-colors hover:border-azul focus:border-azul"
           />
         </div>
         <button
           type="submit"
-          className="rounded-lg bg-azul px-5 py-2.5 font-bold text-white shadow-[0_2px_0_0_var(--color-azul-oscuro)] transition duration-200 hover:-translate-y-px hover:bg-azul-oscuro motion-reduce:transition-none motion-reduce:hover:translate-y-0"
+          className="rounded-campo bg-azul px-5 py-2.5 font-bold text-white shadow-[0_2px_0_0_var(--color-azul-oscuro)] transition duration-200 hover:-translate-y-px hover:bg-azul-oscuro motion-reduce:transition-none motion-reduce:hover:translate-y-0"
         >
           Aplicar filtros
         </button>

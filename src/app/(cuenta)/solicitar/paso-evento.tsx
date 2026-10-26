@@ -110,7 +110,7 @@ export function PasoEvento({
         Es un evento abierto al público
       </label>
       {guardado && (
-        <p role="status" className="text-sm text-gris">
+        <p role="status" className="text-base text-gris">
           Borrador guardado.
         </p>
       )}

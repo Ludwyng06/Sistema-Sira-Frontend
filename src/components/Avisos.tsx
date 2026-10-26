@@ -86,7 +86,7 @@ function Tarjeta({ aviso }: { aviso: Aviso }) {
       aria-label={`${ETIQUETAS[aviso.tipo]}: ${aviso.titulo}`}
       onAnimationEnd={alTerminarAnimacion}
       className={clsx(
-        "group pointer-events-auto relative w-full overflow-hidden rounded-2xl border border-gris-claro/50 bg-white text-texto shadow-elevada",
+        "group pointer-events-auto relative w-full overflow-hidden rounded-tarjeta border border-gris-claro/50 bg-white text-texto shadow-elevada",
         aviso.saliendo ? "anim-aviso-sale" : "anim-aviso-entra",
       )}
     >
@@ -97,9 +97,9 @@ function Tarjeta({ aviso }: { aviso: Aviso }) {
         </span>
         <div className="flex min-w-0 flex-1 flex-col gap-1.5">
           <p className="font-titulo text-base font-extrabold leading-snug text-tinta">{aviso.titulo}</p>
-          {aviso.porQue && <p className="text-sm leading-relaxed text-gris">{aviso.porQue}</p>}
+          {aviso.porQue && <p className="text-base leading-relaxed text-gris">{aviso.porQue}</p>}
           {aviso.queHacer && (
-            <p className="rounded-lg bg-fondo-suave px-3 py-2 text-sm leading-relaxed text-texto">
+            <p className="rounded-campo bg-fondo-suave px-3 py-2 text-base leading-relaxed text-texto">
               <span className="font-bold text-azul-oscuro">Qué hacer: </span>
               {aviso.queHacer}
             </p>
@@ -108,13 +108,13 @@ function Tarjeta({ aviso }: { aviso: Aviso }) {
             <Link
               href={aviso.accion.href}
               onClick={() => avisar.cerrar(aviso.id)}
-              className="mt-0.5 w-fit rounded-lg bg-azul px-3.5 py-1.5 text-sm font-bold text-white transition-colors hover:bg-azul-oscuro"
+              className="mt-0.5 w-fit rounded-campo bg-azul px-3.5 py-1.5 text-base font-bold text-white transition-colors hover:bg-azul-oscuro"
             >
               {aviso.accion.texto}
             </Link>
           )}
           {aviso.soporte && (
-            <p className="text-xs text-gris">
+            <p className="text-meta text-gris">
               Código de soporte: <span className="font-mono">{aviso.soporte.slice(0, 8)}</span>
             </p>
           )}

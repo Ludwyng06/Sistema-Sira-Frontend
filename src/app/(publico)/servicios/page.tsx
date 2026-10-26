@@ -64,11 +64,11 @@ async function Catalogo() {
             {servicios.map((s) => (
               <li
                 key={s.id}
-                className="flex flex-col gap-2 rounded-lg border border-gris-claro p-4 shadow-sm"
+                className="flex flex-col gap-2 rounded-campo border border-gris-claro p-4 shadow-sm"
               >
                 <h3 className="text-lg font-bold">{s.nombre}</h3>
                 {s.descripcion && <p className="text-gris">{s.descripcion}</p>}
-                <dl className="mt-auto grid gap-1 pt-2 text-sm">
+                <dl className="mt-auto grid gap-1 pt-2 text-base">
                   <div className="flex gap-2">
                     <dt className="font-medium">Se cobra:</dt>
                     <dd>{UNIDADES_COBRO[s.unidadCobro]}</dd>
@@ -82,7 +82,7 @@ async function Catalogo() {
                   </div>
                 </dl>
                 {s.requiereConfirmacion && (
-                  <p className="w-fit rounded border-l-4 border-naranja bg-fondo-suave px-2 py-0.5 text-sm">
+                  <p className="w-fit rounded-campo border-l-4 border-naranja bg-fondo-suave px-2 py-0.5 text-base">
                     El proveedor confirma la disponibilidad
                   </p>
                 )}

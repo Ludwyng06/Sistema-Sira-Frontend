@@ -102,7 +102,7 @@ export function PantallaBloqueos({
         <CalendarioEspacio key={`${codigo}-${version}`} espacioId={espacioId.resultado.datos} />
       )}
 
-      <form onSubmit={crear} className="flex flex-col gap-4 rounded-lg border border-gris-claro p-6">
+      <form onSubmit={crear} className="flex flex-col gap-4 rounded-campo border border-gris-claro p-6">
         <h2 className="text-2xl font-bold">Nuevo bloqueo</h2>
         {error && <Alerta tipo="error">{error}</Alerta>}
         {aviso && <Alerta tipo="exito">{aviso}</Alerta>}
@@ -145,7 +145,7 @@ export function PantallaBloqueos({
           <h2 id="titulo-creados" className="text-2xl font-bold">
             Bloqueos creados en esta sesión
           </h2>
-          <ul className="divide-y divide-gris-claro rounded-lg border border-gris-claro">
+          <ul className="divide-y divide-gris-claro rounded-campo border border-gris-claro">
             {creados.map((b) => (
               <li key={b.id} className="flex flex-wrap items-center justify-between gap-3 px-4 py-3">
                 <span>

@@ -86,7 +86,7 @@ export function PasoIdentificacion({
       {error && <Alerta tipo="error">{error}</Alerta>}
 
       {esInterno && (
-        <fieldset className="flex flex-col gap-3 rounded-lg border border-gris-claro p-4">
+        <fieldset className="flex flex-col gap-3 rounded-campo border border-gris-claro p-4">
           <legend className="px-1 text-xl font-bold">¿Para qué es el uso?</legend>
           <label className="flex items-start gap-2">
             <input
@@ -98,7 +98,7 @@ export function PasoIdentificacion({
             />
             <span>
               <span className="font-medium">Uso institucional</span>
-              <span className="block text-sm text-gris">
+              <span className="block text-base text-gris">
                 Actividad de la Institución. Si se aprueba, no tiene costo. El responsable del espacio
                 y el aprobador lo verifican.
               </span>
@@ -114,7 +114,7 @@ export function PasoIdentificacion({
             />
             <span>
               <span className="font-medium">Uso particular</span>
-              <span className="block text-sm text-gris">Actividad personal: se cotiza como persona natural.</span>
+              <span className="block text-base text-gris">Actividad personal: se cotiza como persona natural.</span>
             </span>
           </label>
         </fieldset>
@@ -145,12 +145,12 @@ export function PasoIdentificacion({
 
         {documentos.resultado.estado === "cargando" && <Esqueleto className="h-12 w-full" />}
         {documentos.resultado.estado === "listo" && documentos.resultado.datos.length > 0 && (
-          <ul className="divide-y divide-gris-claro rounded-lg border border-gris-claro">
+          <ul className="divide-y divide-gris-claro rounded-campo border border-gris-claro">
             {documentos.resultado.datos.map((d) => (
               <li key={d.id} className="flex flex-wrap items-center justify-between gap-3 px-4 py-2">
                 <span>
                   <span className="font-medium">{TIPOS_DOCUMENTO[d.tipo]}</span> · {d.nombre}
-                  <span className="block text-sm text-gris">{Math.ceil(d.tamanoBytes / 1024)} KB</span>
+                  <span className="block text-base text-gris">{Math.ceil(d.tamanoBytes / 1024)} KB</span>
                 </span>
                 <Boton variante="secundario" onClick={() => quitar(d.id)}>
                   Quitar

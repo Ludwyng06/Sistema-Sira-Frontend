@@ -67,7 +67,7 @@ export function PantallaBitacora() {
 
       <form
         onSubmit={aplicar}
-        className="grid gap-4 rounded-lg border border-gris-claro bg-fondo-suave p-4 sm:grid-cols-2 lg:grid-cols-5 lg:items-end"
+        className="grid gap-4 rounded-campo border border-gris-claro bg-fondo-suave p-4 sm:grid-cols-2 lg:grid-cols-5 lg:items-end"
       >
         <Campo id="entidad" etiqueta="Entidad" placeholder="Ej. Solicitud" defaultValue={filtros.entidad} />
         <Campo id="accion" etiqueta="Acción" placeholder="Ej. ENVIAR" defaultValue={filtros.accion} />
@@ -99,8 +99,8 @@ export function PantallaBitacora() {
             <p aria-live="polite" className="text-gris">
               {resultado.datos.total} registros.
             </p>
-            <div className="overflow-x-auto rounded-lg border border-gris-claro">
-              <table className="w-full text-left text-sm">
+            <div className="overflow-x-auto rounded-campo border border-gris-claro">
+              <table className="w-full text-left text-base">
                 <caption className="sr-only">Acciones registradas en la bitácora</caption>
                 <thead className="bg-fondo-suave">
                   <tr>

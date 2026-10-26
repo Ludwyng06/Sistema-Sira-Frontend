@@ -61,7 +61,7 @@ async function Contenido({ searchParams }: { searchParams: PageProps<"/buscar">[
       <form
         action="/buscar"
         method="get"
-        className="flex flex-wrap items-end gap-4 rounded-lg border border-gris-claro bg-fondo-suave p-4"
+        className="flex flex-wrap items-end gap-4 rounded-campo border border-gris-claro bg-fondo-suave p-4"
       >
         <Campo id="fecha" etiqueta="Día" type="date" required defaultValue={fecha} />
         <CampoHora id="horaInicio" etiqueta="Desde" required defaultValue={horaInicio ?? "08:00"} />
@@ -79,7 +79,7 @@ async function Contenido({ searchParams }: { searchParams: PageProps<"/buscar">[
         />
         <button
           type="submit"
-          className="inline-flex items-center gap-2 rounded-lg bg-azul px-5 py-2.5 font-bold text-white shadow-[0_2px_0_0_var(--color-azul-oscuro)] transition duration-200 hover:-translate-y-px hover:bg-azul-oscuro motion-reduce:transition-none motion-reduce:hover:translate-y-0"
+          className="inline-flex items-center gap-2 rounded-campo bg-azul px-5 py-2.5 font-bold text-white shadow-[0_2px_0_0_var(--color-azul-oscuro)] transition duration-200 hover:-translate-y-px hover:bg-azul-oscuro motion-reduce:transition-none motion-reduce:hover:translate-y-0"
         >
           <Search aria-hidden className="size-4" />
           Buscar
@@ -104,9 +104,9 @@ async function Contenido({ searchParams }: { searchParams: PageProps<"/buscar">[
               {resultado.datos.espacios.map((e) => (
                 <li
                   key={e.codigo}
-                  className="flex flex-col gap-2 rounded-lg border border-gris-claro p-4 shadow-sm"
+                  className="flex flex-col gap-2 rounded-campo border border-gris-claro p-4 shadow-sm"
                 >
-                  <p className="text-sm font-bold tracking-wide text-gris">
+                  <p className="text-base font-bold tracking-wide text-gris">
                     {e.codigo} · {e.bloque.nombre} · piso {e.piso}
                   </p>
                   <h3 className="text-lg font-bold">

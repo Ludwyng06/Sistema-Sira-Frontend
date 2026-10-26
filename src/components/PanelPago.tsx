@@ -84,7 +84,7 @@ export function PanelPago({
       </div>
 
       {orden && (
-        <div className="flex flex-col gap-4 rounded-lg border border-gris-claro p-4">
+        <div className="flex flex-col gap-4 rounded-campo border border-gris-claro p-4">
           <p className="text-gris">
             Consigna el valor exacto y escribe esta referencia en el comprobante. Después sube la foto o el
             PDF.

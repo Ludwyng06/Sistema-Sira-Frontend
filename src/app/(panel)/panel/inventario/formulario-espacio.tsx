@@ -112,7 +112,7 @@ export function FormularioEspacio({
   }
 
   return (
-    <form onSubmit={guardar} className="flex flex-col gap-4 rounded-lg border border-gris-claro p-6">
+    <form onSubmit={guardar} className="flex flex-col gap-4 rounded-campo border border-gris-claro p-6">
       <h2 className="text-2xl font-bold">
         {actual ? `${actual.codigo} · ${actual.nombre}` : `Nuevo espacio en el bloque ${seleccion.bloque}`}
       </h2>

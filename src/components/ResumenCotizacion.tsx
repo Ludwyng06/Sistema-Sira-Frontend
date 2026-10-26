@@ -14,7 +14,7 @@ export function ResumenCotizacion({
       <h2 id="titulo-cotizacion" className="text-2xl font-bold">
         Cotización {cotizacion.consecutivo}
       </h2>
-      <dl className="grid max-w-md grid-cols-[1fr_auto] gap-x-6 gap-y-1 rounded-lg border border-gris-claro p-4">
+      <dl className="grid max-w-md grid-cols-[1fr_auto] gap-x-6 gap-y-1 rounded-campo border border-gris-claro p-4">
         <dt>Subtotal</dt>
         <dd className="text-right">{pesos(cotizacion.subtotal)}</dd>
         <dt>IVA</dt>

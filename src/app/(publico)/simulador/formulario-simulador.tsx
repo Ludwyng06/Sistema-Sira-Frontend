@@ -69,7 +69,7 @@ export function FormularioSimulador({
 
   return (
     <div className="grid gap-8 lg:grid-cols-2">
-      <form onSubmit={calcular} className="flex flex-col gap-4 rounded-lg border border-gris-claro p-6">
+      <form onSubmit={calcular} className="flex flex-col gap-4 rounded-campo border border-gris-claro p-6">
         <Selector id="espacio" etiqueta="Espacio" required>
           {espacios.map((e) => (
             <option key={e.codigo} value={e.codigo}>
@@ -100,28 +100,28 @@ export function FormularioSimulador({
           Estimado
         </h2>
         {!resultado ? (
-          <p className="rounded-lg border border-dashed border-gris-claro bg-fondo-suave p-6 text-gris">
+          <p className="rounded-campo border border-dashed border-gris-claro bg-fondo-suave p-6 text-gris">
             Llena el formulario y verás aquí el desglose.
           </p>
         ) : (
           <>
             <ul className="flex flex-col gap-3">
               {resultado.lineas.map((l) => (
-                <li key={l.fecha} className="rounded-lg border border-gris-claro p-4">
+                <li key={l.fecha} className="rounded-campo border border-gris-claro p-4">
                   <p className="font-bold">{fecha(`${l.fecha}T12:00:00-05:00`)}</p>
                   <p className="text-gris">
                     {l.cantidad} × {UNIDADES[l.unidad] ?? l.unidad.toLowerCase()} ({l.horas} h) ·{" "}
                     {pesos(l.base)}
                   </p>
                   {l.recargos.map((r) => (
-                    <p key={r.tipo} className="text-sm text-gris">
+                    <p key={r.tipo} className="text-base text-gris">
                       {RECARGOS[r.tipo] ?? r.tipo} ({r.porcentaje} %): {pesos(r.valor)}
                     </p>
                   ))}
                 </li>
               ))}
             </ul>
-            <dl className="grid grid-cols-[1fr_auto] gap-x-6 gap-y-1 rounded-lg border border-gris-claro p-4">
+            <dl className="grid grid-cols-[1fr_auto] gap-x-6 gap-y-1 rounded-campo border border-gris-claro p-4">
               <dt>Base</dt>
               <dd className="text-right">{pesos(resultado.base)}</dd>
               <dt>Recargos</dt>
@@ -133,7 +133,7 @@ export function FormularioSimulador({
                 {pesos(resultado.total)}
               </dd>
             </dl>
-            <p className="text-sm text-gris">El valor definitivo se confirma en la cotización.</p>
+            <p className="text-base text-gris">El valor definitivo se confirma en la cotización.</p>
           </>
         )}
       </section>
