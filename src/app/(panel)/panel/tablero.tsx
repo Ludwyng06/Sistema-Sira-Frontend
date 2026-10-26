@@ -1,6 +1,8 @@
 "use client";
 
 import { Esqueleto, RegionCargando } from "@/components/Esqueleto";
+import { BotonImprimir } from "@/components/BotonImprimir";
+import { EncabezadoImpresion } from "@/components/EncabezadoImpresion";
 import { CampusIsometrico } from "@/components/marca/CampusIsometrico";
 import { EstadoError } from "@/components/EstadoError";
 import { fecha, pesos } from "@/lib/formato";
@@ -45,14 +47,20 @@ export function Tablero() {
   const t = resultado.datos;
   return (
     <div className="flex flex-col gap-8">
+      <EncabezadoImpresion documento="Tablero de reservas" />
       <header className="flex flex-col gap-1">
         <h1 className="text-t1 font-black">Tablero</h1>
         <p className="text-gris">
           Del {fecha(t.desde)} al {fecha(t.hasta)}.
         </p>
+        <BotonImprimir titulo="Tablero SIRA" className="mt-2" />
       </header>
 
-      {bloques.resultado.estado === "listo" && <CampusIsometrico bloques={bloques.resultado.datos} />}
+      {bloques.resultado.estado === "listo" && (
+        <div className="no-imprimir">
+          <CampusIsometrico bloques={bloques.resultado.datos} />
+        </div>
+      )}
 
       <dl className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <Cifra

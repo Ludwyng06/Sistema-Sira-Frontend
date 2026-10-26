@@ -9,6 +9,8 @@ import { DialogoConfirmacion } from "@/components/DialogoConfirmacion";
 import { InsigniaEstado } from "@/components/InsigniaEstado";
 import { LineaEstaciones } from "@/components/LineaEstaciones";
 import { LineaTiempoSolicitud } from "@/components/LineaTiempoSolicitud";
+import { BotonImprimir } from "@/components/BotonImprimir";
+import { EncabezadoImpresion } from "@/components/EncabezadoImpresion";
 import { PanelPago } from "@/components/PanelPago";
 import { ResumenCotizacion } from "@/components/ResumenCotizacion";
 import { Alerta, Boton } from "@/components/formularios";
@@ -125,7 +127,8 @@ export function DetalleSolicitud({
 
   return (
     <div className="flex flex-col gap-8">
-      {volver}
+      <EncabezadoImpresion documento={`Solicitud ${s.consecutivo ?? "(borrador)"}`} />
+      <div className="no-imprimir">{volver}</div>
 
       <header className="flex flex-col gap-2">
         <p className="font-bold tracking-wide text-gris">{s.consecutivo ?? "Borrador sin enviar"}</p>
@@ -134,6 +137,7 @@ export function DetalleSolicitud({
           <InsigniaEstado estado={s.estado} />
           <span className="text-lg text-gris">{ESTADOS[s.estado].proxima}</span>
         </div>
+        <BotonImprimir titulo={`Solicitud ${s.consecutivo ?? "borrador"} - SIRA`} className="mt-2" />
       </header>
 
       <section aria-labelledby="titulo-linea" className="rounded-tarjeta border border-gris-claro/60 bg-fondo-suave px-4 py-6 sm:px-8">

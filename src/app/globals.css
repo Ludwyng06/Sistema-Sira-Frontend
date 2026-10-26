@@ -391,3 +391,39 @@ h4 {
   animation: iso-flota 4.5s ease-in-out infinite alternate;
   animation-delay: var(--flota, 0s);
 }
+
+/* Impresión y PDF: solo el documento, sin menú, pie ni botones. */
+.solo-imprimir {
+  display: none;
+}
+@media print {
+  header.sobre-azul,
+  footer.sobre-azul,
+  nav,
+  .no-imprimir,
+  button {
+    display: none !important;
+  }
+  .solo-imprimir {
+    display: flex;
+  }
+  body {
+    background: #fff !important;
+  }
+  * {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+    box-shadow: none !important;
+  }
+  a {
+    text-decoration: none;
+  }
+  section,
+  li,
+  tr {
+    break-inside: avoid;
+  }
+  @page {
+    margin: 14mm;
+  }
+}

@@ -1,5 +1,7 @@
 "use client";
 
+import { BotonImprimir } from "@/components/BotonImprimir";
+import { EncabezadoImpresion } from "@/components/EncabezadoImpresion";
 import Link from "next/link";
 import { useState, type FormEvent } from "react";
 import { ChevronLeft } from "lucide-react";
@@ -87,12 +89,14 @@ export function FormularioActa({
   const { solicitud, elementos } = resultado.datos;
   return (
     <div className="flex flex-col gap-6">
-      {volver}
+      <EncabezadoImpresion documento={`${titulo} ${solicitud.consecutivo ?? ""}`} />
+      <div className="no-imprimir">{volver}</div>
       <header className="flex flex-col gap-1">
         <h1 className="text-t1 font-black">{titulo}</h1>
         <p className="text-gris">
           {solicitud.consecutivo} · {solicitud.objetoEvento}
         </p>
+        <BotonImprimir titulo={`Acta ${solicitud.consecutivo ?? ""} - SIRA`} className="mt-2" />
       </header>
       <CuerpoActa solicitudId={solicitudId} tipo={tipo} elementos={elementos} />
     </div>
