@@ -38,18 +38,24 @@ export function PantallaPagos() {
   const [pagina, setPagina] = useState(1);
   const [rechazando, setRechazando] = useState<OrdenPagoResumen | null>(null);
   const [errorSoporte, setErrorSoporte] = useState<string | null>(null);
+  const [soporte, setSoporte] = useState<{ id: string; url: string; tipo: string } | null>(null);
   const { resultado, recargar } = useConsulta(
     () => listarOrdenes({ estado, pagina, porPagina: POR_PAGINA }),
     [estado, pagina],
   );
 
+  function cerrarSoporte() {
+    if (soporte) URL.revokeObjectURL(soporte.url);
+    setSoporte(null);
+  }
+
+  /** El comprobante se abre junto a la orden para compararlos sin salir de la página. */
   async function verSoporte(orden: OrdenPagoResumen) {
     setErrorSoporte(null);
     try {
       const archivo = await descargarSoporte(orden.id);
-      const url = URL.createObjectURL(archivo);
-      window.open(url, "_blank", "noopener");
-      setTimeout(() => URL.revokeObjectURL(url), 60_000);
+      if (soporte) URL.revokeObjectURL(soporte.url);
+      setSoporte({ id: orden.id, url: URL.createObjectURL(archivo), tipo: archivo.type });
     } catch (e) {
       setErrorSoporte(e instanceof Error ? e.message : "No pudimos abrir el comprobante.");
     }
@@ -68,7 +74,7 @@ export function PantallaPagos() {
   return (
     <div className="flex flex-col gap-6">
       <header className="flex flex-col gap-1">
-        <h1 className="text-4xl font-black sm:text-5xl">Pagos</h1>
+        <h1 className="text-t1 font-black">Pagos</h1>
         <p className="text-gris">Verifica las consignaciones de las solicitudes cotizadas.</p>
       </header>
 
@@ -84,7 +90,7 @@ export function PantallaPagos() {
               setPagina(1);
             }}
             className={clsx(
-              "rounded-campo px-4 py-2 font-medium",
+              "min-h-11 rounded-full px-5 text-base font-bold",
               estado === p.estado
                 ? "bg-azul text-white"
                 : "border border-gris-claro text-azul-oscuro hover:bg-fondo-suave",
@@ -120,7 +126,7 @@ export function PantallaPagos() {
               {resultado.datos.datos.map((o) => (
                 <li
                   key={o.id}
-                  className="flex flex-col gap-2 rounded-campo border border-gris-claro p-4 shadow-sm"
+                  className="flex flex-col gap-3 rounded-tarjeta bg-fondo p-4 shadow-tarjeta"
                 >
                   <div className="flex flex-wrap items-baseline justify-between gap-2">
                     <p className="font-bold text-azul-oscuro">
@@ -144,12 +150,40 @@ export function PantallaPagos() {
                     {hora(o.venceEn)}
                     {o.pagadoEn && <> · pagado el {fecha(o.pagadoEn)}</>}
                   </p>
+                  {soporte?.id === o.id && (
+                    <div className="grid gap-4 md:grid-cols-2">
+                      <dl className="flex flex-col gap-2 rounded-campo bg-fondo-suave p-4">
+                        <div>
+                          <dt className="text-meta font-bold text-gris">Referencia de la orden</dt>
+                          <dd className="text-xl font-extrabold text-azul-oscuro">{o.referencia}</dd>
+                        </div>
+                        <div>
+                          <dt className="text-meta font-bold text-gris">Valor que debe aparecer</dt>
+                          <dd className="text-xl font-extrabold text-azul-oscuro">{pesos(o.valor)}</dd>
+                        </div>
+                        <p className="text-base text-gris">Compara estos datos con el comprobante de la derecha.</p>
+                      </dl>
+                      <div className="overflow-hidden rounded-campo border border-gris-claro bg-fondo">
+                        {soporte.tipo.startsWith("image/") ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={soporte.url} alt={`Comprobante de la orden ${o.referencia}`} className="max-h-[32rem] w-full object-contain" />
+                        ) : (
+                          <iframe src={soporte.url} title={`Comprobante de la orden ${o.referencia}`} className="h-[32rem] w-full" />
+                        )}
+                      </div>
+                    </div>
+                  )}
                   <div className="flex flex-wrap gap-3">
-                    {o.tieneSoporte && (
-                      <Boton variante="secundario" onClick={() => verSoporte(o)}>
-                        Ver comprobante
-                      </Boton>
-                    )}
+                    {o.tieneSoporte &&
+                      (soporte?.id === o.id ? (
+                        <Boton variante="secundario" onClick={cerrarSoporte}>
+                          Ocultar comprobante
+                        </Boton>
+                      ) : (
+                        <Boton variante="secundario" onClick={() => verSoporte(o)}>
+                          Ver comprobante junto a la orden
+                        </Boton>
+                      ))}
                     {puedeVerificar && o.estado === "EN_VERIFICACION" && (
                       <>
                         <Boton onClick={() => aprobar(o)}>Aprobar pago</Boton>

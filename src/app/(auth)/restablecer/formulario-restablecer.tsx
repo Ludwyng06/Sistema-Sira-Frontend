@@ -18,7 +18,7 @@ export function FormularioRestablecer({ token }: { token?: string }) {
       <Alerta tipo="error">
         <p>
           El enlace está incompleto. Pide uno nuevo desde{" "}
-          <Link href="/recuperar" className="font-medium underline underline-offset-4">
+          <Link href="/recuperar" className="inline-flex min-h-11 items-center font-bold underline underline-offset-4">
             Recuperar contraseña
           </Link>
           .
