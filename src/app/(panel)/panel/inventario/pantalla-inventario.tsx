@@ -102,7 +102,7 @@ function NodoSede({
         type="button"
         aria-expanded={abierta}
         onClick={() => setAbierta(!abierta)}
-        className="flex w-full items-center gap-2 px-3 py-2 text-left font-bold text-azul-oscuro"
+        className="flex w-full items-center gap-2 min-h-11 px-3 py-2 text-left font-bold text-azul-oscuro"
       >
         <Icono aria-hidden className="size-4" />
         Sede {sede.nombre}
@@ -162,7 +162,7 @@ function NodoBloque({
         type="button"
         aria-expanded={abierto}
         onClick={() => setAbierto(!abierto)}
-        className="flex w-full items-center gap-2 rounded-campo px-2 py-1.5 text-left font-medium hover:bg-fondo-suave"
+        className="flex w-full items-center gap-2 rounded-campo min-h-11 px-2 py-1.5 text-left font-medium hover:bg-fondo-suave"
       >
         <Icono aria-hidden className="size-4" />
         {bloque.nombre}
@@ -199,7 +199,7 @@ function NodoBloque({
               <button
                 type="button"
                 onClick={() => alElegir({ tipo: "nuevo", sede: sedeCodigo, bloque: bloque.codigo })}
-                className="flex items-center gap-1 rounded-campo px-2 py-1.5 text-azul-oscuro underline underline-offset-4"
+                className="flex items-center gap-1 rounded-campo min-h-11 px-2 py-1.5 text-azul-oscuro underline underline-offset-4"
               >
                 <Plus aria-hidden className="size-4" />
                 Nuevo espacio
