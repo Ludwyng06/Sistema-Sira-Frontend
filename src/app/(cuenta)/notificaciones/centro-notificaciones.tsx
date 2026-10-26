@@ -8,12 +8,15 @@ import { EstadoError } from "@/components/EstadoError";
 import { EstadoVacio } from "@/components/EstadoVacio";
 import { Paginador } from "@/components/ListaSolicitudes";
 import { fecha, hora } from "@/lib/formato";
-import { listarNotificaciones, marcarLeida } from "@/lib/notificaciones";
+import { useSesion } from "@/components/SesionProvider";
+import { listarNotificaciones, marcarLeida, rutaDeEnlace } from "@/lib/notificaciones";
 import { useConsulta } from "@/lib/useConsulta";
 
 const POR_PAGINA = 20;
 
 export function CentroNotificaciones() {
+  const { tieneRol } = useSesion();
+  const esSolicitante = tieneRol("SOLICITANTE");
   const [soloNoLeidas, setSoloNoLeidas] = useState(false);
   const [pagina, setPagina] = useState(1);
   const { resultado, recargar } = useConsulta(
@@ -88,7 +91,7 @@ export function CentroNotificaciones() {
                   </p>
                   <div className="flex flex-wrap gap-4">
                     {n.enlace && n.enlace.startsWith("/") && (
-                      <Link href={n.enlace} className="text-azul-oscuro underline underline-offset-4">
+                      <Link href={rutaDeEnlace(n.enlace, esSolicitante)} className="inline-flex min-h-11 items-center font-bold text-azul-oscuro underline underline-offset-4">
                         Abrir
                       </Link>
                     )}
