@@ -1,5 +1,6 @@
 "use client";
 
+import { guardarArchivo } from "@/lib/descarga";
 import { BotonImprimir } from "@/components/BotonImprimir";
 import { EncabezadoImpresion } from "@/components/EncabezadoImpresion";
 import Link from "next/link";
@@ -177,11 +178,9 @@ function CuerpoActa({
     if (!acta) return;
     try {
       const archivo = await descargarActaPdf(acta.id);
-      const url = URL.createObjectURL(archivo);
-      window.open(url, "_blank", "noopener");
-      setTimeout(() => URL.revokeObjectURL(url), 60_000);
+      guardarArchivo(archivo, `Acta-${acta.id}.pdf`);
     } catch (e) {
-      avisar.error(e, "No pudimos abrir el PDF.");
+      avisar.error(e, "No pudimos descargar el PDF.");
     }
   }
 

@@ -19,6 +19,7 @@ import {
   type EstadoOrden,
   type OrdenPagoResumen,
 } from "@/lib/pagos";
+import { guardarArchivo } from "@/lib/descarga";
 import { useConsulta } from "@/lib/useConsulta";
 import { avisar } from "@/lib/avisos";
 
@@ -176,9 +177,21 @@ export function PantallaPagos() {
                   <div className="flex flex-wrap gap-3">
                     {o.tieneSoporte &&
                       (soporte?.id === o.id ? (
-                        <Boton variante="secundario" onClick={cerrarSoporte}>
-                          Ocultar comprobante
-                        </Boton>
+                        <>
+                          <Boton variante="secundario" onClick={cerrarSoporte}>
+                            Ocultar comprobante
+                          </Boton>
+                          <Boton
+                            variante="secundario"
+                            onClick={() =>
+                              fetch(soporte.url)
+                                .then((r) => r.blob())
+                                .then((b) => guardarArchivo(b, `Comprobante-${o.referencia}.${soporte.tipo === "application/pdf" ? "pdf" : soporte.tipo.split("/")[1] ?? "bin"}`))
+                            }
+                          >
+                            Descargar comprobante
+                          </Boton>
+                        </>
                       ) : (
                         <Boton variante="secundario" onClick={() => verSoporte(o)}>
                           Ver comprobante junto a la orden

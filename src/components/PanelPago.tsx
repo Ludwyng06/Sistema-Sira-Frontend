@@ -5,6 +5,7 @@ import { CargadorArchivos } from "@/components/CargadorArchivos";
 import { Alerta, Boton } from "@/components/formularios";
 import { fecha, hora, pesos } from "@/lib/formato";
 import { crearOrden, ETIQUETAS_ORDEN, subirSoporte, type OrdenPago } from "@/lib/pagos";
+import { guardarArchivo } from "@/lib/descarga";
 import { descargarCotizacionPdf } from "@/lib/solicitudes";
 import { avisar } from "@/lib/avisos";
 
@@ -69,11 +70,9 @@ export function PanelPago({
     setError(null);
     try {
       const archivo = await descargarCotizacionPdf(solicitudId);
-      const url = URL.createObjectURL(archivo);
-      window.open(url, "_blank", "noopener");
-      setTimeout(() => URL.revokeObjectURL(url), 60_000);
+      guardarArchivo(archivo, `Cotizacion-${consecutivo ?? "SIRA"}.pdf`);
     } catch (e) {
-      avisar.error(e, "No pudimos abrir la cotización.");
+      avisar.error(e, "No pudimos descargar la cotización.");
     }
   }
 
@@ -86,7 +85,7 @@ export function PanelPago({
 
       <div className="flex flex-wrap gap-3">
         <Boton variante="secundario" onClick={abrirCotizacion}>
-          Ver la cotización en PDF
+          Descargar la cotización en PDF
         </Boton>
         {!orden && (
           <Boton onClick={obtenerOrden} cargando={cargando}>
