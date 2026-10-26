@@ -41,8 +41,9 @@ const BLOQUES: Pieza[] = [
   { id: "C", nombre: "Bloque C", x: 9.2, y: 0, ancho: 3.6, fondo: 2.8 },
 ];
 const CANCHA: Pieza = { id: "cancha", nombre: "Cancha sintética", x: 0.4, y: 4.6, ancho: 4.8, fondo: 3 };
-const COLISEO: Pieza = { id: "coliseo", nombre: "Coliseo", x: 6.4, y: 4.4, ancho: 6.2, fondo: 3.4 };
-const ENTRADA = { x: 6.2, y: 9.2 };
+const COLISEO: Pieza = { id: "coliseo", nombre: "Coliseo", x: 6.4, y: 5.4, ancho: 6.2, fondo: 3.4 };
+const ENTRADA = { x: 6.2, y: 10 };
+const PISOS = 3;
 
 /** Una caja con tapa, cara izquierda y cara derecha. */
 function Caja({ x, y, ancho, fondo, z0, alto }: { x: number; y: number; ancho: number; fondo: number; z0: number; alto: number }) {
@@ -84,16 +85,16 @@ export function CampusIsometrico({ bloques, className }: { bloques: BloqueResume
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,18rem)] lg:items-center">
         <div className="overflow-hidden rounded-tarjeta bg-gradient-to-b from-azul to-azul-oscuro p-2 shadow-tarjeta">
           <svg
-            viewBox="0 0 560 400"
+            viewBox="0 0 560 430"
             role="img"
             aria-label="Maqueta del campus: tres bloques arriba, la cancha y el coliseo en el centro y la entrada abajo. Usa la lista para elegir una parte."
             className="h-auto w-full"
           >
-            <polygon points={pts([[-1, -1, 0], [14, -1, 0], [14, 10.4, 0], [-1, 10.4, 0]])} className="fill-white/10" stroke="#fff" strokeOpacity=".35" strokeWidth="1.2" />
-            <polyline points={pts([[ENTRADA.x, ENTRADA.y, 0], [ENTRADA.x, 4.1, 0], [6.1, 3.6, 0]])} fill="none" stroke="#fff" strokeOpacity=".7" strokeWidth="2" strokeDasharray="5 5" />
+            <polygon points={pts([[-1, -1, 0], [14, -1, 0], [14, 11.2, 0], [-1, 11.2, 0]])} className="fill-white/10" stroke="#fff" strokeOpacity=".35" strokeWidth="1.2" />
+            <polyline points={pts([[ENTRADA.x, ENTRADA.y, 0], [ENTRADA.x, 8.9, 0]])} fill="none" stroke="#fff" strokeOpacity=".7" strokeWidth="2" strokeDasharray="5 5" />
 
             {BLOQUES.map((b, i) => {
-              const pisos = Math.max(1, porCodigo.get(b.id)?.numeroPisos ?? 3);
+              const pisos = PISOS;
               const activo = elegido === b.id;
               const base = iso(b.x + b.ancho / 2, b.y + b.fondo, 0);
               return (
@@ -129,7 +130,7 @@ export function CampusIsometrico({ bloques, className }: { bloques: BloqueResume
                     key={n}
                     d={`M ${a.x} ${a.y} Q ${c.x} ${c.y} ${b.x} ${b.y}`}
                     fill="none"
-                    stroke={elegido === "coliseo" ? "#f5a51d" : "#fff"}
+                    stroke={elegido === "coliseo" ? "#f5a51d" : "#0b2e40"}
                     strokeWidth={elegido === "coliseo" ? 3.5 : 2.5}
                   />
                 );
