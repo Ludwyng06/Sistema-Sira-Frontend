@@ -10,19 +10,19 @@ export function SelloEntrada({ className }: { className?: string }) {
     <div aria-hidden className={clsx("anim-estampa relative aspect-square", className)}>
       <svg viewBox="0 0 240 240" className="absolute inset-0 size-full" fill="none" stroke="currentColor">
         <defs>
-          <path id="arco-superior" d="M 38 120 A 82 82 0 0 1 202 120" />
+          <path id="arco-superior" d="M 36 120 A 84 84 0 0 1 204 120" />
           <path id="arco-inferior" d="M 28 120 A 92 92 0 0 0 212 120" />
         </defs>
         <circle cx="120" cy="120" r="112" strokeWidth="4" />
         <circle cx="120" cy="120" r="104" strokeWidth="1.5" />
         <circle cx="120" cy="120" r="66" strokeWidth="1.5" strokeDasharray="2 5" strokeLinecap="round" />
-        <g fill="currentColor" stroke="none" fontFamily="var(--font-montserrat), sans-serif" fontWeight="900" letterSpacing="3">
-          <text fontSize="17">
+        <g fill="currentColor" stroke="none" fontFamily="var(--font-montserrat), sans-serif" fontWeight="900" letterSpacing="1.5">
+          <text fontSize="14">
             <textPath href="#arco-superior" startOffset="50%" textAnchor="middle">
               UNIPUTUMAYO · MOCOA
             </textPath>
           </text>
-          <text fontSize="15">
+          <text fontSize="13">
             <textPath href="#arco-inferior" startOffset="50%" textAnchor="middle" dominantBaseline="hanging">
               ★ ENTRADA ★
             </textPath>
