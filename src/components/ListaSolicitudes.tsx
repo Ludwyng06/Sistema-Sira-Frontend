@@ -6,6 +6,7 @@ import { Esqueleto, RegionCargando } from "@/components/Esqueleto";
 import { EstadoError } from "@/components/EstadoError";
 import { EstadoVacio } from "@/components/EstadoVacio";
 import { InsigniaEstado } from "@/components/InsigniaEstado";
+import { LineaEstaciones } from "@/components/LineaEstaciones";
 import { Selector } from "@/components/formularios";
 import { fecha } from "@/lib/formato";
 import {
@@ -76,29 +77,31 @@ export function ListaSolicitudes({
           <EstadoVacio {...vacio} />
         ) : (
           <>
-            <ul className="flex flex-col gap-3">
+            <ul className="flex flex-col gap-4">
               {resultado.datos.datos.map((s) => (
                 <li key={s.id}>
                   <Link
                     href={`${rutaDetalle}/${s.id}`}
-                    className="flex flex-col gap-1 rounded-lg border border-gris-claro p-4 shadow-sm hover:bg-fondo-suave"
+                    className="group grid gap-4 rounded-tarjeta border border-gris-claro/60 bg-fondo p-5 shadow-tarjeta transition duration-200 hover:-translate-y-0.5 hover:shadow-elevada motion-reduce:transition-none motion-reduce:hover:translate-y-0 md:grid-cols-[minmax(0,1fr)_minmax(0,24rem)] md:items-center md:gap-8"
                   >
-                    <span className="flex flex-wrap items-center gap-3">
-                      <span className="font-bold text-azul-oscuro">
-                        {s.consecutivo ?? "Sin enviar"}
-                      </span>
-                      <InsigniaEstado estado={s.estado} />
-                      {s.esExenta && (
-                        <span className="rounded border border-gris-claro px-2 py-0.5 text-sm">
-                          Sin costo
+                    <span className="flex min-w-0 flex-col gap-2">
+                      <span className="flex flex-wrap items-center gap-x-4 gap-y-2">
+                        <span className="font-titulo text-lg font-extrabold text-azul-oscuro">
+                          {s.consecutivo ?? "Sin enviar"}
                         </span>
-                      )}
+                        <InsigniaEstado estado={s.estado} />
+                        {s.esExenta && (
+                          <span className="rounded-full bg-turquesa-suave px-3 py-1 font-bold text-azul-oscuro">
+                            Sin costo
+                          </span>
+                        )}
+                      </span>
+                      <span className="text-lg font-bold text-tinta">{s.objetoEvento}</span>
+                      <span className="text-gris">
+                        {s.asistentesEstimados} personas · creada el {fecha(s.creadoEn)}
+                      </span>
                     </span>
-                    <span className="font-medium">{s.objetoEvento}</span>
-                    <span className="text-sm text-gris">
-                      {s.asistentesEstimados} personas · creada el {fecha(s.creadoEn)} ·{" "}
-                      {ESTADOS[s.estado].proxima}
-                    </span>
+                    <LineaEstaciones estado={s.estado} esExenta={s.esExenta} compacta />
                   </Link>
                 </li>
               ))}

@@ -7,6 +7,7 @@ import { Esqueleto, RegionCargando } from "@/components/Esqueleto";
 import { EstadoError } from "@/components/EstadoError";
 import { DialogoConfirmacion } from "@/components/DialogoConfirmacion";
 import { InsigniaEstado } from "@/components/InsigniaEstado";
+import { LineaEstaciones } from "@/components/LineaEstaciones";
 import { LineaTiempoSolicitud } from "@/components/LineaTiempoSolicitud";
 import { PanelPago } from "@/components/PanelPago";
 import { ResumenCotizacion } from "@/components/ResumenCotizacion";
@@ -129,11 +130,18 @@ export function DetalleSolicitud({
       <header className="flex flex-col gap-2">
         <p className="font-bold tracking-wide text-gris">{s.consecutivo ?? "Borrador sin enviar"}</p>
         <h1 className="text-4xl font-black sm:text-5xl">{s.objetoEvento}</h1>
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
           <InsigniaEstado estado={s.estado} />
-          <span className="text-gris">{ESTADOS[s.estado].proxima}</span>
+          <span className="text-lg text-gris">{ESTADOS[s.estado].proxima}</span>
         </div>
       </header>
+
+      <section aria-labelledby="titulo-linea" className="rounded-tarjeta border border-gris-claro/60 bg-fondo-suave px-4 py-6 sm:px-8">
+        <h2 id="titulo-linea" className="mb-5 text-xl font-extrabold">
+          Dónde va tu solicitud
+        </h2>
+        <LineaEstaciones estado={s.estado} esExenta={s.esExenta} />
+      </section>
 
       {(puedeCancelar || puedeDecidir) && (
         <div className="flex flex-wrap gap-3">
@@ -206,7 +214,7 @@ export function DetalleSolicitud({
 
         <section aria-labelledby="titulo-historial" className="flex flex-col gap-3">
           <h2 id="titulo-historial" className="text-2xl font-bold">
-            Seguimiento
+            Historial
           </h2>
           <LineaTiempoSolicitud solicitud={s} />
         </section>
