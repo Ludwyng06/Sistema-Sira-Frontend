@@ -99,7 +99,7 @@ export function PantallaBitacora() {
             <p aria-live="polite" className="text-gris">
               {resultado.datos.total} registros.
             </p>
-            <div className="overflow-x-auto rounded-campo border border-gris-claro">
+            <div tabIndex={0} role="region" aria-label="Tabla de la bitácora, se desplaza hacia los lados" className="overflow-x-auto rounded-campo border border-gris-claro">
               <table className="w-full text-left text-base">
                 <caption className="sr-only">Acciones registradas en la bitácora</caption>
                 <thead className="bg-fondo-suave">

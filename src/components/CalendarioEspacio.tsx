@@ -250,7 +250,7 @@ function ListaPorDia({
     <ol className="flex flex-col gap-3">
       {[...porDia.entries()].map(([dia, franjas]) => (
         <li key={dia} className="rounded-campo border border-gris-claro p-3">
-          <h3 className="font-bold">{fecha(`${dia}T12:00:00-05:00`)}</h3>
+          <p className="font-bold">{fecha(`${dia}T12:00:00-05:00`)}</p>
           <ul className="mt-2 flex flex-col gap-2">
             {franjas.map((f, i) => (
               <li key={i} className={`rounded-campo px-3 py-2 ${CLASE[f.estado]}`}>
