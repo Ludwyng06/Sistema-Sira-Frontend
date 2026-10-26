@@ -25,6 +25,17 @@ export function PanelPago({
   const [cargando, setCargando] = useState(false);
   const [subiendo, setSubiendo] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [revision, setRevision] = useState<{ archivo: File; url: string } | null>(null);
+
+  function elegir(archivo: File) {
+    if (revision) URL.revokeObjectURL(revision.url);
+    setRevision({ archivo, url: URL.createObjectURL(archivo) });
+  }
+
+  function descartar() {
+    if (revision) URL.revokeObjectURL(revision.url);
+    setRevision(null);
+  }
 
   async function obtenerOrden() {
     setCargando(true);
@@ -44,6 +55,7 @@ export function PanelPago({
     setError(null);
     try {
       setOrden(await subirSoporte(orden.id, archivo));
+      descartar();
       avisar.exito("Recibimos tu comprobante. Tesorería lo verificará.");
       alCambiar();
     } catch (e) {
@@ -113,11 +125,40 @@ export function PanelPago({
           </dl>
           {orden.observacionTesoreria && <Alerta tipo="info">{orden.observacionTesoreria}</Alerta>}
           {orden.estado === "PENDIENTE" || orden.estado === "RECHAZADA" ? (
-            <CargadorArchivos
-              etiqueta={`Subir comprobante de ${consecutivo ?? "la solicitud"}`}
-              alElegir={subir}
-              deshabilitado={subiendo}
-            />
+            revision ? (
+              <div className="flex flex-col gap-3 rounded-tarjeta bg-fondo-suave p-4">
+                <h3 className="text-xl font-extrabold">Revisa tu comprobante antes de enviarlo</h3>
+                <p className="text-base">
+                  Debe verse el valor de <strong>{pesos(orden.valor)}</strong> y la referencia{" "}
+                  <strong>{orden.referencia}</strong>. Una vez enviado, Tesorería lo revisa.
+                </p>
+                <div className="overflow-hidden rounded-campo border border-gris-claro bg-fondo">
+                  {revision.archivo.type.startsWith("image/") ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={revision.url} alt={`Vista previa de ${revision.archivo.name}`} className="max-h-[28rem] w-full object-contain" />
+                  ) : (
+                    <iframe src={revision.url} title={`Vista previa de ${revision.archivo.name}`} className="h-[28rem] w-full" />
+                  )}
+                </div>
+                <p className="text-meta text-gris">
+                  {revision.archivo.name} · {(revision.archivo.size / 1024 / 1024).toFixed(2)} MB
+                </p>
+                <div className="flex flex-wrap gap-3">
+                  <Boton onClick={() => subir(revision.archivo)} cargando={subiendo}>
+                    Enviar comprobante
+                  </Boton>
+                  <Boton variante="secundario" onClick={descartar} disabled={subiendo}>
+                    Elegir otro archivo
+                  </Boton>
+                </div>
+              </div>
+            ) : (
+              <CargadorArchivos
+                etiqueta={`Subir comprobante de ${consecutivo ?? "la solicitud"}`}
+                alElegir={elegir}
+                deshabilitado={subiendo}
+              />
+            )
           ) : (
             <p className="text-gris">Ya subiste el comprobante.</p>
           )}
