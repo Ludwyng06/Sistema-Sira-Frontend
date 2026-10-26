@@ -6,7 +6,7 @@ export const metadata: Metadata = { title: "Notificaciones" };
 export default function Notificaciones() {
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="text-4xl font-black sm:text-5xl">Notificaciones</h1>
+      <h1 className="text-t1 font-black">Notificaciones</h1>
       <CentroNotificaciones />
     </div>
   );

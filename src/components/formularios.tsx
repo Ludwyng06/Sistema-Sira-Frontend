@@ -266,7 +266,7 @@ export function TarjetaFormulario({
   return (
     <section className="anim-aparecer flex w-full flex-col gap-6">
       <header className="flex flex-col gap-2">
-        <h1 className="text-4xl font-black tracking-tight sm:text-5xl">{titulo}</h1>
+        <h1 className="text-t1 font-black tracking-tight">{titulo}</h1>
         {descripcion && <p className="text-lg text-gris">{descripcion}</p>}
       </header>
       {children}

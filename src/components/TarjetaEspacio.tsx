@@ -13,7 +13,7 @@ export function TarjetaEspacio({ espacio }: { espacio: TipoTarjeta }) {
         "flex flex-col overflow-hidden rounded-campo border bg-fondo",
         noCabe
           ? "border-dashed border-gris-claro bg-fondo-suave"
-          : "border-gris-claro shadow-sm",
+          : "border-gris-claro shadow-tarjeta",
       )}
     >
       <Foto foto={espacio.portada} className="h-32 w-full" />

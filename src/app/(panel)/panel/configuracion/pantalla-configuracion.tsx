@@ -54,7 +54,7 @@ export function PantallaConfiguracion() {
   return (
     <div className="flex flex-col gap-6">
       <header className="flex flex-col gap-1">
-        <h1 className="text-4xl font-black sm:text-5xl">Configuración</h1>
+        <h1 className="text-t1 font-black">Configuración</h1>
         <p className="text-gris">Usuarios y roles del sistema.</p>
       </header>
 
@@ -83,7 +83,7 @@ export function PantallaConfiguracion() {
           <>
             <ul className="flex flex-col gap-3">
               {resultado.datos.datos.map((u) => (
-                <li key={u.id} className="flex flex-col gap-2 rounded-campo border border-gris-claro p-4 shadow-sm">
+                <li key={u.id} className="flex flex-col gap-2 rounded-campo border border-gris-claro p-4 shadow-tarjeta">
                   <div className="flex flex-wrap items-baseline justify-between gap-2">
                     <p className="font-bold text-azul-oscuro">{u.correo}</p>
                     <p className="rounded-campo border border-gris-claro px-2 text-base">
@@ -212,7 +212,7 @@ function EditorRoles({
       ref={dialogo}
       onClose={alCerrar}
       aria-label={`Roles de ${usuario.correo}`}
-      className="m-auto w-[min(92vw,32rem)] rounded-campo border border-gris-claro p-0 shadow-xl backdrop:bg-texto/50"
+      className="m-auto w-[min(92vw,32rem)] rounded-campo border border-gris-claro p-0 shadow-elevada backdrop:bg-texto/50"
     >
       <form onSubmit={guardar} className="flex flex-col gap-4 p-6">
         <h2 className="text-xl font-bold">Roles de {usuario.correo}</h2>

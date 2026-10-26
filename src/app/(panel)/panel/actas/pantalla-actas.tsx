@@ -26,7 +26,7 @@ export function PantallaActas() {
   return (
     <div className="flex flex-col gap-6">
       <header className="flex flex-col gap-1">
-        <h1 className="text-4xl font-black sm:text-5xl">Actas</h1>
+        <h1 className="text-t1 font-black">Actas</h1>
         <p className="text-gris">Entrega y devolución de los espacios y sus elementos.</p>
       </header>
 
@@ -69,7 +69,7 @@ export function PantallaActas() {
             {resultado.datos.datos.map((s) => (
               <li
                 key={s.id}
-                className="flex flex-col gap-2 rounded-campo border border-gris-claro p-4 shadow-sm"
+                className="flex flex-col gap-2 rounded-campo border border-gris-claro p-4 shadow-tarjeta"
               >
                 <p className="font-bold text-azul-oscuro">{s.consecutivo}</p>
                 <p className="font-medium">{s.objetoEvento}</p>

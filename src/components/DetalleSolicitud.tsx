@@ -129,7 +129,7 @@ export function DetalleSolicitud({
 
       <header className="flex flex-col gap-2">
         <p className="font-bold tracking-wide text-gris">{s.consecutivo ?? "Borrador sin enviar"}</p>
-        <h1 className="text-4xl font-black sm:text-5xl">{s.objetoEvento}</h1>
+        <h1 className="text-t1 font-black">{s.objetoEvento}</h1>
         <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
           <InsigniaEstado estado={s.estado} />
           <span className="text-lg text-gris">{ESTADOS[s.estado].proxima}</span>

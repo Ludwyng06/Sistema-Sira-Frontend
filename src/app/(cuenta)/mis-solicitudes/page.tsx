@@ -6,7 +6,7 @@ export const metadata: Metadata = { title: "Mis solicitudes" };
 export default function MisSolicitudes() {
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="text-4xl font-black sm:text-5xl">Mis solicitudes</h1>
+      <h1 className="text-t1 font-black">Mis solicitudes</h1>
       <ListaSolicitudes
         ambito="PROPIAS"
         rutaDetalle="/mis-solicitudes"

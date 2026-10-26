@@ -9,7 +9,7 @@ export default function Aprobaciones() {
     <GuardiaSesion roles={["RESPONSABLE_ESPACIO", "APROBADOR", "ADMINISTRADOR", "AUDITOR"]}>
       <div className="flex flex-col gap-6">
         <header className="flex flex-col gap-1">
-          <h1 className="text-4xl font-black sm:text-5xl">Aprobaciones</h1>
+          <h1 className="text-t1 font-black">Aprobaciones</h1>
           <p className="text-gris">Solicitudes que te toca revisar, las más recientes primero.</p>
         </header>
         <ListaSolicitudes

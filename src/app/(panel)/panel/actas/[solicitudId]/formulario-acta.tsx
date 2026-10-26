@@ -89,7 +89,7 @@ export function FormularioActa({
     <div className="flex flex-col gap-6">
       {volver}
       <header className="flex flex-col gap-1">
-        <h1 className="text-4xl font-black sm:text-5xl">{titulo}</h1>
+        <h1 className="text-t1 font-black">{titulo}</h1>
         <p className="text-gris">
           {solicitud.consecutivo} · {solicitud.objetoEvento}
         </p>

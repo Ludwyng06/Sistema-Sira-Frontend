@@ -83,7 +83,7 @@ export function PantallaBloqueos({
   return (
     <div className="flex flex-col gap-8">
       <header className="flex flex-col gap-1">
-        <h1 className="text-4xl font-black sm:text-5xl">Calendario y bloqueos</h1>
+        <h1 className="text-t1 font-black">Calendario y bloqueos</h1>
         <p className="max-w-prose text-gris">
           Bloquea un espacio por clases, mantenimiento u otros eventos. Los bloqueos quedan visibles como
           “Clase”, “Mantenimiento” u “Ocupado”, sin datos de personas.

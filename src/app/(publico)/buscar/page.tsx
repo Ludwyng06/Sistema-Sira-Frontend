@@ -21,7 +21,7 @@ export default function Buscar(props: PageProps<"/buscar">) {
   return (
     <div className="flex flex-col gap-8">
       <header className="flex flex-col gap-2">
-        <h1 className="text-4xl font-black sm:text-5xl">Buscar por fecha y hora</h1>
+        <h1 className="text-t1 font-black">Buscar por fecha y hora</h1>
         <p className="max-w-prose text-gris">
           Dinos cuándo es tu evento y cuántas personas van. Te mostramos los espacios libres donde
           caben, del que mejor se ajusta al que más espacio deja.
@@ -104,7 +104,7 @@ async function Contenido({ searchParams }: { searchParams: PageProps<"/buscar">[
               {resultado.datos.espacios.map((e) => (
                 <li
                   key={e.codigo}
-                  className="flex flex-col gap-2 rounded-campo border border-gris-claro p-4 shadow-sm"
+                  className="flex flex-col gap-2 rounded-campo border border-gris-claro p-4 shadow-tarjeta"
                 >
                   <p className="text-base font-bold tracking-wide text-gris">
                     {e.codigo} · {e.bloque.nombre} · piso {e.piso}

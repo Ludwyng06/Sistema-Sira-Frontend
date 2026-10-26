@@ -72,7 +72,7 @@ async function ContenidoBloque({
     <div className="flex flex-col gap-8">
       {migas}
       <header className="flex flex-col gap-1">
-        <h1 className="text-4xl font-black sm:text-5xl">
+        <h1 className="text-t1 font-black">
           Bloque {bloque.codigo}
         </h1>
         <p className="text-gris">Sede {bloque.sede.nombre}</p>

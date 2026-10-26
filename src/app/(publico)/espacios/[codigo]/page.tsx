@@ -9,6 +9,7 @@ import { Foto } from "@/components/Foto";
 import { IndicadorAforo } from "@/components/IndicadorAforo";
 import { BordeRasgado } from "@/components/marca/BordeRasgado";
 import { IlustracionBloque } from "@/components/marca/IlustracionBloque";
+import { SolDeHoras } from "@/components/marca/SolDeHoras";
 import { SolRadial } from "@/components/marca/SolRadial";
 import { obtenerEspacio, resolver } from "@/lib/inventario";
 import { pesos } from "@/lib/formato";
@@ -85,7 +86,7 @@ async function FichaDelEspacio({ params }: { params: Props["params"] }) {
             <p className="w-fit rounded-full bg-white/15 px-3 py-1 text-base font-bold tracking-wide">
               {espacio.codigo} · {espacio.tipo.nombre.toLowerCase()} · piso {espacio.piso}
             </p>
-            <h1 className="max-w-xl text-4xl font-black leading-[1.02] text-white sm:text-6xl">
+            <h1 className="max-w-xl text-t1 font-black leading-[1.02] text-white">
               {espacio.nombre}
             </h1>
           </div>
@@ -129,6 +130,15 @@ async function FichaDelEspacio({ params }: { params: Props["params"] }) {
             Condiciones de uso
           </h2>
           <p className="max-w-prose">{espacio.condicionesUso}</p>
+        </section>
+      )}
+
+      {espacio.horarios.length > 0 && (
+        <section aria-labelledby="titulo-horarios" className="flex flex-col gap-3">
+          <h2 id="titulo-horarios" className="text-2xl font-black">
+            ¿A qué horas está abierto?
+          </h2>
+          <SolDeHoras horarios={espacio.horarios} />
         </section>
       )}
 

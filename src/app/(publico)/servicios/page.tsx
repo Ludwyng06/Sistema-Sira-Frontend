@@ -18,7 +18,7 @@ export default function PaginaServicios() {
   return (
     <div className="flex flex-col gap-8">
       <header className="flex flex-col gap-2">
-        <h1 className="text-4xl font-black sm:text-5xl">Servicios complementarios</h1>
+        <h1 className="text-t1 font-black">Servicios complementarios</h1>
         <p className="max-w-prose text-gris">
           Además del espacio, puedes pedir servicios para tu evento. Los eliges en el paso 2 de la
           solicitud y su valor se confirma en la cotización.
@@ -64,7 +64,7 @@ async function Catalogo() {
             {servicios.map((s) => (
               <li
                 key={s.id}
-                className="flex flex-col gap-2 rounded-campo border border-gris-claro p-4 shadow-sm"
+                className="flex flex-col gap-2 rounded-campo border border-gris-claro p-4 shadow-tarjeta"
               >
                 <h3 className="text-lg font-bold">{s.nombre}</h3>
                 {s.descripcion && <p className="text-gris">{s.descripcion}</p>}
