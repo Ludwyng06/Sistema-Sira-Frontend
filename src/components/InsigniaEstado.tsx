@@ -1,51 +1,77 @@
 import clsx from "clsx";
-import { Ban, CircleCheck, Clock, FilePen, Hourglass, type LucideIcon } from "lucide-react";
+import {
+  Ban,
+  CircleCheck,
+  Coins,
+  FilePen,
+  Hourglass,
+  type LucideIcon,
+} from "lucide-react";
 import { ESTADOS, type EstadoSolicitud } from "@/lib/solicitudes";
 
-const ICONOS: Record<EstadoSolicitud, LucideIcon> = {
-  BORRADOR: FilePen,
-  ENVIADA: Clock,
-  EN_REVISION: Hourglass,
-  COTIZADA: Hourglass,
-  PAGO_PENDIENTE: Hourglass,
-  CONFIRMADA: CircleCheck,
-  EN_USO: CircleCheck,
-  FINALIZADA: CircleCheck,
-  CERRADA: CircleCheck,
-  RECHAZADA: Ban,
-  VENCIDA: Ban,
-  CANCELADA: Ban,
-  REEMBOLSADA: CircleCheck,
+type Familia = "borrador" | "tramite" | "cobro" | "listo" | "cerrado" | "detenido";
+
+const FAMILIA: Record<EstadoSolicitud, Familia> = {
+  BORRADOR: "borrador",
+  ENVIADA: "tramite",
+  EN_REVISION: "tramite",
+  COTIZADA: "cobro",
+  PAGO_PENDIENTE: "cobro",
+  CONFIRMADA: "listo",
+  EN_USO: "listo",
+  FINALIZADA: "listo",
+  REEMBOLSADA: "listo",
+  CERRADA: "cerrado",
+  RECHAZADA: "detenido",
+  VENCIDA: "detenido",
+  CANCELADA: "detenido",
 };
 
-const ESTILO: Record<EstadoSolicitud, string> = {
-  BORRADOR: "border-dashed border-gris text-gris",
-  ENVIADA: "border-l-4 border-naranja bg-fondo-suave",
-  EN_REVISION: "border-l-4 border-naranja bg-fondo-suave",
-  COTIZADA: "border-l-4 border-naranja bg-fondo-suave",
-  PAGO_PENDIENTE: "border-l-4 border-naranja bg-fondo-suave",
-  CONFIRMADA: "border-l-4 border-verde bg-fondo-suave",
-  EN_USO: "border-l-4 border-verde bg-fondo-suave",
-  FINALIZADA: "border-l-4 border-verde bg-fondo-suave",
-  CERRADA: "border border-gris-claro bg-fondo-suave",
-  RECHAZADA: "border-2 border-azul-oscuro bg-fondo",
-  VENCIDA: "border-2 border-gris bg-fondo",
-  CANCELADA: "border-2 border-gris bg-fondo",
-  REEMBOLSADA: "border-l-4 border-verde bg-fondo-suave",
+const ICONO: Record<Familia, LucideIcon> = {
+  borrador: FilePen,
+  tramite: Hourglass,
+  cobro: Coins,
+  listo: CircleCheck,
+  cerrado: CircleCheck,
+  detenido: Ban,
 };
 
-/** Estado de la solicitud con color, ícono y texto: nunca solo color. */
-export function InsigniaEstado({ estado }: { estado: EstadoSolicitud }) {
-  const Icono = ICONOS[estado];
+/** Forma de sello + ícono + texto: el estado nunca depende solo del color. */
+const ESTILO: Record<Familia, string> = {
+  borrador: "border-dashed border-gris bg-fondo text-gris",
+  tramite: "border-naranja bg-aviso-suave text-aviso-texto",
+  cobro: "border-azul bg-turquesa-suave text-azul-oscuro",
+  listo: "border-verde bg-exito-suave text-exito-texto",
+  cerrado: "border-gris-claro bg-fondo-suave text-texto",
+  detenido: "border-error bg-error-suave text-error",
+};
+
+/**
+ * Sello de estado de una solicitud: doble borde como un sello de pasaporte, con un giro
+ * mínimo. Se estampa una vez al aparecer (con "reducir movimiento" queda quieto).
+ */
+export function InsigniaEstado({
+  estado,
+  className,
+}: {
+  estado: EstadoSolicitud;
+  className?: string;
+}) {
+  const familia = FAMILIA[estado];
+  const Icono = ICONO[familia];
   return (
     <span
       className={clsx(
-        "inline-flex w-fit items-center gap-1.5 rounded px-2 py-0.5 text-sm font-medium",
-        ESTILO[estado],
+        "anim-sello inline-flex w-fit items-center gap-2 rounded-full border-2 px-3.5 py-1 text-base font-extrabold leading-tight",
+        "shadow-[0_0_0_3px_var(--color-fondo),0_0_0_4.5px_currentColor]",
+        ESTILO[familia],
+        className,
       )}
     >
-      <Icono aria-hidden className="size-4" />
+      <Icono aria-hidden className="size-4 shrink-0" />
       {ESTADOS[estado].etiqueta}
     </span>
   );
 }
+
+export { InsigniaEstado as Sello };
