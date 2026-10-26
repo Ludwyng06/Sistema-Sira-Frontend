@@ -99,6 +99,7 @@ export function CampusIsometrico({ bloques, className }: { bloques: BloqueResume
               const base = iso(b.x + b.ancho / 2, b.y + b.fondo, 0);
               return (
                 <g key={b.id} className="iso-aparece" style={{ ["--retardo" as string]: `${i * 0.15}s` }}>
+                 <g className="iso-flota" style={{ ["--flota" as string]: `${i * 0.9}s` }}>
                   {activo && <polygon points={pts(rect(b, 0.25))} fill="none" stroke="#f5a51d" strokeWidth="3" />}
                   {Array.from({ length: pisos }, (_, p) => (
                     <g key={p} className="iso-piso" style={{ transform: activo ? `translateY(${-p * 9}px)` : undefined }}>
@@ -108,6 +109,7 @@ export function CampusIsometrico({ bloques, className }: { bloques: BloqueResume
                   <text x={base.x} y={base.y + 24} textAnchor="middle" className="fill-white font-titulo text-xl font-black">
                     {b.id}
                   </text>
+                 </g>
                 </g>
               );
             })}
@@ -119,6 +121,7 @@ export function CampusIsometrico({ bloques, className }: { bloques: BloqueResume
             </g>
 
             <g className="iso-aparece" style={{ ["--retardo" as string]: ".65s" }}>
+             <g className="iso-flota" style={{ ["--flota" as string]: "2.4s" }}>
               <Caja x={COLISEO.x} y={COLISEO.y} ancho={COLISEO.ancho} fondo={COLISEO.fondo} z0={0} alto={1.1} />
               {[0, 1, 2, 3, 4].map((n) => {
                 const xx = COLISEO.x + 0.6 + n * 1.25;
@@ -135,6 +138,7 @@ export function CampusIsometrico({ bloques, className }: { bloques: BloqueResume
                   />
                 );
               })}
+             </g>
             </g>
 
             <circle cx={entrada.x} cy={entrada.y} r="8" className="fill-naranja" />
@@ -165,9 +169,7 @@ export function CampusIsometrico({ bloques, className }: { bloques: BloqueResume
             <h3 className="text-xl font-extrabold">{nombre}</h3>
             {datos ? (
               <ul className="text-base text-texto">
-                <li>
-                  {datos.numeroPisos} {datos.numeroPisos === 1 ? "piso" : "pisos"}
-                </li>
+                <li>{PISOS} pisos</li>
                 <li>{datos.totalEspacios} espacios</li>
                 <li>Hasta {datos.capacidadMaxima} personas</li>
               </ul>

@@ -381,3 +381,13 @@ h4 {
     transition: none;
   }
 }
+
+@keyframes iso-flota {
+  to {
+    transform: translateY(-5px);
+  }
+}
+.iso-flota {
+  animation: iso-flota 4.5s ease-in-out infinite alternate;
+  animation-delay: var(--flota, 0s);
+}
