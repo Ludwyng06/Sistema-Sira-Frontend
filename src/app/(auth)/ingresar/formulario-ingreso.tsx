@@ -90,14 +90,21 @@ export function FormularioIngreso({
       <Boton type="submit" cargando={enviando}>
         {enviando ? "Ingresando…" : "Ingresar"}
       </Boton>
-      <p className="flex flex-wrap justify-between gap-2 text-sm">
-        <Link href="/recuperar" className="text-azul-oscuro underline underline-offset-4">
-          Olvidé mi contraseña
-        </Link>
-        <Link href="/registro" className="text-azul-oscuro underline underline-offset-4">
+      <Link
+        href="/recuperar"
+        className="inline-flex min-h-11 w-fit items-center font-bold text-azul-oscuro underline decoration-turquesa decoration-2 underline-offset-4"
+      >
+        Olvidé mi contraseña
+      </Link>
+      <div className="flex flex-col gap-3 border-t border-gris-claro/60 pt-5">
+        <p className="text-gris">¿Es tu primera vez?</p>
+        <Link
+          href="/registro"
+          className="inline-flex min-h-12 items-center justify-center rounded-campo border-2 border-azul px-5 font-bold text-azul-oscuro transition-colors hover:bg-turquesa-suave"
+        >
           Crear una cuenta
         </Link>
-      </p>
+      </div>
     </form>
   );
 }
