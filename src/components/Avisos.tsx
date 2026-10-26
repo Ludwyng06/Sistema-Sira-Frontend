@@ -23,9 +23,9 @@ const ETIQUETAS: Record<TipoAviso, string> = {
 /** El tipo se distingue por ícono, palabra y color: nunca solo por color. */
 const ESTILOS: Record<TipoAviso, { franja: string; icono: string; barra: string }> = {
   error: { franja: "bg-error", icono: "bg-error-suave text-error", barra: "bg-error" },
-  exito: { franja: "bg-verde", icono: "bg-[#eaf5d6] text-[#2f5d0a]", barra: "bg-verde" },
+  exito: { franja: "bg-verde", icono: "bg-exito-suave text-exito-texto", barra: "bg-verde" },
   info: { franja: "bg-turquesa", icono: "bg-turquesa-suave text-azul-oscuro", barra: "bg-turquesa" },
-  advertencia: { franja: "bg-naranja", icono: "bg-[#fdf0d3] text-[#7a4b00]", barra: "bg-naranja" },
+  advertencia: { franja: "bg-naranja", icono: "bg-aviso-suave text-aviso-texto", barra: "bg-naranja" },
 };
 
 const SIN_AVISOS: Aviso[] = [];

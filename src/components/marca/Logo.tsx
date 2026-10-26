@@ -63,7 +63,7 @@ export function Marca({
           PUTUMAYO
         </span>
         {detalle && (
-          <span className={clsx("mt-1 font-texto font-medium", grande ? "text-sm" : "text-xs")}>{detalle}</span>
+          <span className={clsx("mt-1 font-texto font-medium", "text-meta")}>{detalle}</span>
         )}
       </span>
     </span>

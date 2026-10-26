@@ -24,6 +24,27 @@
   --font-texto: var(--font-roboto), ui-sans-serif, system-ui, sans-serif;
   --font-marca: var(--font-montserrat), var(--font-raleway), ui-sans-serif, system-ui, sans-serif;
 
+  /* Estados: fondos suaves y textos que pasan 4,5:1 (antes eran hex sueltos dentro de las clases). */
+  --color-exito-suave: #eaf5d6;
+  --color-exito-texto: #2f5d0a;
+  --color-aviso-suave: #fdf0d3;
+  --color-aviso-texto: #7a4b00;
+
+  /* Escala tipográfica: 16 px es el mínimo del cuerpo; 14 px (meta) solo para datos secundarios. */
+  --text-meta: 0.875rem;
+  --text-meta--line-height: 1.45;
+  --text-t2: 2rem;
+  --text-t2--line-height: 1.15;
+  --text-t1: clamp(2.25rem, 1.7rem + 1.6vw, 3rem);
+  --text-t1--line-height: 1.08;
+  --text-display: clamp(3rem, 1.6rem + 4.6vw, 4.5rem);
+  --text-display--line-height: 0.98;
+
+  /* Radios: campo/botón, tarjeta y píldora. No hay más. */
+  --radius-campo: 0.5rem;
+  --radius-tarjeta: 1rem;
+
+  --shadow-boton: 0 2px 0 0 var(--color-azul-oscuro);
   --shadow-tarjeta: 0 1px 2px rgb(11 46 64 / 6%), 0 8px 24px -12px rgb(11 46 64 / 22%);
   --shadow-elevada: 0 2px 4px rgb(11 46 64 / 8%), 0 18px 40px -16px rgb(11 46 64 / 35%);
 }
@@ -175,67 +196,78 @@ h4 {
   animation-fill-mode: forwards;
 }
 
-/* Escena del campus (portada): se arma al cargar y luego solo derivan nubes, luces y aves. */
-@keyframes escena-nube {
+/* Plano del campus (portada): el trazo se dibuja una vez y los pins pulsan una vez.
+   El estado base es el final: con "reducir movimiento" el plano se ve completo y quieto. */
+@keyframes dibujar {
   from {
-    transform: translateX(-170px);
-  }
-  to {
-    transform: translateX(570px);
+    stroke-dashoffset: 1;
   }
 }
-@keyframes escena-ave {
-  from {
-    transform: translate(-70px, 12px);
+@keyframes pulso-pin {
+  0% {
+    transform: scale(1);
+    opacity: 0.7;
   }
-  50% {
-    transform: translate(210px, -18px);
-  }
-  to {
-    transform: translate(490px, 8px);
-  }
-}
-@keyframes escena-aleta {
-  from {
-    transform: scaleY(0);
-  }
-  to {
-    transform: scaleY(1);
-  }
-}
-@keyframes escena-luz {
-  0%,
   100% {
+    transform: scale(2.4);
     opacity: 0;
   }
-  35%,
-  65% {
-    opacity: 0.85;
+}
+.plano-trazo {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 0;
+  animation: dibujar 1.8s cubic-bezier(0.4, 0, 0.2, 1) backwards;
+  animation-delay: var(--retardo, 0s);
+}
+.plano-pulso {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: pulso-pin 1.4s ease-out 1 backwards;
+  animation-delay: var(--retardo, 1.8s);
+  opacity: 0;
+}
+
+/* Sello de estado: se estampa una vez. Base = estado final (con "reducir movimiento" queda quieto). */
+@keyframes sello {
+  from {
+    opacity: 0;
+    transform: scale(1.4) rotate(-7deg);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(0.96) rotate(-2.5deg);
   }
 }
-@keyframes escena-brizna {
-  50% {
-    transform: rotate(7deg);
+.anim-sello {
+  transform: rotate(-1.5deg);
+  animation: sello 0.45s cubic-bezier(0.2, 0.9, 0.3, 1.2) backwards;
+}
+
+/* Línea de estaciones: se llena hasta la estación actual. */
+@keyframes llenar {
+  from {
+    transform: scaleX(0);
   }
 }
-.escena-nube {
-  animation: escena-nube 90s linear infinite;
+.linea-llena {
+  transform-origin: left;
+  animation: llenar 1s cubic-bezier(0.4, 0, 0.2, 1) 0.25s backwards;
 }
-.escena-ave {
-  animation: escena-ave 48s linear infinite;
+
+/* Sello de entrada (acceso): se estampa una vez, más grande y más despacio que el de estado. */
+@keyframes estampa {
+  from {
+    opacity: 0;
+    transform: scale(1.5) rotate(-18deg);
+  }
+  55% {
+    opacity: 1;
+    transform: scale(0.94) rotate(-6deg);
+  }
 }
-.escena-aleta {
-  transform-box: fill-box;
-  transform-origin: 50% 100%;
-  animation: escena-aleta 0.9s cubic-bezier(0.2, 0.8, 0.2, 1) both;
-}
-.escena-luz {
-  animation: escena-luz 6s ease-in-out infinite;
-}
-.escena-brizna {
-  transform-box: fill-box;
-  transform-origin: 50% 100%;
-  animation: escena-brizna 4.5s ease-in-out infinite;
+.anim-estampa {
+  transform: rotate(-8deg);
+  animation: estampa 0.7s cubic-bezier(0.2, 0.9, 0.3, 1.15) 0.2s backwards;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -328,4 +360,24 @@ h4 {
 .fc .fc-daygrid-day-number {
   color: var(--color-tinta);
   text-decoration: none;
+}
+
+/* Maqueta isométrica del panel: los edificios suben una vez; los pisos se separan al elegir. */
+@keyframes iso-sube {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+}
+.iso-aparece {
+  animation: iso-sube 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) backwards;
+  animation-delay: var(--retardo, 0s);
+}
+.iso-piso {
+  transition: transform 0.5s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+@media (prefers-reduced-motion: reduce) {
+  .iso-piso {
+    transition: none;
+  }
 }

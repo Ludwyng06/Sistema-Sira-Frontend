@@ -59,7 +59,7 @@ const PRIORIDAD_ROL: Rol[] = [
 ];
 
 const baseBoton =
-  "group relative inline-flex items-center gap-2 rounded-full px-3.5 py-2 text-sm font-bold ring-1 ring-inset transition duration-200 hover:-translate-y-0.5 active:translate-y-0 motion-reduce:transition-none motion-reduce:hover:translate-y-0";
+  "group relative inline-flex min-h-11 items-center gap-2 rounded-full px-4 text-base font-bold ring-1 ring-inset transition duration-200 hover:-translate-y-0.5 active:translate-y-0 motion-reduce:transition-none motion-reduce:hover:translate-y-0";
 const botonSuave = "bg-white/10 text-white ring-white/20 hover:bg-white/20 hover:ring-white/40";
 const botonActivo = "bg-white text-azul-oscuro ring-white shadow-[0_6px_18px_-8px_rgb(0_0_0/0.5)]";
 
@@ -133,16 +133,16 @@ function BotonNotificaciones({
         aria-current={activa ? "page" : undefined}
         aria-label={noLeidas > 0 ? `Notificaciones, ${noLeidas} sin leer` : "Notificaciones"}
         title="Notificaciones"
-        className={clsx(baseBoton, "size-9 justify-center !px-0", activa ? botonActivo : botonSuave)}
+        className={clsx(baseBoton, "size-11 justify-center !px-0", activa ? botonActivo : botonSuave)}
       >
         <Bell
           aria-hidden
-          className="size-[1.1rem] origin-top transition-transform duration-300 group-hover:rotate-12 motion-reduce:transition-none"
+          className="size-5 origin-top transition-transform duration-300 group-hover:rotate-12 motion-reduce:transition-none"
         />
         {noLeidas > 0 && (
           <span
             aria-hidden
-            className="absolute -right-1.5 -top-1.5 flex min-w-5 items-center justify-center rounded-full bg-naranja px-1 text-xs font-extrabold text-tinta ring-2 ring-azul"
+            className="absolute -right-1.5 -top-1.5 flex min-w-5 items-center justify-center rounded-full bg-naranja px-1 text-meta font-extrabold text-tinta ring-2 ring-azul"
           >
             {noLeidas}
           </span>
@@ -186,7 +186,7 @@ export function NavegacionPrincipal() {
         aria-expanded={abierto}
         aria-controls="menu-principal"
         onClick={() => setAbierto(!abierto)}
-        className={clsx(baseBoton, botonSuave, "md:hidden")}
+        className={clsx(baseBoton, botonSuave, "order-2 md:hidden")}
       >
         {abierto ? <X aria-hidden className="size-4" /> : <Menu aria-hidden className="size-4" />}
         Menú
@@ -216,20 +216,20 @@ export function NavegacionPrincipal() {
 
           {autenticado && (
             <li
-              className="anim-aparecer flex items-center gap-2.5 rounded-full bg-black/15 py-1 pl-1 pr-1 ring-1 ring-inset ring-white/15 lg:pr-4"
+              className="anim-aparecer flex items-center gap-2.5 min-h-11 rounded-full bg-black/15 py-1 pl-1 pr-1 ring-1 ring-inset ring-white/15 lg:pr-4"
               style={{ animationDelay: `${totalAntes * 45}ms` }}
               title={`${nombre} · ${usuario.correo}`}
             >
               <span
                 aria-hidden
-                className="flex size-8 items-center justify-center rounded-full bg-gradient-to-br from-turquesa to-azul font-titulo text-xs font-black text-white ring-2 ring-white/70"
+                className="flex size-9 items-center justify-center rounded-full bg-gradient-to-br from-turquesa to-azul font-titulo text-meta font-black text-white ring-2 ring-white/70"
               >
                 {iniciales(nombre)}
               </span>
               <span className="hidden min-w-0 flex-col leading-tight lg:flex">
-                <span className="max-w-[10rem] truncate text-sm font-bold text-white">{nombre}</span>
+                <span className="max-w-[10rem] truncate text-base font-bold text-white">{nombre}</span>
                 {rolPrincipal && (
-                  <span className="text-xs font-medium text-white/80">{ETIQUETAS_ROL[rolPrincipal]}</span>
+                  <span className="text-meta font-medium text-white/85">{ETIQUETAS_ROL[rolPrincipal]}</span>
                 )}
               </span>
             </li>

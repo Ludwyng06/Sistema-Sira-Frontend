@@ -3,7 +3,7 @@ import { CircleAlert, CircleCheck, Loader2, X } from "lucide-react";
 import type { ComponentProps, ReactNode } from "react";
 
 const claseControl =
-  "w-full rounded-lg border border-gris/70 bg-fondo px-3.5 py-2.5 text-texto transition-colors placeholder:text-gris/70 hover:border-azul focus:border-azul disabled:bg-fondo-suave disabled:text-gris aria-[invalid=true]:border-2 aria-[invalid=true]:border-azul-oscuro";
+  "min-h-12 w-full rounded-campo border border-gris/70 bg-fondo px-3.5 py-2.5 text-base text-texto transition-colors placeholder:text-gris/70 hover:border-azul focus:border-azul disabled:bg-fondo-suave disabled:text-gris aria-[invalid=true]:border-2 aria-[invalid=true]:border-azul-oscuro";
 
 /** Campo con etiqueta visible, ayuda y error enlazados por aria. */
 export function Campo({
@@ -35,12 +35,12 @@ export function Campo({
         {...props}
       />
       {ayuda && (
-        <p id={`${id}-ayuda`} className="text-sm text-gris">
+        <p id={`${id}-ayuda`} className="text-meta text-gris">
           {ayuda}
         </p>
       )}
       {error && (
-        <p id={`${id}-error`} className="text-sm font-medium text-azul-oscuro">
+        <p id={`${id}-error`} className="text-base font-bold text-error">
           {error}
         </p>
       )}
@@ -72,7 +72,7 @@ export function Selector({
         {children}
       </select>
       {ayuda && (
-        <p id={`${id}-ayuda`} className="text-sm text-gris">
+        <p id={`${id}-ayuda`} className="text-meta text-gris">
           {ayuda}
         </p>
       )}
@@ -145,12 +145,12 @@ export function AreaTexto({
         {...props}
       />
       {ayuda && (
-        <p id={`${id}-ayuda`} className="text-sm text-gris">
+        <p id={`${id}-ayuda`} className="text-meta text-gris">
           {ayuda}
         </p>
       )}
       {error && (
-        <p id={`${id}-error`} className="text-sm font-medium text-azul-oscuro">
+        <p id={`${id}-error`} className="text-base font-bold text-error">
           {error}
         </p>
       )}
@@ -201,7 +201,7 @@ export function Alerta({
         {titulo && <p className="font-titulo font-extrabold text-tinta">{titulo}</p>}
         <div>{children}</div>
         {queHacer && (
-          <p className="text-sm">
+          <p>
             <span className="font-bold text-azul-oscuro">Qué hacer: </span>
             {queHacer}
           </p>
@@ -237,9 +237,9 @@ export function Boton({
       type="button"
       disabled={disabled || cargando}
       className={clsx(
-        "inline-flex items-center justify-center gap-2 rounded-lg px-5 py-2.5 font-bold transition duration-200 disabled:cursor-not-allowed disabled:opacity-60 motion-reduce:transition-none",
+        "inline-flex min-h-12 items-center justify-center gap-2 rounded-campo px-5 py-2.5 text-base font-bold transition duration-200 disabled:cursor-not-allowed disabled:opacity-60 motion-reduce:transition-none",
         variante === "primario" &&
-          "bg-azul text-white shadow-[0_2px_0_0_var(--color-azul-oscuro)] hover:-translate-y-px hover:bg-azul-oscuro active:translate-y-0 motion-reduce:hover:translate-y-0",
+          "bg-azul text-white shadow-boton hover:-translate-y-px hover:bg-azul-oscuro active:translate-y-0 motion-reduce:hover:translate-y-0",
         variante === "secundario" &&
           "border-2 border-azul bg-fondo text-azul-oscuro hover:bg-turquesa-suave",
         variante === "peligro" && "bg-tinta text-white hover:bg-texto",
