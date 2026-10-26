@@ -1,18 +1,20 @@
 "use client";
 
 import { Esqueleto, RegionCargando } from "@/components/Esqueleto";
+import { CampusIsometrico } from "@/components/marca/CampusIsometrico";
 import { EstadoError } from "@/components/EstadoError";
 import { fecha, pesos } from "@/lib/formato";
 import { obtenerTablero } from "@/lib/reportes";
 import { ESTADOS, type EstadoSolicitud } from "@/lib/solicitudes";
+import { listarBloques, SEDE_PRINCIPAL } from "@/lib/inventario";
 import { useConsulta } from "@/lib/useConsulta";
 
 function Cifra({ titulo, valor, detalle }: { titulo: string; valor: string; detalle?: string }) {
   return (
-    <div className="flex flex-col gap-1 rounded-lg border border-gris-claro p-4 shadow-sm">
-      <dt className="text-sm font-medium text-gris">{titulo}</dt>
+    <div className="flex flex-col gap-1 rounded-tarjeta bg-fondo p-4 shadow-tarjeta">
+      <dt className="text-base font-medium text-gris">{titulo}</dt>
       <dd className="font-titulo text-3xl font-extrabold text-azul-oscuro">{valor}</dd>
-      {detalle && <dd className="text-sm text-gris">{detalle}</dd>}
+      {detalle && <dd className="text-meta text-gris">{detalle}</dd>}
     </div>
   );
 }
@@ -20,6 +22,7 @@ function Cifra({ titulo, valor, detalle }: { titulo: string; valor: string; deta
 /** Los números llegan de la API; nada se calcula en el cliente. */
 export function Tablero() {
   const { resultado, recargar } = useConsulta(() => obtenerTablero(), []);
+  const bloques = useConsulta(() => listarBloques(SEDE_PRINCIPAL), []);
 
   if (resultado.estado === "cargando") {
     return (
@@ -43,11 +46,13 @@ export function Tablero() {
   return (
     <div className="flex flex-col gap-8">
       <header className="flex flex-col gap-1">
-        <h1 className="text-4xl font-black sm:text-5xl">Tablero</h1>
+        <h1 className="text-t1 font-black">Tablero</h1>
         <p className="text-gris">
           Del {fecha(t.desde)} al {fecha(t.hasta)}.
         </p>
       </header>
+
+      {bloques.resultado.estado === "listo" && <CampusIsometrico bloques={bloques.resultado.datos} />}
 
       <dl className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <Cifra
@@ -73,7 +78,7 @@ export function Tablero() {
       </dl>
 
       <section aria-labelledby="titulo-estados" className="flex flex-col gap-3">
-        <h2 id="titulo-estados" className="text-2xl font-bold">
+        <h2 id="titulo-estados" className="text-2xl font-extrabold">
           Solicitudes por estado
         </h2>
         {t.solicitudesPorEstado.length === 0 ? (
@@ -83,7 +88,7 @@ export function Tablero() {
             {t.solicitudesPorEstado.map((c) => (
               <li
                 key={c.estado}
-                className="flex items-baseline justify-between rounded border border-gris-claro px-4 py-2"
+                className="flex items-baseline justify-between rounded-campo border border-gris-claro px-4 py-3"
               >
                 <span>{ESTADOS[c.estado as EstadoSolicitud]?.etiqueta ?? c.estado}</span>
                 <span className="text-xl font-bold">{c.cantidad}</span>
@@ -94,13 +99,13 @@ export function Tablero() {
       </section>
 
       <section aria-labelledby="titulo-usados" className="flex flex-col gap-3">
-        <h2 id="titulo-usados" className="text-2xl font-bold">
+        <h2 id="titulo-usados" className="text-2xl font-extrabold">
           Espacios más usados
         </h2>
         {t.ocupacion.espaciosMasUsados.length === 0 ? (
           <p className="text-gris">Todavía no hay reservas confirmadas en este periodo.</p>
         ) : (
-          <div className="overflow-x-auto rounded-lg border border-gris-claro">
+          <div className="overflow-x-auto rounded-tarjeta border border-gris-claro">
             <table className="w-full text-left">
               <caption className="sr-only">Espacios con más horas reservadas</caption>
               <thead className="bg-fondo-suave">
