@@ -423,7 +423,7 @@ h4 {
   tr {
     break-inside: avoid;
   }
-  @page {
-    margin: 14mm;
-  }
+}
+@page {
+  margin: 14mm;
 }
