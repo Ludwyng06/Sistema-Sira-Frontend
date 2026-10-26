@@ -77,7 +77,7 @@ async function FichaDelEspacio({ params }: { params: Props["params"] }) {
         <div className="flex flex-col gap-5 px-6 pb-12 pt-6 sm:px-10 sm:pt-8">
           <Link
             href={volver}
-            className="inline-flex w-fit items-center gap-1 font-medium text-white underline-offset-4 hover:underline"
+            className="inline-flex min-h-11 w-fit items-center gap-1 font-bold text-white underline-offset-4 hover:underline"
           >
             <ChevronLeft aria-hidden className="size-4" />
             Volver a {espacio.bloque.nombre}

@@ -159,13 +159,13 @@ export function FormularioRegistro() {
         />
       </div>
 
-      <div className="flex items-start gap-2">
+      <div className="flex min-h-11 items-start gap-2">
         <input
           id="aceptaPoliticaDatos"
           name="aceptaPoliticaDatos"
           type="checkbox"
           required
-          className="mt-1 size-5 shrink-0"
+          className="mt-2.5 size-6 shrink-0"
         />
         <label htmlFor="aceptaPoliticaDatos">
           Acepto la política de tratamiento de datos personales de la Institución

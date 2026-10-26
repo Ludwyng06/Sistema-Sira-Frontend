@@ -100,12 +100,12 @@ export function PasoEvento({
           defaultValue={borrador.telefonoContacto ?? ""}
         />
       </div>
-      <label className="flex items-center gap-2">
+      <label className="flex min-h-11 items-center gap-2">
         <input
           name="eventoPublico"
           type="checkbox"
           defaultChecked={borrador.eventoPublico}
-          className="size-5"
+          className="size-6"
         />
         Es un evento abierto al público
       </label>

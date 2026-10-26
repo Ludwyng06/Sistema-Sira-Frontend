@@ -215,12 +215,12 @@ export function FormularioEspacio({
         )}
         {!actual && (
           <div className="flex flex-col gap-2">
-            <label className="flex items-center gap-2">
-              <input name="requiereAval" type="checkbox" defaultChecked className="size-5" />
+            <label className="flex min-h-11 items-center gap-2">
+              <input name="requiereAval" type="checkbox" defaultChecked className="size-6" />
               Requiere el aval del responsable del espacio
             </label>
-            <label className="flex items-center gap-2">
-              <input name="esReservable" type="checkbox" defaultChecked className="size-5" />
+            <label className="flex min-h-11 items-center gap-2">
+              <input name="esReservable" type="checkbox" defaultChecked className="size-6" />
               Se puede reservar
             </label>
           </div>

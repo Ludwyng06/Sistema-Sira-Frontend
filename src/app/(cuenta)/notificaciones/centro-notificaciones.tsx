@@ -34,7 +34,7 @@ export function CentroNotificaciones() {
 
   return (
     <div className="flex flex-col gap-6">
-      <label className="flex w-fit items-center gap-2 font-medium">
+      <label className="flex min-h-11 w-fit items-center gap-2 font-medium">
         <input
           type="checkbox"
           checked={soloNoLeidas}
@@ -42,7 +42,7 @@ export function CentroNotificaciones() {
             setSoloNoLeidas(e.target.checked);
             setPagina(1);
           }}
-          className="size-5"
+          className="size-6"
         />
         Ver solo las no leídas
       </label>
@@ -91,7 +91,7 @@ export function CentroNotificaciones() {
                   </p>
                   <div className="flex flex-wrap gap-4">
                     {n.enlace && n.enlace.startsWith("/") && (
-                      <Link href={rutaDeEnlace(n.enlace, esSolicitante)} className="inline-flex min-h-11 items-center font-bold text-azul-oscuro underline underline-offset-4">
+                      <Link href={rutaDeEnlace(n.enlace, esSolicitante)} className="inline-flex min-h-11 min-w-11 items-center font-bold text-azul-oscuro underline underline-offset-4">
                         Abrir
                       </Link>
                     )}
@@ -99,7 +99,7 @@ export function CentroNotificaciones() {
                       <button
                         type="button"
                         onClick={() => leer(n.id)}
-                        className="text-azul-oscuro underline underline-offset-4"
+                        className="inline-flex min-h-11 items-center font-bold text-azul-oscuro underline underline-offset-4"
                       >
                         Marcar como leída
                       </button>

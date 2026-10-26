@@ -43,7 +43,7 @@ async function ContenidoBloque({
   const migas = (
     <Link
       href="/"
-      className="inline-flex items-center gap-1 text-azul-oscuro underline underline-offset-4"
+      className="inline-flex min-h-11 items-center gap-1 font-bold text-azul-oscuro underline underline-offset-4"
     >
       <ChevronLeft aria-hidden className="size-4" />
       Volver a los bloques

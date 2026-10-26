@@ -55,7 +55,7 @@ export function DetalleSolicitud({
   const volver = (
     <Link
       href={rutaVolver}
-      className="inline-flex w-fit items-center gap-1 text-azul-oscuro underline underline-offset-4"
+      className="inline-flex min-h-11 w-fit items-center gap-1 font-bold text-azul-oscuro underline underline-offset-4"
     >
       <ChevronLeft aria-hidden className="size-4" />
       Volver a la lista

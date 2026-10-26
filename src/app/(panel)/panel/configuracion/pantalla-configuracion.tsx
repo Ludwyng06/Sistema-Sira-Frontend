@@ -227,7 +227,7 @@ function EditorRoles({
                     type="checkbox"
                     checked={marcado}
                     onChange={(e) => alternar(rol, e.target.checked)}
-                    className="size-5"
+                    className="size-6"
                   />
                   {ETIQUETAS_ROL[rol]}
                 </label>

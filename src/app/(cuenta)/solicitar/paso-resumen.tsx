@@ -190,12 +190,12 @@ export function PasoResumen({
         </Alerta>
       )}
 
-      <label className="flex items-start gap-2">
+      <label className="flex min-h-11 items-start gap-2">
         <input
           type="checkbox"
           checked={acepta}
           onChange={(e) => setAcepta(e.target.checked)}
-          className="mt-1 size-5"
+          className="mt-2.5 size-6"
         />
         <span>
           Entiendo que el horario se retiene al enviar, que la solicitud pasa por revisión y que puedo

@@ -20,13 +20,13 @@ export default function LayoutAuth({ children }: LayoutProps<"/">) {
       </a>
       <div className="grid min-h-dvh flex-1 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)]">
         {/* Móvil: franja breve con la marca y el sello */}
-        <div className="sobre-azul relative flex items-center justify-between gap-4 bg-gradient-to-r from-azul to-azul-oscuro px-4 pb-9 pt-5 text-white lg:hidden">
+        <header className="sobre-azul relative flex items-center justify-between gap-4 bg-gradient-to-r from-azul to-azul-oscuro px-4 pb-9 pt-5 text-white lg:hidden">
           <Link href="/" aria-label="Uniputumayo. Ir al inicio" className="rounded-campo">
             <Marca variante="blanco" detalle="SIRA · Reserva de espacios" />
           </Link>
           <SelloEntrada className="size-16 shrink-0 -rotate-6 text-white/80" />
           <BordeRasgado ocupa="arriba" tamano="fino" semilla={21} className="absolute inset-x-0 bottom-0 text-fondo" />
-        </div>
+        </header>
 
         {/* Escritorio: hoja azul con el sello */}
         <aside className="sobre-azul relative isolate hidden bg-gradient-to-l from-azul to-azul-oscuro text-white lg:flex">
