@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, PartyPopper } from "lucide-react";
 import { Esqueleto, RegionCargando } from "@/components/Esqueleto";
 import { EstadoError } from "@/components/EstadoError";
 import { DialogoConfirmacion } from "@/components/DialogoConfirmacion";
@@ -149,6 +149,27 @@ export function DetalleSolicitud({
           aval”, pídele que revise esta solicitud. Si el espacio no tiene responsable, avisa a administración para
           que le asigne uno en Inventario.
         </Alerta>
+      )}
+
+      {puedeDecidir && tipoDecision === "APROBACION" && avalAprobado && (
+        <section
+          aria-labelledby="titulo-aval"
+          className="anim-sello flex items-start gap-4 rounded-tarjeta border-2 border-verde bg-exito-suave p-5 text-exito-texto"
+        >
+          <PartyPopper aria-hidden className="mt-1 size-8 shrink-0" />
+          <div className="flex flex-col gap-1">
+            <h2 id="titulo-aval" className="text-xl font-extrabold">
+              ¡El responsable del espacio ya dio su aval!
+            </h2>
+            <p className="text-base">
+              {(() => {
+                const aval = s.decisiones.find((d) => d.tipo === "AVAL" && d.resultado === "APROBADA");
+                return aval ? `Lo dio el ${fecha(aval.decididaEn)} a las ${hora(aval.decididaEn)}. ` : "";
+              })()}
+              Ya puedes revisar la solicitud y aprobarla.
+            </p>
+          </div>
+        </section>
       )}
 
       {(puedeCancelar || puedeDecidir) && (
