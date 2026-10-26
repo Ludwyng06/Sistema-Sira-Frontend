@@ -13,6 +13,7 @@ import {
   type ActualizarEspacio,
   type EstadoEspacio,
 } from "@/lib/inventario-admin";
+import { listarUsuarios } from "@/lib/administracion";
 import { listarTiposEspacio, obtenerEspacio } from "@/lib/inventario";
 import { useConsulta } from "@/lib/useConsulta";
 import type { Seleccion } from "./pantalla-inventario";
@@ -36,12 +37,13 @@ export function FormularioEspacio({
   const codigo = seleccion.tipo === "espacio" ? seleccion.codigo : null;
   const ficha = useConsulta(() => (codigo ? obtenerEspacio(codigo) : Promise.resolve(null)), [codigo ?? ""]);
   const tipos = useConsulta(() => listarTiposEspacio(), []);
+  const responsables = useConsulta(() => listarUsuarios({ rol: "RESPONSABLE_ESPACIO", activo: true, porPagina: 100 }), []);
   const [enviando, setEnviando] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [aviso, setAviso] = useState<string | null>(null);
   const [archivando, setArchivando] = useState(false);
 
-  if (ficha.resultado.estado === "cargando" || tipos.resultado.estado === "cargando") {
+  if (ficha.resultado.estado === "cargando" || tipos.resultado.estado === "cargando" || responsables.resultado.estado === "cargando") {
     return (
       <RegionCargando etiqueta="Cargando el espacio">
         <div className="flex flex-col gap-3">
@@ -60,6 +62,7 @@ export function FormularioEspacio({
 
   const actual = ficha.resultado.datos;
   const listaTipos = tipos.resultado.datos;
+  const listaResponsables = responsables.resultado.estado === "listo" ? responsables.resultado.datos.datos : [];
   const soloLectura = !puedeEditar;
 
   async function guardar(evento: FormEvent<HTMLFormElement>) {
@@ -82,9 +85,16 @@ export function FormularioEspacio({
           estado: (texto(d, "estado") || undefined) as EstadoEspacio | undefined,
           minutosMontaje: numero(d, "minutosMontaje"),
           minutosDesmontaje: numero(d, "minutosDesmontaje"),
+          ...(texto(d, "responsableId") ? { responsableId: texto(d, "responsableId") } : {}),
         } as ActualizarEspacio);
         avisar.exito("Los cambios del espacio quedaron guardados.");
       } else {
+        const responsableId = texto(d, "responsableId");
+        if (!responsableId) {
+          setError("Elige quién es el responsable del espacio. Sin responsable nadie puede dar el aval y las solicitudes se quedan trabadas.");
+          setEnviando(false);
+          return;
+        }
         const creado = await crearEspacio({
           sede: seleccion.sede,
           bloque: seleccion.bloque,
@@ -101,6 +111,8 @@ export function FormularioEspacio({
           requiereAval: d.get("requiereAval") === "on",
           esReservable: d.get("esReservable") === "on",
         });
+        // El contrato de creación no trae el responsable: se asigna enseguida, con el espacio ya creado.
+        await actualizarEspacio(creado.codigo, { responsableId } as unknown as ActualizarEspacio);
         avisar.exito(`El espacio ${creado.codigo} se creó.`);
       }
       alCambiar();
@@ -178,6 +190,29 @@ export function FormularioEspacio({
             </Selector>
           )}
         </div>
+        <Selector
+          id="responsableId"
+          etiqueta="Responsable del espacio"
+          required={!actual}
+          defaultValue=""
+          ayuda={
+            actual
+              ? "Es quien da el aval antes de que Vicerrectoría apruebe. Déjalo en “Sin cambios” si ya tiene uno."
+              : "Es quien da el aval antes de que Vicerrectoría apruebe. Es obligatorio."
+          }
+        >
+          <option value="">{actual ? "Sin cambios" : "Elige una persona"}</option>
+          {listaResponsables.map((u) => (
+            <option key={u.id} value={u.id}>
+              {u.nombre ? `${u.nombre} · ${u.correo}` : u.correo}
+            </option>
+          ))}
+        </Selector>
+        {listaResponsables.length === 0 && (
+          <Alerta tipo="error">
+            No hay usuarios con el rol de responsable de espacio. Asigna ese rol a alguien en Configuración y vuelve aquí.
+          </Alerta>
+        )}
         {!actual && (
           <div className="flex flex-col gap-2">
             <label className="flex items-center gap-2">

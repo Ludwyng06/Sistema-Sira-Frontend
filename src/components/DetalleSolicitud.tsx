@@ -11,7 +11,7 @@ import { LineaEstaciones } from "@/components/LineaEstaciones";
 import { LineaTiempoSolicitud } from "@/components/LineaTiempoSolicitud";
 import { PanelPago } from "@/components/PanelPago";
 import { ResumenCotizacion } from "@/components/ResumenCotizacion";
-import { Boton } from "@/components/formularios";
+import { Alerta, Boton } from "@/components/formularios";
 import { useSesion } from "@/components/SesionProvider";
 import { fecha, hora, pesos } from "@/lib/formato";
 import {
@@ -142,6 +142,14 @@ export function DetalleSolicitud({
         </h2>
         <LineaEstaciones estado={s.estado} esExenta={s.esExenta} />
       </section>
+
+      {puedeDecidir && tipoDecision === "APROBACION" && !avalAprobado && (
+        <Alerta tipo="info" titulo="Primero el aval del responsable">
+          Si el espacio pide aval, el responsable debe darlo antes de que puedas aprobar. Si ves el aviso “Falta el
+          aval”, pídele que revise esta solicitud. Si el espacio no tiene responsable, avisa a administración para
+          que le asigne uno en Inventario.
+        </Alerta>
+      )}
 
       {(puedeCancelar || puedeDecidir) && (
         <div className="flex flex-wrap gap-3">
