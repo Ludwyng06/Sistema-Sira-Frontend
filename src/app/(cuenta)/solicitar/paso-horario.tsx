@@ -113,54 +113,128 @@ export function PasoHorario({
     }
   }
 
-  return (
-    <div className="flex flex-col gap-6">
-      <div className="grid gap-4 sm:grid-cols-2">
-        <Selector id="espacio" etiqueta="Espacio" value={codigo} onChange={(e) => setCodigo(e.target.value)}>
-          {espacios.map((e) => (
-            <option key={e.codigo} value={e.codigo}>
-              {e.codigo} · {e.nombre} ({e.bloque}, {e.capacidad} personas)
-            </option>
-          ))}
-        </Selector>
-        <Campo
-          id="asistentes"
-          etiqueta="¿Para cuántas personas es?"
-          type="number"
-          min={1}
-          inputMode="numeric"
-          value={asistentes}
-          onChange={(e) => setAsistentes(e.target.value)}
-          disabled={Boolean(borrador)}
-          ayuda={borrador ? "Puedes cambiarlo en el paso 3." : undefined}
-        />
-      </div>
+  const hayHorarios = Boolean(borrador && borrador.reservas.length > 0);
 
-      {ficha.resultado.estado === "listo" && (
-        <div className="flex flex-col gap-2 rounded-lg border border-gris-claro p-4">
-          <IndicadorAforo capacidad={ficha.resultado.datos.capacidadPersonas} aforo={aforo} />
-          <p className="text-sm text-gris">
-            Este tipo de espacio se pide con al menos{" "}
-            {ficha.resultado.datos.reglasTipo.anticipacionMinimaDias}{" "}
-            {ficha.resultado.datos.reglasTipo.anticipacionEnHabiles ? "días hábiles" : "días"} de anticipación.
-          </p>
-          {noCabe && (
-            <p>
-              Ese espacio no tiene capacidad para {personas} personas.{" "}
-              <Link
-                href={`/?asistentes=${personas}`}
-                className="font-medium text-azul-oscuro underline underline-offset-4"
-              >
-                Ver espacios donde sí caben
-              </Link>
-            </p>
+  return (
+    <div className="grid gap-10 lg:grid-cols-[minmax(0,25rem)_minmax(0,1fr)] lg:items-start">
+      {/* Columna del formulario: lo estándar, en orden de uso */}
+      <div className="flex flex-col gap-8">
+        <div className="flex flex-col gap-4">
+          <Selector id="espacio" etiqueta="Espacio" value={codigo} onChange={(e) => setCodigo(e.target.value)}>
+            {espacios.map((e) => (
+              <option key={e.codigo} value={e.codigo}>
+                {e.codigo} · {e.nombre} ({e.bloque})
+              </option>
+            ))}
+          </Selector>
+          <Campo
+            id="asistentes"
+            etiqueta="¿Para cuántas personas es?"
+            type="number"
+            min={1}
+            inputMode="numeric"
+            value={asistentes}
+            onChange={(e) => setAsistentes(e.target.value)}
+            disabled={Boolean(borrador)}
+            ayuda={borrador ? "Puedes cambiarlo en el paso 3." : undefined}
+          />
+          {ficha.resultado.estado === "listo" && (
+            <div className="flex flex-col gap-2 rounded-tarjeta border border-gris-claro/60 bg-fondo-suave p-4">
+              <IndicadorAforo capacidad={ficha.resultado.datos.capacidadPersonas} aforo={aforo} />
+              <p className="text-gris">
+                Se pide con al menos {ficha.resultado.datos.reglasTipo.anticipacionMinimaDias}{" "}
+                {ficha.resultado.datos.reglasTipo.anticipacionEnHabiles ? "días hábiles" : "días"} de anticipación.
+              </p>
+              {noCabe && (
+                <p>
+                  No caben {personas} personas en este espacio.{" "}
+                  <Link
+                    href={`/?asistentes=${personas}`}
+                    className="inline-flex min-h-11 items-center font-bold text-azul-oscuro underline underline-offset-4"
+                  >
+                    Ver espacios donde sí caben
+                  </Link>
+                </p>
+              )}
+            </div>
           )}
         </div>
-      )}
 
-      <section aria-labelledby="titulo-franja" className="flex flex-col gap-3">
-        <h2 id="titulo-franja" className="text-xl font-bold">
-          Elige el horario
+        <fieldset className="flex flex-col gap-4">
+          <legend className="mb-1 text-xl font-extrabold text-tinta">¿Cuándo?</legend>
+          <Campo
+            id="dia"
+            etiqueta="Día"
+            type="date"
+            value={franja.dia}
+            onChange={(e) => setFranja({ ...franja, dia: e.target.value })}
+          />
+          <div className="grid grid-cols-2 gap-4">
+            <CampoHora
+              id="horaInicio"
+              etiqueta="Desde"
+              value={franja.horaInicio}
+              onChange={(e) => setFranja({ ...franja, horaInicio: e.target.value })}
+            />
+            <CampoHora
+              id="horaFin"
+              etiqueta="Hasta"
+              value={franja.horaFin}
+              onChange={(e) => setFranja({ ...franja, horaFin: e.target.value })}
+            />
+          </div>
+          <p className="text-gris">También puedes tocar o arrastrar sobre el calendario.</p>
+          {error && <Alerta tipo="error">{error}</Alerta>}
+          <Boton
+            onClick={agregar}
+            cargando={agregando}
+            disabled={noCabe}
+            variante={hayHorarios ? "secundario" : "primario"}
+          >
+            Agregar este horario
+          </Boton>
+        </fieldset>
+
+        <section aria-labelledby="titulo-agregados" className="flex flex-col gap-3">
+          <h2 id="titulo-agregados" className="text-xl font-extrabold">
+            Horarios de tu solicitud
+          </h2>
+          {!borrador || borrador.reservas.length === 0 ? (
+            <p className="text-gris">Todavía no has agregado horarios.</p>
+          ) : (
+            <ul className="divide-y divide-gris-claro/60 rounded-tarjeta border border-gris-claro/60">
+              {borrador.reservas.map((r, i) => (
+                <li key={r.id} className="flex flex-wrap items-center justify-between gap-3 px-4 py-3">
+                  <span className="flex flex-col">
+                    <span className="font-bold text-tinta">
+                      {codigos.resultado.estado === "listo" ? codigos.resultado.datos[i] ?? "Espacio" : "Espacio"}
+                      {" · "}
+                      {fecha(r.inicio)}
+                    </span>
+                    <span className="text-gris">
+                      {hora(r.inicio)} a {hora(r.fin)} · estimado {pesos(r.subtotal)}
+                    </span>
+                  </span>
+                  <Boton variante="secundario" onClick={() => quitar(r.id)}>
+                    Quitar
+                  </Boton>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+
+        <div className="sticky bottom-3 z-20 lg:static">
+          <Boton onClick={alContinuar} disabled={!hayHorarios} className="w-full shadow-elevada lg:shadow-boton">
+            Continuar a servicios
+          </Boton>
+        </div>
+      </div>
+
+      {/* Columna del calendario: queda a la vista mientras se completa el formulario */}
+      <section aria-labelledby="titulo-franja" className="flex flex-col gap-3 lg:sticky lg:top-4">
+        <h2 id="titulo-franja" className="text-xl font-extrabold">
+          Calendario del espacio
         </h2>
         {espacioId.resultado.estado === "listo" && espacioId.resultado.datos ? (
           <CalendarioEspacio
@@ -177,65 +251,7 @@ export function PasoHorario({
         ) : (
           <Alerta tipo="error">No pudimos cargar el calendario de este espacio.</Alerta>
         )}
-        <div className="grid gap-4 sm:grid-cols-3">
-          <Campo
-            id="dia"
-            etiqueta="Día"
-            type="date"
-            value={franja.dia}
-            onChange={(e) => setFranja({ ...franja, dia: e.target.value })}
-          />
-          <CampoHora
-            id="horaInicio"
-            etiqueta="Desde"
-            value={franja.horaInicio}
-            onChange={(e) => setFranja({ ...franja, horaInicio: e.target.value })}
-          />
-          <CampoHora
-            id="horaFin"
-            etiqueta="Hasta"
-            value={franja.horaFin}
-            onChange={(e) => setFranja({ ...franja, horaFin: e.target.value })}
-          />
-        </div>
-        {error && <Alerta tipo="error">{error}</Alerta>}
-        <Boton onClick={agregar} cargando={agregando} disabled={noCabe} className="w-fit">
-          Agregar este horario
-        </Boton>
       </section>
-
-      <section aria-labelledby="titulo-agregados" className="flex flex-col gap-3">
-        <h2 id="titulo-agregados" className="text-xl font-bold">
-          Horarios de tu solicitud
-        </h2>
-        {!borrador || borrador.reservas.length === 0 ? (
-          <p className="text-gris">Todavía no has agregado horarios.</p>
-        ) : (
-          <ul className="divide-y divide-gris-claro rounded-lg border border-gris-claro">
-            {borrador.reservas.map((r, i) => (
-              <li key={r.id} className="flex flex-wrap items-center justify-between gap-3 px-4 py-3">
-                <span>
-                  <span className="font-bold">
-                    {codigos.resultado.estado === "listo" ? codigos.resultado.datos[i] ?? "Espacio" : "Espacio"}
-                  </span>
-                  {" · "}
-                  {fecha(r.inicio)} · {hora(r.inicio)} a {hora(r.fin)}
-                  <span className="block text-sm text-gris">Valor estimado: {pesos(r.subtotal)}</span>
-                </span>
-                <Boton variante="secundario" onClick={() => quitar(r.id)}>
-                  Quitar
-                </Boton>
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
-
-      <div className="flex justify-end">
-        <Boton onClick={alContinuar} disabled={!borrador || borrador.reservas.length === 0}>
-          Continuar a servicios
-        </Boton>
-      </div>
     </div>
   );
 }

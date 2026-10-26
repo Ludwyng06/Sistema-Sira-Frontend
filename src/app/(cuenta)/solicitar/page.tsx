@@ -12,9 +12,6 @@ const unico = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v
 export default function Solicitar(props: PageProps<"/solicitar">) {
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="w-fit border-b-2 border-turquesa pb-1 font-titulo text-sm font-extrabold uppercase tracking-[0.2em] text-azul-oscuro">
-        Solicitar un espacio
-      </h1>
       <Suspense
         fallback={
           <RegionCargando etiqueta="Cargando el asistente">

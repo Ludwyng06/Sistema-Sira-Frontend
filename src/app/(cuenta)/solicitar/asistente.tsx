@@ -2,11 +2,11 @@
 
 import Link from "next/link";
 import { useCallback, useState } from "react";
-import clsx from "clsx";
-import { Check } from "lucide-react";
+import { Save } from "lucide-react";
 import { Esqueleto, RegionCargando } from "@/components/Esqueleto";
 import { EstadoError } from "@/components/EstadoError";
 import { Alerta } from "@/components/formularios";
+import { LineaMetro } from "@/components/LineaEstaciones";
 import { crearSolicitud, obtenerSolicitud, type SolicitudDetalle } from "@/lib/solicitudes";
 import { useConsulta } from "@/lib/useConsulta";
 import { PasoEvento } from "./paso-evento";
@@ -26,6 +26,7 @@ export interface EspacioOpcion {
 export const TITULO_PROVISIONAL = "Solicitud en borrador";
 
 const PASOS = ["Espacio y horario", "Servicios", "Datos del evento", "Identificación", "Resumen"];
+const ESTACIONES = PASOS.map((nombre, i) => ({ clave: String(i), nombre }));
 
 /** Contexto que reciben los pasos. El borrador vive en el servidor: recargar la página no pierde nada. */
 export interface ContextoAsistente {
@@ -102,47 +103,18 @@ export function Asistente({
   const anterior = () => setPaso((p) => Math.max(p - 1, 0));
 
   return (
-    <div className="flex flex-col gap-6">
-      <nav aria-label="Avance de la solicitud" className="flex flex-col gap-3">
-        <ol className="grid grid-cols-5 gap-2">
-          {PASOS.map((nombre, i) => (
-            <li key={nombre} aria-current={i === paso ? "step" : undefined} className="flex flex-col gap-2">
-              <span
-                aria-hidden
-                className={clsx(
-                  "h-2 rounded-full transition-colors duration-500",
-                  i < paso ? "bg-azul" : i === paso ? "bg-turquesa" : "bg-gris-claro/50",
-                )}
-              />
-              <span
-                className={clsx(
-                  "hidden items-center gap-2 text-sm font-bold sm:flex",
-                  i === paso ? "text-tinta" : i < paso ? "text-azul-oscuro" : "text-gris",
-                )}
-              >
-                <span
-                  aria-hidden
-                  className={clsx(
-                    "flex size-6 items-center justify-center rounded-full text-xs",
-                    i < paso ? "bg-azul text-white" : i === paso ? "bg-tinta text-white" : "border border-gris-claro",
-                  )}
-                >
-                  {i < paso ? <Check className="size-3.5" /> : i + 1}
-                </span>
-                {nombre}
-              </span>
-              <span className="sr-only sm:hidden">{nombre}</span>
-            </li>
-          ))}
-        </ol>
-        <p className="font-titulo text-2xl font-black text-tinta sm:text-3xl">
-          <span className="text-turquesa">{paso + 1}.</span> {PASOS[paso]}
+    <div className="flex flex-col gap-8">
+      <header className="flex flex-col gap-5">
+        <nav aria-label="Avance de la solicitud">
+          <LineaMetro estaciones={ESTACIONES} actual={paso} className="hidden sm:flex" />
+          <LineaMetro estaciones={ESTACIONES} actual={paso} compacta className="sm:hidden" />
+        </nav>
+        <h1 className="text-t1 font-black">{PASOS[paso]}</h1>
+        <p className="flex items-start gap-2 text-gris">
+          <Save aria-hidden className="mt-0.5 size-5 shrink-0 text-azul" />
+          Tu borrador se guarda solo. El horario no se retiene hasta que envíes la solicitud.
         </p>
-      </nav>
-
-      <p className="text-sm text-gris">
-        Tu borrador se guarda solo. No se retiene el horario hasta que envíes la solicitud.
-      </p>
+      </header>
 
       {paso === 0 && (
         <PasoHorario
