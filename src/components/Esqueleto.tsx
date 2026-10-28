@@ -5,7 +5,7 @@ export function Esqueleto({ className }: { className?: string }) {
   return (
     <div
       aria-hidden
-      className={clsx("animate-pulse rounded bg-gris-claro/50", className)}
+      className={clsx("animate-pulse rounded-campo bg-gris-claro/50", className)}
     />
   );
 }

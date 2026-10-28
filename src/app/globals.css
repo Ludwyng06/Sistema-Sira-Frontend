@@ -1,20 +1,52 @@
 @import "tailwindcss";
 
-/* Identidad visual: Manual de Identidad Visual UNIPUTUMAYO 01-2025 (04-frontend §2).
-   Naranja y verde: solo fondo o borde, nunca como color de texto sobre blanco. */
+/* Identidad visual: logo y portada institucionales + Manual de Identidad Visual UNIPUTUMAYO 01-2025.
+   Naranja y verde: solo fondo o borde, nunca como color de texto sobre blanco.
+   El turquesa claro es decorativo o para texto grande: sobre blanco no llega a 4,5:1. */
 @theme {
   --color-azul: #18668f;
   --color-azul-oscuro: #0f4a69;
+  --color-turquesa: #2299b9;
+  --color-turquesa-suave: #e3f2f7;
+  --color-tinta: #0b2e40;
   --color-naranja: #f5a51d;
   --color-verde: #80bf1f;
+  --color-error: #b3261e;
+  --color-error-suave: #fdecea;
   --color-gris: #595957;
   --color-gris-claro: #b2b6b9;
-  --color-texto: #222222;
+  --color-texto: #1d2b33;
   --color-fondo: #ffffff;
-  --color-fondo-suave: #f4f7f9;
+  --color-fondo-suave: #f2f8fb;
+  --color-papel: #fbfaf6;
 
   --font-titulo: var(--font-raleway), ui-sans-serif, system-ui, sans-serif;
   --font-texto: var(--font-roboto), ui-sans-serif, system-ui, sans-serif;
+  --font-marca: var(--font-montserrat), var(--font-raleway), ui-sans-serif, system-ui, sans-serif;
+
+  /* Estados: fondos suaves y textos que pasan 4,5:1 (antes eran hex sueltos dentro de las clases). */
+  --color-exito-suave: #eaf5d6;
+  --color-exito-texto: #2f5d0a;
+  --color-aviso-suave: #fdf0d3;
+  --color-aviso-texto: #7a4b00;
+
+  /* Escala tipográfica: 16 px es el mínimo del cuerpo; 14 px (meta) solo para datos secundarios. */
+  --text-meta: 0.875rem;
+  --text-meta--line-height: 1.45;
+  --text-t2: 2rem;
+  --text-t2--line-height: 1.15;
+  --text-t1: clamp(2.25rem, 1.7rem + 1.6vw, 3rem);
+  --text-t1--line-height: 1.08;
+  --text-display: clamp(3rem, 1.6rem + 4.6vw, 4.5rem);
+  --text-display--line-height: 0.98;
+
+  /* Radios: campo/botón, tarjeta y píldora. No hay más. */
+  --radius-campo: 0.5rem;
+  --radius-tarjeta: 1rem;
+
+  --shadow-boton: 0 2px 0 0 var(--color-azul-oscuro);
+  --shadow-tarjeta: 0 1px 2px rgb(11 46 64 / 6%), 0 8px 24px -12px rgb(11 46 64 / 22%);
+  --shadow-elevada: 0 2px 4px rgb(11 46 64 / 8%), 0 18px 40px -16px rgb(11 46 64 / 35%);
 }
 
 html {
@@ -32,7 +64,14 @@ h2,
 h3,
 h4 {
   font-family: var(--font-titulo);
-  color: var(--color-azul-oscuro);
+  color: var(--color-tinta);
+  letter-spacing: -0.015em;
+}
+
+/* Esta regla queda fuera de las capas de Tailwind y le gana a `text-white`:
+   sobre fondos de marca los títulos se pintan en blanco por la superficie. */
+.sobre-azul :is(h1, h2, h3, h4) {
+  color: #fff;
 }
 
 /* Foco visible con el azul institucional (RNF-09). */
@@ -47,9 +86,344 @@ h4 {
   outline-color: var(--color-fondo);
 }
 
-@media (prefers-reduced-motion: reduce) {
-  * {
-    animation-duration: 0.01ms !important;
-    transition-duration: 0.01ms !important;
+/* Movimiento: el sol del logo gira muy despacio y las secciones aparecen al cargar. */
+@keyframes girar {
+  to {
+    transform: rotate(360deg);
   }
+}
+@keyframes aparecer {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes flotar {
+  50% {
+    transform: translateY(-6px);
+  }
+}
+/* Deriva suave del sol: se aleja un poco y vuelve exactamente al mismo lugar. */
+@keyframes deriva {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) rotate(0deg) scale(1);
+  }
+  50% {
+    transform: translate3d(0.7rem, -0.55rem, 0) rotate(5deg) scale(1.035);
+  }
+}
+@keyframes pulso-rayo {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+.anim-deriva {
+  animation: deriva 15s ease-in-out infinite;
+  transform-origin: center;
+  will-change: transform;
+}
+.anim-deriva-b {
+  animation: deriva 19s ease-in-out -9s infinite;
+  transform-origin: center;
+  will-change: transform;
+}
+.anim-pulso-rayo {
+  animation: pulso-rayo 5.6s ease-in-out infinite;
+}
+.anim-aparecer {
+  animation: aparecer 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+.anim-flotar {
+  animation: flotar 7s ease-in-out infinite;
+}
+.retardo-1 {
+  animation-delay: 0.08s;
+}
+.retardo-2 {
+  animation-delay: 0.16s;
+}
+.retardo-3 {
+  animation-delay: 0.24s;
+}
+
+/* Avisos flotantes: entran con un pequeño rebote, salen deslizándose y la barra marca el tiempo. */
+@keyframes aviso-entra {
+  from {
+    opacity: 0;
+    transform: translate3d(2.25rem, 0, 0) scale(0.96);
+  }
+  60% {
+    opacity: 1;
+    transform: translate3d(-0.3rem, 0, 0) scale(1.01);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes aviso-sale {
+  to {
+    opacity: 0;
+    transform: translate3d(2.25rem, 0, 0) scale(0.96);
+  }
+}
+@keyframes aviso-barra {
+  from {
+    transform: scaleX(1);
+  }
+  to {
+    transform: scaleX(0);
+  }
+}
+.anim-aviso-entra {
+  animation: aviso-entra 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+.anim-aviso-sale {
+  animation: aviso-sale 0.28s ease-in both;
+}
+.anim-aviso-barra {
+  animation-name: aviso-barra;
+  animation-timing-function: linear;
+  animation-fill-mode: forwards;
+}
+
+/* Plano del campus (portada): el trazo se dibuja una vez y los pins pulsan una vez.
+   El estado base es el final: con "reducir movimiento" el plano se ve completo y quieto. */
+@keyframes dibujar {
+  from {
+    stroke-dashoffset: 1;
+  }
+}
+@keyframes pulso-pin {
+  0% {
+    transform: scale(1);
+    opacity: 0.7;
+  }
+  100% {
+    transform: scale(2.4);
+    opacity: 0;
+  }
+}
+.plano-trazo {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 0;
+  animation: dibujar 1.8s cubic-bezier(0.4, 0, 0.2, 1) backwards;
+  animation-delay: var(--retardo, 0s);
+}
+.plano-pulso {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: pulso-pin 1.4s ease-out 1 backwards;
+  animation-delay: var(--retardo, 1.8s);
+  opacity: 0;
+}
+
+/* Sello de estado: se estampa una vez. Base = estado final (con "reducir movimiento" queda quieto). */
+@keyframes sello {
+  from {
+    opacity: 0;
+    transform: scale(1.4) rotate(-7deg);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(0.96) rotate(-2.5deg);
+  }
+}
+.anim-sello {
+  transform: rotate(-1.5deg);
+  animation: sello 0.45s cubic-bezier(0.2, 0.9, 0.3, 1.2) backwards;
+}
+
+/* Línea de estaciones: se llena hasta la estación actual. */
+@keyframes llenar {
+  from {
+    transform: scaleX(0);
+  }
+}
+.linea-llena {
+  transform-origin: left;
+  animation: llenar 1s cubic-bezier(0.4, 0, 0.2, 1) 0.25s backwards;
+}
+
+/* Sello de entrada (acceso): se estampa una vez, más grande y más despacio que el de estado. */
+@keyframes estampa {
+  from {
+    opacity: 0;
+    transform: scale(1.5) rotate(-18deg);
+  }
+  55% {
+    opacity: 1;
+    transform: scale(0.94) rotate(-6deg);
+  }
+}
+.anim-estampa {
+  transform: rotate(-8deg);
+  animation: estampa 0.7s cubic-bezier(0.2, 0.9, 0.3, 1.15) 0.2s backwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Calendario: el estado se comunica con color, patrón y etiqueta de texto (RNF-09). */
+.estado-retenida {
+  background-color: #fde9bf;
+  background-image: repeating-linear-gradient(45deg, transparent 0 6px, rgb(245 165 29 / 55%) 6px 8px);
+  border: 1px solid var(--color-naranja);
+  color: var(--color-texto);
+}
+.estado-confirmada {
+  background-color: var(--color-azul);
+  border: 1px solid var(--color-azul-oscuro);
+  color: #fff;
+}
+.estado-bloqueo {
+  background-color: #e3e5e6;
+  background-image: radial-gradient(rgb(89 89 87 / 45%) 1.2px, transparent 1.4px);
+  background-size: 7px 7px;
+  border: 1px solid var(--color-gris);
+  color: var(--color-texto);
+}
+.estado-seleccion {
+  background-color: rgb(128 191 31 / 30%);
+  border: 2px dashed var(--color-azul-oscuro);
+  color: var(--color-texto);
+}
+.fc .fc-event {
+  cursor: default;
+}
+.fc a,
+.fc button {
+  min-height: 2rem;
+}
+
+/* FullCalendar pinta el texto del evento en blanco: se fuerza el color por estado para cumplir el contraste 4,5:1. */
+.fc-event.estado-retenida,
+.fc-event.estado-retenida .fc-event-main,
+.fc-event.estado-retenida .fc-event-time,
+.fc-event.estado-retenida .fc-event-title,
+.fc-event.estado-bloqueo,
+.fc-event.estado-bloqueo .fc-event-main,
+.fc-event.estado-bloqueo .fc-event-time,
+.fc-event.estado-bloqueo .fc-event-title,
+.fc-event.estado-seleccion,
+.fc-event.estado-seleccion .fc-event-main,
+.fc-event.estado-seleccion .fc-event-time,
+.fc-event.estado-seleccion .fc-event-title {
+  color: var(--color-texto);
+}
+.fc-event.estado-confirmada .fc-event-main,
+.fc-event.estado-confirmada .fc-event-time,
+.fc-event.estado-confirmada .fc-event-title {
+  color: #fff;
+}
+
+/* FullCalendar con los colores de la U. */
+.fc {
+  --fc-border-color: rgb(178 182 185 / 55%);
+  --fc-button-bg-color: var(--color-azul);
+  --fc-button-border-color: var(--color-azul);
+  --fc-button-hover-bg-color: var(--color-azul-oscuro);
+  --fc-button-hover-border-color: var(--color-azul-oscuro);
+  --fc-button-active-bg-color: var(--color-tinta);
+  --fc-button-active-border-color: var(--color-tinta);
+  --fc-today-bg-color: var(--color-turquesa-suave);
+  --fc-now-indicator-color: var(--color-naranja);
+  --fc-page-bg-color: #fff;
+  font-family: var(--font-texto);
+}
+.fc .fc-toolbar-title {
+  font-family: var(--font-titulo);
+  font-weight: 800;
+  color: var(--color-tinta);
+}
+.fc .fc-button {
+  font-weight: 700;
+  border-radius: 0.5rem;
+}
+.fc .fc-col-header-cell-cushion,
+.fc .fc-daygrid-day-number {
+  color: var(--color-tinta);
+  text-decoration: none;
+}
+
+/* Maqueta isométrica del panel: los edificios suben una vez; los pisos se separan al elegir. */
+@keyframes iso-sube {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+}
+.iso-aparece {
+  animation: iso-sube 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) backwards;
+  animation-delay: var(--retardo, 0s);
+}
+.iso-piso {
+  transition: transform 0.5s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+@media (prefers-reduced-motion: reduce) {
+  .iso-piso {
+    transition: none;
+  }
+}
+
+@keyframes iso-flota {
+  to {
+    transform: translateY(-5px);
+  }
+}
+.iso-flota {
+  animation: iso-flota 4.5s ease-in-out infinite alternate;
+  animation-delay: var(--flota, 0s);
+}
+
+/* Impresión y PDF: solo el documento, sin menú, pie ni botones. */
+.solo-imprimir {
+  display: none;
+}
+@media print {
+  header.sobre-azul,
+  footer.sobre-azul,
+  nav,
+  .no-imprimir,
+  button {
+    display: none !important;
+  }
+  .solo-imprimir {
+    display: flex;
+  }
+  body {
+    background: #fff !important;
+  }
+  * {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+    box-shadow: none !important;
+  }
+  a {
+    text-decoration: none;
+  }
+  section,
+  li,
+  tr {
+    break-inside: avoid;
+  }
+}
+@page {
+  margin: 14mm;
 }
