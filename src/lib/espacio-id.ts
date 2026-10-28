@@ -1,32 +1,24 @@
-import { api } from "./api";
-import type { components } from "./contrato";
-
-type Busqueda = components["schemas"]["ResultadoBusquedaDto"];
+import { listarEspacios, obtenerEspacio } from "./inventario";
 
 /**
- * SOLUCIÓN TEMPORAL. La API pública de espacios no devuelve el `id` (UUID) que piden
- * disponibilidad, tarifas y solicitudes (ver ISSUE-CONTRATO-espacio-id.md). La búsqueda
- * de disponibilidad sí lo devuelve, así que se consulta un horario lejano en el futuro,
- * cuando todos los espacios están libres, y se arma el mapa código -> id.
- * Se elimina cuando el contrato incluya `id` en la ficha del espacio.
+ * Identificadores públicos del inventario, independientes de los horarios y de la
+ * disponibilidad. Se recorren todas las páginas para resolver también los espacios
+ * que no aparecen en la primera página del catálogo.
  */
 const VIGENCIA_MS = 10 * 60 * 1000;
 let cache: { mapa: Map<string, string>; hasta: number } | null = null;
 let pendiente: Promise<Map<string, string>> | null = null;
 
-function diaLejano(): string {
-  const d = new Date();
-  d.setUTCDate(d.getUTCDate() + 400);
-  // Siempre un día hábil (lunes a viernes).
-  while (d.getUTCDay() === 0 || d.getUTCDay() === 6) d.setUTCDate(d.getUTCDate() + 1);
-  return d.toISOString().slice(0, 10);
-}
-
 async function cargarMapa(): Promise<Map<string, string>> {
-  const r = await api<Busqueda>("/disponibilidad/buscar", {
-    query: { fecha: diaLejano(), horaInicio: "10:00", horaFin: "10:30", asistentes: 1 },
-  });
-  return new Map(r.espacios.map((e) => [e.codigo, e.espacioId]));
+  const resultado = new Map<string, string>();
+  let pagina = 1;
+  while (true) {
+    const respuesta = await listarEspacios({ pagina, porPagina: 100 });
+    for (const espacio of respuesta.datos) resultado.set(espacio.codigo, espacio.id);
+    if (respuesta.pagina * respuesta.porPagina >= respuesta.total || respuesta.datos.length === 0) break;
+    pagina += 1;
+  }
+  return resultado;
 }
 
 async function mapa(): Promise<Map<string, string>> {
@@ -40,7 +32,7 @@ async function mapa(): Promise<Map<string, string>> {
 }
 
 export async function resolverEspacioId(codigo: string): Promise<string | null> {
-  return (await mapa()).get(codigo.toUpperCase()) ?? null;
+  return (await obtenerEspacio(codigo)).id;
 }
 
 /** Para mostrar el código de un espacio a partir del id que traen las reservas. */

@@ -10,7 +10,6 @@ import {
   archivarEspacio,
   crearEspacio,
   ESTADOS_ESPACIO,
-  type ActualizarEspacio,
   type EstadoEspacio,
 } from "@/lib/inventario-admin";
 import { listarUsuarios } from "@/lib/administracion";
@@ -73,7 +72,6 @@ export function FormularioEspacio({
     setAviso(null);
     try {
       if (actual) {
-        // Swagger tipa los campos que aceptan null como objeto; el cuerpo real es número, texto o null.
         await actualizarEspacio(actual.codigo, {
           tipo: texto(d, "tipo"),
           nombre: texto(d, "nombre"),
@@ -86,7 +84,7 @@ export function FormularioEspacio({
           minutosMontaje: numero(d, "minutosMontaje"),
           minutosDesmontaje: numero(d, "minutosDesmontaje"),
           ...(texto(d, "responsableId") ? { responsableId: texto(d, "responsableId") } : {}),
-        } as ActualizarEspacio);
+        });
         avisar.exito("Los cambios del espacio quedaron guardados.");
       } else {
         const responsableId = texto(d, "responsableId");
@@ -112,7 +110,7 @@ export function FormularioEspacio({
           esReservable: d.get("esReservable") === "on",
         });
         // El contrato de creación no trae el responsable: se asigna enseguida, con el espacio ya creado.
-        await actualizarEspacio(creado.codigo, { responsableId } as unknown as ActualizarEspacio);
+        await actualizarEspacio(creado.codigo, { responsableId });
         avisar.exito(`El espacio ${creado.codigo} se creó.`);
       }
       alCambiar();

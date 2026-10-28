@@ -97,13 +97,14 @@ export function DetalleSolicitud({
 
   const s: SolicitudDetalle = resultado.datos;
   const avalAprobado = s.decisiones.some((d) => d.tipo === "AVAL" && d.resultado === "APROBADA");
+  const puedeAvalar = !avalAprobado && tieneRol("RESPONSABLE_ESPACIO");
   const tipoDecision: DecidirSolicitud["tipo"] =
-    !avalAprobado && tieneRol("RESPONSABLE_ESPACIO") ? "AVAL" : "APROBACION";
+    puedeAvalar ? "AVAL" : "APROBACION";
   const puedeCancelar = modo === "solicitante" && ESTADOS_CANCELABLES.has(s.estado);
   const puedeDecidir =
     modo === "revisor" &&
     ESTADOS_DECIDIBLES.has(s.estado) &&
-    tieneRol("RESPONSABLE_ESPACIO", "APROBADOR");
+    (puedeAvalar || tieneRol("APROBADOR"));
 
   async function decidir(resultadoDecision: DecidirSolicitud["resultado"], motivo: string) {
     await decidirSolicitud(s.id, {

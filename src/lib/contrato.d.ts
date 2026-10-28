@@ -699,7 +699,9 @@ export interface paths {
         };
         /**
          * Lista los elementos del inventario.
-         * @description Paginada; filtra por espacio y por estado. Incluye los dados de baja.
+         * @description Paginada; filtra por espacio y por estado. Incluye los dados de baja. El responsable solo consulta elementos de sus espacios no archivados.
+         *
+         *     Errores: 404 NO_ENCONTRADO (espacio ajeno o archivado).
          */
         get: operations["ElementosAdminController_listar"];
         put?: never;
@@ -2273,7 +2275,7 @@ export interface components {
              * @example true
              */
             esInstitucional: boolean;
-            /** @description Roles asignados al usuario. */
+            /** @description Roles efectivos del usuario; RESPONSABLE_ESPACIO se deriva de Espacio.responsableId. */
             roles: components["schemas"]["RolAsignadoDto"][];
             /** @description Perfil de solicitante asociado, o null si no se ha completado. */
             perfil: components["schemas"]["PerfilSolicitanteDto"] | null;
@@ -2352,21 +2354,11 @@ export interface components {
             /** @example 12 */
             totalEspacios: number;
         };
-        FotoDto: {
-            /** Format: uuid */
-            id: string;
-            /** @example /api/fotos/3f2b8c1e-6a4d-4e0b-9a57-1c2d3e4f5a6b/detalle */
-            urlDetalle: string;
-            /** @example /api/fotos/3f2b8c1e-6a4d-4e0b-9a57-1c2d3e4f5a6b/tarjeta */
-            urlTarjeta: string;
-            /** @example /api/fotos/3f2b8c1e-6a4d-4e0b-9a57-1c2d3e4f5a6b/miniatura */
-            urlMiniatura: string;
-            /** @example Vista frontal del Auditorio Mayor. */
-            textoAlternativo: string;
-            /** @example true */
-            esPortada: boolean;
-            /** @example 0 */
-            orden: number;
+        FotoPortadaDto: {
+            /** @example http://localhost:9000/sira/publico/espacios/b-101-tarjeta.webp */
+            url: string;
+            /** @example Vista frontal del Auditorio Mayor */
+            alt: string;
         };
         ConteoPorTipoDto: {
             /** @example AULA */
@@ -2385,7 +2377,7 @@ export interface components {
             /** @example 3 */
             numeroPisos: number;
             planoUrl: string | null;
-            foto: components["schemas"]["FotoDto"] | null;
+            foto: components["schemas"]["FotoPortadaDto"] | null;
             /** @example 5 */
             totalEspacios: number;
             /**
@@ -2419,6 +2411,11 @@ export interface components {
             mensaje: string;
         };
         TarjetaEspacioDto: {
+            /**
+             * Format: uuid
+             * @description Identificador para disponibilidad, tarifas y reservas.
+             */
+            id: string;
             /** @example B-101 */
             codigo: string;
             /** @example Auditorio Mayor */
@@ -2430,7 +2427,7 @@ export interface components {
             tipo: components["schemas"]["CodigoNombreDto"];
             bloque: components["schemas"]["CodigoNombreDto"];
             sede: components["schemas"]["CodigoNombreDto"];
-            portada: components["schemas"]["FotoDto"] | null;
+            portada: components["schemas"]["FotoPortadaDto"] | null;
             /** @description Hasta 4 elementos en servicio. */
             dotacion: components["schemas"]["DotacionDto"][];
             /**
@@ -2522,6 +2519,11 @@ export interface components {
             icono: string | null;
         };
         FichaEspacioDto: {
+            /**
+             * Format: uuid
+             * @description Identificador para disponibilidad, tarifas y reservas.
+             */
+            id: string;
             /** @example B-101 */
             codigo: string;
             /** @example Auditorio Mayor */
@@ -2533,7 +2535,7 @@ export interface components {
             tipo: components["schemas"]["CodigoNombreDto"];
             bloque: components["schemas"]["CodigoNombreDto"];
             sede: components["schemas"]["CodigoNombreDto"];
-            portada: components["schemas"]["FotoDto"] | null;
+            portada: components["schemas"]["FotoPortadaDto"] | null;
             /** @description Hasta 4 elementos en servicio. */
             dotacion: components["schemas"]["DotacionDto"][];
             /**
@@ -2636,16 +2638,16 @@ export interface components {
             piso?: number;
             capacidadPersonas?: number;
             /** @example 48.5 */
-            areaM2?: Record<string, never> | null;
-            descripcion?: Record<string, never> | null;
-            condicionesUso?: Record<string, never> | null;
+            areaM2?: number | null;
+            descripcion?: string | null;
+            condicionesUso?: string | null;
             /** @description Código de la dependencia dueña. null la quita. */
-            dependencia?: Record<string, never> | null;
+            dependencia?: string | null;
             /**
              * Format: uuid
              * @description Usuario activo responsable. null lo quita.
              */
-            responsableId?: Record<string, never> | null;
+            responsableId?: string | null;
             /** @enum {string} */
             estado?: "DISPONIBLE" | "EN_MANTENIMIENTO" | "FUERA_DE_SERVICIO";
             requiereAval?: boolean;
@@ -2653,9 +2655,9 @@ export interface components {
             minutosMontaje?: number;
             minutosDesmontaje?: number;
             /** @description Depósito fijo en pesos enteros. */
-            depositoValorFijo?: Record<string, never> | null;
+            depositoValorFijo?: number | null;
             /** @description Depósito como porcentaje (0 a 100). */
-            depositoPorcentaje?: Record<string, never> | null;
+            depositoPorcentaje?: number | null;
         };
         HorarioEspacioDto: {
             /**
@@ -2730,9 +2732,9 @@ export interface components {
             nombre?: string;
             municipio?: string;
             /** @description null quita la dirección. */
-            direccion?: Record<string, never> | null;
+            direccion?: string | null;
             /** @description null quita el teléfono. */
-            telefono?: Record<string, never> | null;
+            telefono?: string | null;
             orden?: number;
         };
         BloqueAdminDto: {
@@ -2793,7 +2795,7 @@ export interface components {
         ActualizarBloqueDto: {
             nombre?: string;
             /** @description null quita la descripción. */
-            descripcion?: Record<string, never> | null;
+            descripcion?: string | null;
             /** @description No puede dejar espacios en pisos que ya no existan. */
             numeroPisos?: number;
             orden?: number;
@@ -2855,9 +2857,9 @@ export interface components {
             anticipacionMinimaDias?: number;
             anticipacionEnHabiles?: boolean;
             /** @description null quita la exigencia de póliza. */
-            aforoExigePoliza?: Record<string, never> | null;
+            aforoExigePoliza?: number | null;
             /** @description null quita el icono. */
-            icono?: Record<string, never> | null;
+            icono?: string | null;
         };
         ElementoAdminDto: {
             /** Format: uuid */
@@ -2946,10 +2948,10 @@ export interface components {
              */
             espacioId?: string;
             /** @description null quita la placa. */
-            placaInventario?: Record<string, never> | null;
-            marca?: Record<string, never> | null;
-            modelo?: Record<string, never> | null;
-            serie?: Record<string, never> | null;
+            placaInventario?: string | null;
+            marca?: string | null;
+            modelo?: string | null;
+            serie?: string | null;
             cantidad?: number;
             unidad?: string;
             /** @enum {string} */
@@ -2960,11 +2962,27 @@ export interface components {
              */
             estado?: "EN_SERVICIO" | "EN_REPARACION" | "DADO_DE_BAJA";
             /** @description Pesos enteros. */
-            valorUnitario?: Record<string, never> | null;
+            valorUnitario?: number | null;
             /** @example 2024-03-15 */
-            fechaAdquisicion?: Record<string, never> | null;
-            vidaUtilMeses?: Record<string, never> | null;
+            fechaAdquisicion?: string | null;
+            vidaUtilMeses?: number | null;
             esPrestable?: boolean;
+        };
+        FotoDto: {
+            /** Format: uuid */
+            id: string;
+            /** @example /api/fotos/3f2b8c1e-6a4d-4e0b-9a57-1c2d3e4f5a6b/detalle */
+            urlDetalle: string;
+            /** @example /api/fotos/3f2b8c1e-6a4d-4e0b-9a57-1c2d3e4f5a6b/tarjeta */
+            urlTarjeta: string;
+            /** @example /api/fotos/3f2b8c1e-6a4d-4e0b-9a57-1c2d3e4f5a6b/miniatura */
+            urlMiniatura: string;
+            /** @example Vista frontal del Auditorio Mayor. */
+            textoAlternativo: string;
+            /** @example true */
+            esPortada: boolean;
+            /** @example 0 */
+            orden: number;
         };
         FranjaDisponibilidadDto: {
             /**
@@ -4550,12 +4568,12 @@ export interface components {
         ActualizarDependenciaDto: {
             nombre?: string;
             /** @description null quita el centro de costo. */
-            centroCosto?: Record<string, never> | null;
+            centroCosto?: string | null;
             /**
              * Format: uuid
              * @description null quita al jefe.
              */
-            jefeId?: Record<string, never> | null;
+            jefeId?: string | null;
         };
         ParametroDto: {
             /** @example horas_plazo_revision */
@@ -5296,7 +5314,10 @@ export interface operations {
     };
     InventarioPublicoController_espacio: {
         parameters: {
-            query?: never;
+            query?: {
+                /** @description Número de asistentes: oculta lo que no cabe y ordena por ajuste. */
+                asistentes?: number;
+            };
             header?: never;
             path: {
                 codigo: string;
@@ -6507,6 +6528,15 @@ export interface operations {
             };
             /** @description Sin permiso para la acción. */
             403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RespuestaErrorDto"];
+                };
+            };
+            /** @description No existe o no es tuyo. */
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };

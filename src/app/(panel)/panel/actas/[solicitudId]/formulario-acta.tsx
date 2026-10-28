@@ -43,7 +43,7 @@ async function cargar(solicitudId: string) {
   const solicitud = await obtenerSolicitud(solicitudId);
   const espacios = [...new Set(solicitud.reservas.map((r) => r.espacioId))];
   const paginas = await Promise.all(espacios.map((id) => listarElementosDeEspacio(id)));
-  return { solicitud, elementos: paginas.flatMap((p) => p.datos) };
+  return { solicitud, elementos: paginas.flat() };
 }
 
 /** Pensado para celular: una columna, controles grandes, todo a 360 px. */
