@@ -260,6 +260,129 @@ export interface paths {
         patch: operations["NotificacionesController_marcarLeida"];
         trace?: never;
     };
+    "/api/espacios/gestion": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Lista los espacios para administración, incluidos los ocultos del catálogo público.
+         * @description Filtra por sede, bloque, estado y archivo; no excluye espacios por visibilidad pública.
+         */
+        get: operations["EspaciosAdminController_listar"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/espacios/gestion/{codigo}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Detalle administrativo de un espacio, aunque esté archivado o fuera de servicio.
+         * @description El código se normaliza a mayúsculas. Errores: 404 NO_ENCONTRADO.
+         */
+        get: operations["EspaciosAdminController_obtener"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/espacios": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Búsqueda paginada de espacios visibles. */
+        get: operations["InventarioPublicoController_espacios"];
+        put?: never;
+        /**
+         * Crea un espacio.
+         * @description Permite asignar un responsable activo. Errores: 422 RESPONSABLE_NO_VALIDO.
+         */
+        post: operations["EspaciosAdminController_crear"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/espacios/{codigo}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Ficha de un espacio: fotos, dotación, condiciones y tarifas públicas. */
+        get: operations["InventarioPublicoController_espacio"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Modifica un espacio.
+         * @description El código y el bloque no cambian.
+         *
+         *     Errores: 404 NO_ENCONTRADO, TIPO_ESPACIO_NO_ENCONTRADO o DEPENDENCIA_NO_ENCONTRADA; 422 PISO_INVALIDO o RESPONSABLE_NO_VALIDO.
+         */
+        patch: operations["EspaciosAdminController_actualizar"];
+        trace?: never;
+    };
+    "/api/espacios/{codigo}/horarios": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Reemplaza el horario de operación de un espacio.
+         * @description Un día que no aparezca queda cerrado; una lista vacía quita la restricción (RN-19). No modifica las reservas ya hechas.
+         *
+         *     Errores: 404 NO_ENCONTRADO; 422 DIA_REPETIDO o HORARIO_INVALIDO.
+         */
+        put: operations["EspaciosAdminController_reemplazarHorarios"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/espacios/{codigo}/archivar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Archiva un espacio (nunca se borra). */
+        patch: operations["EspaciosAdminController_archivar"];
+        trace?: never;
+    };
     "/api/sedes": {
         parameters: {
             query?: never;
@@ -315,47 +438,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/espacios": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Búsqueda paginada de espacios visibles. */
-        get: operations["InventarioPublicoController_espacios"];
-        put?: never;
-        /** Crea un espacio. */
-        post: operations["EspaciosAdminController_crear"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/espacios/{codigo}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Ficha de un espacio: fotos, dotación, condiciones y tarifas públicas. */
-        get: operations["InventarioPublicoController_espacio"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        /**
-         * Modifica un espacio.
-         * @description El código y el bloque no cambian.
-         *
-         *     Errores: 404 NO_ENCONTRADO, TIPO_ESPACIO_NO_ENCONTRADO o DEPENDENCIA_NO_ENCONTRADA; 422 PISO_INVALIDO o RESPONSABLE_NO_VALIDO.
-         */
-        patch: operations["EspaciosAdminController_actualizar"];
-        trace?: never;
-    };
     "/api/tipos-espacio": {
         parameters: {
             query?: never;
@@ -375,45 +457,6 @@ export interface paths {
         options?: never;
         head?: never;
         patch?: never;
-        trace?: never;
-    };
-    "/api/espacios/{codigo}/horarios": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        /**
-         * Reemplaza el horario de operación de un espacio.
-         * @description Un día que no aparezca queda cerrado; una lista vacía quita la restricción (RN-19). No modifica las reservas ya hechas.
-         *
-         *     Errores: 404 NO_ENCONTRADO; 422 DIA_REPETIDO o HORARIO_INVALIDO.
-         */
-        put: operations["EspaciosAdminController_reemplazarHorarios"];
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/espacios/{codigo}/archivar": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        /** Archiva un espacio (nunca se borra). */
-        patch: operations["EspaciosAdminController_archivar"];
         trace?: never;
     };
     "/api/sedes/gestion": {
@@ -2341,158 +2384,11 @@ export interface components {
             /** @example 20 */
             porPagina: number;
         };
-        SedeResumenDto: {
-            /** @example MOC */
-            codigo: string;
-            /** @example Mocoa */
-            nombre: string;
-            /** @example Mocoa */
-            municipio: string;
-            direccion?: string | null;
-            /** @example 3 */
-            totalBloques: number;
-            /** @example 12 */
-            totalEspacios: number;
-        };
-        FotoPortadaDto: {
-            /** @example http://localhost:9000/sira/publico/espacios/b-101-tarjeta.webp */
-            url: string;
-            /** @example Vista frontal del Auditorio Mayor */
-            alt: string;
-        };
-        ConteoPorTipoDto: {
-            /** @example AULA */
-            tipo: string;
-            /** @example Aula */
-            nombre: string;
-            /** @example 3 */
-            total: number;
-        };
-        BloqueResumenDto: {
-            /** @example A */
-            codigo: string;
-            /** @example Bloque A */
-            nombre: string;
-            descripcion?: string | null;
-            /** @example 3 */
-            numeroPisos: number;
-            planoUrl: string | null;
-            foto: components["schemas"]["FotoPortadaDto"] | null;
-            /** @example 5 */
-            totalEspacios: number;
-            /**
-             * @description Mayor capacidad entre los espacios del bloque.
-             * @example 40
-             */
-            capacidadMaxima: number;
-            conteoPorTipo: components["schemas"]["ConteoPorTipoDto"][];
-        };
         CodigoNombreDto: {
             /** @example MOC */
             codigo: string;
             /** @example Mocoa */
             nombre: string;
-        };
-        DotacionDto: {
-            /** @example Videobeam */
-            nombre: string;
-            /** @example 1 */
-            cantidad: number;
-        };
-        AforoDto: {
-            /** @enum {string} */
-            nivel: "NO_CABE" | "ADECUADO" | "SOBRA_ESPACIO";
-            /**
-             * @description Fracción de ocupación (asistentes / capacidad).
-             * @example 0.33
-             */
-            ocupacion: number;
-            /** @example Capacidad suficiente para 40 personas. */
-            mensaje: string;
-        };
-        TarjetaEspacioDto: {
-            /**
-             * Format: uuid
-             * @description Identificador para disponibilidad, tarifas y reservas.
-             */
-            id: string;
-            /** @example B-101 */
-            codigo: string;
-            /** @example Auditorio Mayor */
-            nombre: string;
-            /** @example 1 */
-            piso: number;
-            /** @example 300 */
-            capacidadPersonas: number;
-            tipo: components["schemas"]["CodigoNombreDto"];
-            bloque: components["schemas"]["CodigoNombreDto"];
-            sede: components["schemas"]["CodigoNombreDto"];
-            portada: components["schemas"]["FotoPortadaDto"] | null;
-            /** @description Hasta 4 elementos en servicio. */
-            dotacion: components["schemas"]["DotacionDto"][];
-            /**
-             * @description Menor tarifa externa vigente en pesos enteros. Nunca usa la tarifa interna.
-             * @example 50000
-             */
-            tarifaDesde: number | null;
-            /** @description Solo si la consulta incluye `asistentes`. */
-            aforo?: components["schemas"]["AforoDto"];
-        };
-        PisoDto: {
-            /** @example 1 */
-            piso: number;
-            espacios: components["schemas"]["TarjetaEspacioDto"][];
-        };
-        BloqueDetalleDto: {
-            /** @example A */
-            codigo: string;
-            /** @example Bloque A */
-            nombre: string;
-            descripcion?: string | null;
-            sede: components["schemas"]["CodigoNombreDto"];
-            /** @example 3 */
-            numeroPisos: number;
-            planoUrl: string | null;
-            /** @description Tipos de espacio presentes en el bloque. */
-            tipos: components["schemas"]["ConteoPorTipoDto"][];
-            pisos: components["schemas"]["PisoDto"][];
-        };
-        PaginaEspaciosDto: {
-            datos: components["schemas"]["TarjetaEspacioDto"][];
-            /** @example 12 */
-            total: number;
-            /** @example 1 */
-            pagina: number;
-            /** @example 24 */
-            porPagina: number;
-        };
-        FotoDetalleDto: {
-            urlDetalle: string;
-            urlTarjeta: string;
-            urlMiniatura: string;
-            alt: string;
-            esPortada: boolean;
-        };
-        ElementoFichaDto: {
-            /** @example Videobeam */
-            nombre: string;
-            /** @example 1 */
-            cantidad: number;
-            /** @example unidad */
-            unidad: string;
-        };
-        TarifaPublicaDto: {
-            /** @enum {string} */
-            tipoSolicitante: "PERSONA_NATURAL" | "EMPRESA" | "ENTIDAD";
-            /** @example HORA */
-            unidad: string | null;
-            /**
-             * @description Pesos enteros.
-             * @example 50000
-             */
-            valor: number;
-            /** @example false */
-            ivaAplica: boolean;
         };
         HorarioDto: {
             /**
@@ -2505,66 +2401,47 @@ export interface components {
             /** @example 22:00 */
             cierra: string;
         };
-        TipoEspacioDto: {
-            /** @example AULA */
-            codigo: string;
-            /** @example Aula */
-            nombre: string;
-            /** @example 2 */
-            anticipacionMinimaDias: number;
-            /** @example true */
-            anticipacionEnHabiles: boolean;
-            /** @example 150 */
-            aforoExigePoliza: number | null;
-            icono: string | null;
-        };
-        FichaEspacioDto: {
-            /**
-             * Format: uuid
-             * @description Identificador para disponibilidad, tarifas y reservas.
-             */
+        EspacioAdminDto: {
+            /** Format: uuid */
             id: string;
             /** @example B-101 */
             codigo: string;
             /** @example Auditorio Mayor */
             nombre: string;
-            /** @example 1 */
             piso: number;
-            /** @example 300 */
             capacidadPersonas: number;
+            areaM2: number | null;
+            descripcion: string | null;
+            condicionesUso: string | null;
+            /** @enum {string} */
+            estado: "DISPONIBLE" | "EN_MANTENIMIENTO" | "FUERA_DE_SERVICIO";
+            requiereAval: boolean;
+            esReservable: boolean;
+            minutosMontaje: number;
+            minutosDesmontaje: number;
+            depositoValorFijo: number | null;
+            depositoPorcentaje: number | null;
+            /** Format: uuid */
+            responsableId: string | null;
+            /** Format: uuid */
+            dependenciaId: string | null;
+            dependenciaCodigo: string | null;
+            /** @description Verdadero si el espacio no está archivado. */
+            activo: boolean;
             tipo: components["schemas"]["CodigoNombreDto"];
             bloque: components["schemas"]["CodigoNombreDto"];
             sede: components["schemas"]["CodigoNombreDto"];
-            portada: components["schemas"]["FotoPortadaDto"] | null;
-            /** @description Hasta 4 elementos en servicio. */
-            dotacion: components["schemas"]["DotacionDto"][];
-            /**
-             * @description Menor tarifa externa vigente en pesos enteros. Nunca usa la tarifa interna.
-             * @example 50000
-             */
-            tarifaDesde: number | null;
-            /** @description Solo si la consulta incluye `asistentes`. */
-            aforo?: components["schemas"]["AforoDto"];
-            descripcion?: string | null;
-            condicionesUso?: string | null;
-            areaM2?: number | null;
-            /** @example 0 */
-            minutosMontaje: number;
-            /** @example 0 */
-            minutosDesmontaje: number;
-            /** @description Depósito fijo en pesos. */
-            depositoValorFijo?: number | null;
-            /** @description Depósito como porcentaje. */
-            depositoPorcentaje?: number | null;
-            fotos: components["schemas"]["FotoDetalleDto"][];
-            /** @description Dotación completa en servicio. */
-            elementos: components["schemas"]["ElementoFichaDto"][];
-            /** @description Tarifas externas vigentes. */
-            tarifas: components["schemas"]["TarifaPublicaDto"][];
             horarios: components["schemas"]["HorarioDto"][];
-            reglasTipo: components["schemas"]["TipoEspacioDto"];
+        };
+        PaginaEspaciosAdminDto: {
+            datos: components["schemas"]["EspacioAdminDto"][];
+            total: number;
+            pagina: number;
+            porPagina: number;
         };
         CrearEspacioDto: {
+            /** Format: uuid */
+            responsableId?: string;
             /**
              * @description Código de la sede.
              * @example MOC
@@ -2679,6 +2556,212 @@ export interface components {
         ReemplazarHorariosDto: {
             /** @description Reemplaza el horario completo. Un día que no aparezca queda cerrado. Una lista vacía quita la restricción de horario (RN-19). */
             horarios: components["schemas"]["HorarioEspacioDto"][];
+        };
+        SedeResumenDto: {
+            /** @example MOC */
+            codigo: string;
+            /** @example Mocoa */
+            nombre: string;
+            /** @example Mocoa */
+            municipio: string;
+            direccion?: string | null;
+            /** @example 3 */
+            totalBloques: number;
+            /** @example 12 */
+            totalEspacios: number;
+        };
+        FotoPortadaDto: {
+            /** @example http://localhost:9000/sira/publico/espacios/b-101-tarjeta.webp */
+            url: string;
+            /** @example Vista frontal del Auditorio Mayor */
+            alt: string;
+        };
+        ConteoPorTipoDto: {
+            /** @example AULA */
+            tipo: string;
+            /** @example Aula */
+            nombre: string;
+            /** @example 3 */
+            total: number;
+        };
+        BloqueResumenDto: {
+            /** @example A */
+            codigo: string;
+            /** @example Bloque A */
+            nombre: string;
+            descripcion?: string | null;
+            /** @example 3 */
+            numeroPisos: number;
+            planoUrl: string | null;
+            foto: components["schemas"]["FotoPortadaDto"] | null;
+            /** @example 5 */
+            totalEspacios: number;
+            /**
+             * @description Mayor capacidad entre los espacios del bloque.
+             * @example 40
+             */
+            capacidadMaxima: number;
+            conteoPorTipo: components["schemas"]["ConteoPorTipoDto"][];
+        };
+        DotacionDto: {
+            /** @example Videobeam */
+            nombre: string;
+            /** @example 1 */
+            cantidad: number;
+        };
+        AforoDto: {
+            /** @enum {string} */
+            nivel: "NO_CABE" | "ADECUADO" | "SOBRA_ESPACIO";
+            /**
+             * @description Fracción de ocupación (asistentes / capacidad).
+             * @example 0.33
+             */
+            ocupacion: number;
+            /** @example Capacidad suficiente para 40 personas. */
+            mensaje: string;
+        };
+        TarjetaEspacioDto: {
+            /**
+             * Format: uuid
+             * @description Identificador para disponibilidad, tarifas y reservas.
+             */
+            id: string;
+            /** @example B-101 */
+            codigo: string;
+            /** @example Auditorio Mayor */
+            nombre: string;
+            /** @example 1 */
+            piso: number;
+            /** @example 300 */
+            capacidadPersonas: number;
+            tipo: components["schemas"]["CodigoNombreDto"];
+            bloque: components["schemas"]["CodigoNombreDto"];
+            sede: components["schemas"]["CodigoNombreDto"];
+            portada: components["schemas"]["FotoPortadaDto"] | null;
+            /** @description Hasta 4 elementos en servicio. */
+            dotacion: components["schemas"]["DotacionDto"][];
+            /**
+             * @description Menor tarifa externa vigente en pesos enteros. Nunca usa la tarifa interna.
+             * @example 50000
+             */
+            tarifaDesde: number | null;
+            /** @description Solo si la consulta incluye `asistentes`. */
+            aforo?: components["schemas"]["AforoDto"];
+        };
+        PisoDto: {
+            /** @example 1 */
+            piso: number;
+            espacios: components["schemas"]["TarjetaEspacioDto"][];
+        };
+        BloqueDetalleDto: {
+            /** @example A */
+            codigo: string;
+            /** @example Bloque A */
+            nombre: string;
+            descripcion?: string | null;
+            sede: components["schemas"]["CodigoNombreDto"];
+            /** @example 3 */
+            numeroPisos: number;
+            planoUrl: string | null;
+            /** @description Tipos de espacio presentes en el bloque. */
+            tipos: components["schemas"]["ConteoPorTipoDto"][];
+            pisos: components["schemas"]["PisoDto"][];
+        };
+        PaginaEspaciosDto: {
+            datos: components["schemas"]["TarjetaEspacioDto"][];
+            /** @example 12 */
+            total: number;
+            /** @example 1 */
+            pagina: number;
+            /** @example 24 */
+            porPagina: number;
+        };
+        FotoDetalleDto: {
+            urlDetalle: string;
+            urlTarjeta: string;
+            urlMiniatura: string;
+            alt: string;
+            esPortada: boolean;
+        };
+        ElementoFichaDto: {
+            /** @example Videobeam */
+            nombre: string;
+            /** @example 1 */
+            cantidad: number;
+            /** @example unidad */
+            unidad: string;
+        };
+        TarifaPublicaDto: {
+            /** @enum {string} */
+            tipoSolicitante: "PERSONA_NATURAL" | "EMPRESA" | "ENTIDAD";
+            /** @example HORA */
+            unidad: string | null;
+            /**
+             * @description Pesos enteros.
+             * @example 50000
+             */
+            valor: number;
+            /** @example false */
+            ivaAplica: boolean;
+        };
+        TipoEspacioDto: {
+            /** @example AULA */
+            codigo: string;
+            /** @example Aula */
+            nombre: string;
+            /** @example 2 */
+            anticipacionMinimaDias: number;
+            /** @example true */
+            anticipacionEnHabiles: boolean;
+            /** @example 150 */
+            aforoExigePoliza: number | null;
+            icono: string | null;
+        };
+        FichaEspacioDto: {
+            /**
+             * Format: uuid
+             * @description Identificador para disponibilidad, tarifas y reservas.
+             */
+            id: string;
+            /** @example B-101 */
+            codigo: string;
+            /** @example Auditorio Mayor */
+            nombre: string;
+            /** @example 1 */
+            piso: number;
+            /** @example 300 */
+            capacidadPersonas: number;
+            tipo: components["schemas"]["CodigoNombreDto"];
+            bloque: components["schemas"]["CodigoNombreDto"];
+            sede: components["schemas"]["CodigoNombreDto"];
+            portada: components["schemas"]["FotoPortadaDto"] | null;
+            /** @description Hasta 4 elementos en servicio. */
+            dotacion: components["schemas"]["DotacionDto"][];
+            /**
+             * @description Menor tarifa externa vigente en pesos enteros. Nunca usa la tarifa interna.
+             * @example 50000
+             */
+            tarifaDesde: number | null;
+            /** @description Solo si la consulta incluye `asistentes`. */
+            aforo?: components["schemas"]["AforoDto"];
+            descripcion?: string | null;
+            condicionesUso?: string | null;
+            areaM2?: number | null;
+            /** @example 0 */
+            minutosMontaje: number;
+            /** @example 0 */
+            minutosDesmontaje: number;
+            /** @description Depósito fijo en pesos. */
+            depositoValorFijo?: number | null;
+            /** @description Depósito como porcentaje. */
+            depositoPorcentaje?: number | null;
+            fotos: components["schemas"]["FotoDetalleDto"][];
+            /** @description Dotación completa en servicio. */
+            elementos: components["schemas"]["ElementoFichaDto"][];
+            /** @description Tarifas externas vigentes. */
+            tarifas: components["schemas"]["TarifaPublicaDto"][];
+            horarios: components["schemas"]["HorarioDto"][];
+            reglasTipo: components["schemas"]["TipoEspacioDto"];
         };
         SedeAdminDto: {
             /** Format: uuid */
@@ -3775,7 +3858,25 @@ export interface components {
             /** @example 20 */
             porPagina: number;
         };
+        ActaResumenSolicitudDto: {
+            /** Format: uuid */
+            id: string;
+            /** @example ACT-2026-0001 */
+            consecutivo: string;
+            /** @enum {string} */
+            tipo: "ENTREGA" | "DEVOLUCION";
+            observaciones: string | null;
+            /**
+             * Format: date-time
+             * @description Fecha de generación del acta, en ISO 8601 UTC.
+             */
+            registradaEn: string;
+        };
         ReservaItemDto: {
+            /** @example B-101 */
+            espacioCodigo?: string;
+            /** @example Auditorio Mayor */
+            espacioNombre?: string;
             /** Format: uuid */
             id: string;
             /** Format: uuid */
@@ -3911,6 +4012,7 @@ export interface components {
             creadoEn: string;
             /** @example 2026-10-21T15:30:00.000Z */
             actualizadoEn: string;
+            actas: components["schemas"]["ActaResumenSolicitudDto"][];
             /** @description Espacios y horarios solicitados. */
             reservas: components["schemas"]["ReservaItemDto"][];
             /** @description Servicios complementarios solicitados. */
@@ -5114,6 +5216,330 @@ export interface operations {
             };
         };
     };
+    EspaciosAdminController_listar: {
+        parameters: {
+            query?: {
+                pagina?: number;
+                porPagina?: number;
+                /** @description Solo activos (true) o solo archivados (false). */
+                activo?: boolean;
+                sedeId?: string;
+                /** @description Código de sede; se normaliza a mayúsculas. */
+                sede?: string;
+                bloqueId?: string;
+                /** @description Código de bloque; se normaliza a mayúsculas. */
+                bloque?: string;
+                estado?: "DISPONIBLE" | "EN_MANTENIMIENTO" | "FUERA_DE_SERVICIO";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginaEspaciosAdminDto"];
+                };
+            };
+            /** @description Datos inválidos. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RespuestaErrorDto"];
+                };
+            };
+            /** @description Sin sesión. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RespuestaErrorDto"];
+                };
+            };
+            /** @description Sin permiso para la acción. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RespuestaErrorDto"];
+                };
+            };
+        };
+    };
+    EspaciosAdminController_obtener: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                codigo: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EspacioAdminDto"];
+                };
+            };
+            /** @description Sin sesión. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RespuestaErrorDto"];
+                };
+            };
+            /** @description Sin permiso para la acción. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RespuestaErrorDto"];
+                };
+            };
+            /** @description No existe o no es tuyo. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RespuestaErrorDto"];
+                };
+            };
+        };
+    };
+    InventarioPublicoController_espacios: {
+        parameters: {
+            query?: {
+                /** @description Número de asistentes: oculta lo que no cabe y ordena por ajuste. */
+                asistentes?: number;
+                /** @description Código de la sede. */
+                sede?: string;
+                /** @description Código del bloque (requiere sede para ser único). */
+                bloque?: string;
+                /** @description Código del tipo de espacio. */
+                tipo?: string;
+                pagina?: number;
+                porPagina?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginaEspaciosDto"];
+                };
+            };
+        };
+    };
+    EspaciosAdminController_crear: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CrearEspacioDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EspacioCreadoDto"];
+                };
+            };
+            /** @description Datos inválidos. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RespuestaErrorDto"];
+                };
+            };
+            /** @description Sin sesión. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RespuestaErrorDto"];
+                };
+            };
+            /** @description Sin permiso para la acción. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RespuestaErrorDto"];
+                };
+            };
+            /** @description Ya existe un espacio con ese código. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Regla de negocio. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RespuestaErrorDto"];
+                };
+            };
+        };
+    };
+    InventarioPublicoController_espacio: {
+        parameters: {
+            query?: {
+                /** @description Número de asistentes: oculta lo que no cabe y ordena por ajuste. */
+                asistentes?: number;
+            };
+            header?: never;
+            path: {
+                codigo: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FichaEspacioDto"];
+                };
+            };
+            /** @description El espacio no existe o no es visible. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    EspaciosAdminController_actualizar: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                codigo: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ActualizarEspacioDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EspacioCreadoDto"];
+                };
+            };
+            /** @description No existe el espacio, el tipo o la dependencia. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    EspaciosAdminController_reemplazarHorarios: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                codigo: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReemplazarHorariosDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HorarioDto"][];
+                };
+            };
+            /** @description No existe el espacio. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    EspaciosAdminController_archivar: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                codigo: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Espacio archivado. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description El espacio tiene reservas futuras. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     InventarioPublicoController_sedes: {
         parameters: {
             query?: never;
@@ -5252,129 +5678,6 @@ export interface operations {
             };
         };
     };
-    InventarioPublicoController_espacios: {
-        parameters: {
-            query?: {
-                /** @description Número de asistentes: oculta lo que no cabe y ordena por ajuste. */
-                asistentes?: number;
-                /** @description Código de la sede. */
-                sede?: string;
-                /** @description Código del bloque (requiere sede para ser único). */
-                bloque?: string;
-                /** @description Código del tipo de espacio. */
-                tipo?: string;
-                pagina?: number;
-                porPagina?: number;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PaginaEspaciosDto"];
-                };
-            };
-        };
-    };
-    EspaciosAdminController_crear: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CrearEspacioDto"];
-            };
-        };
-        responses: {
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["EspacioCreadoDto"];
-                };
-            };
-            /** @description Ya existe un espacio con ese código. */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    InventarioPublicoController_espacio: {
-        parameters: {
-            query?: {
-                /** @description Número de asistentes: oculta lo que no cabe y ordena por ajuste. */
-                asistentes?: number;
-            };
-            header?: never;
-            path: {
-                codigo: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["FichaEspacioDto"];
-                };
-            };
-            /** @description El espacio no existe o no es visible. */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    EspaciosAdminController_actualizar: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                codigo: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["ActualizarEspacioDto"];
-            };
-        };
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["EspacioCreadoDto"];
-                };
-            };
-            /** @description No existe el espacio, el tipo o la dependencia. */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
     InventarioPublicoController_tipos: {
         parameters: {
             query?: never;
@@ -5450,65 +5753,6 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["RespuestaErrorDto"];
                 };
-            };
-        };
-    };
-    EspaciosAdminController_reemplazarHorarios: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                codigo: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["ReemplazarHorariosDto"];
-            };
-        };
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HorarioDto"][];
-                };
-            };
-            /** @description No existe el espacio. */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    EspaciosAdminController_archivar: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                codigo: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Espacio archivado. */
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description El espacio tiene reservas futuras. */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
             };
         };
     };

@@ -19,11 +19,33 @@ import { fecha } from "@/lib/formato";
 import { ETIQUETAS_ROL, type Rol } from "@/lib/tipos-auth";
 import { useConsulta } from "@/lib/useConsulta";
 import { avisar } from "@/lib/avisos";
+import { ParametrosSistema } from "./parametros";
+import { DependenciasSistema } from "./dependencias";
 
 const ROLES = Object.keys(ETIQUETAS_ROL) as Rol[];
 const POR_PAGINA = 20;
 
 export function PantallaConfiguracion() {
+  const [pestana, setPestana] = useState(0);
+  const pestanas = ["Usuarios y roles", "Parámetros del sistema", "Dependencias"];
+  return <div className="flex flex-col gap-6">
+    <h1 className="text-t1 font-black">Configuración</h1>
+    <div role="tablist" aria-label="Secciones de configuración" className="flex flex-wrap gap-2">
+      {pestanas.map((titulo, indice) => <button key={titulo} id={`configuracion-tab-${indice}`} type="button" role="tab"
+        aria-selected={pestana === indice} aria-controls={`configuracion-panel-${indice}`} tabIndex={pestana === indice ? 0 : -1}
+        className={`min-h-11 rounded-campo border border-gris-claro px-4 font-bold ${pestana === indice ? "bg-azul text-white" : "text-azul-oscuro"}`}
+        onClick={() => setPestana(indice)} onKeyDown={(evento) => {
+          const siguiente = evento.key === "ArrowRight" ? (indice + 1) % pestanas.length : evento.key === "ArrowLeft" ? (indice + pestanas.length - 1) % pestanas.length : evento.key === "Home" ? 0 : evento.key === "End" ? pestanas.length - 1 : null;
+          if (siguiente !== null) { evento.preventDefault(); setPestana(siguiente); document.getElementById(`configuracion-tab-${siguiente}`)?.focus(); }
+        }}>{titulo}</button>)}
+    </div>
+    <div role="tabpanel" id={`configuracion-panel-${pestana}`} aria-labelledby={`configuracion-tab-${pestana}`}>
+      {pestana === 0 ? <UsuariosRoles /> : pestana === 1 ? <ParametrosSistema /> : <DependenciasSistema />}
+    </div>
+  </div>;
+}
+
+function UsuariosRoles() {
   const [busqueda, setBusqueda] = useState("");
   const [pagina, setPagina] = useState(1);
   const [error, setError] = useState<string | null>(null);
@@ -54,7 +76,7 @@ export function PantallaConfiguracion() {
   return (
     <div className="flex flex-col gap-6">
       <header className="flex flex-col gap-1">
-        <h1 className="text-t1 font-black">Configuración</h1>
+        <h2 className="text-2xl font-bold">Usuarios y roles</h2>
         <p className="text-gris">Usuarios y roles del sistema.</p>
       </header>
 

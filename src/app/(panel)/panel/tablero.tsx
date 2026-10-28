@@ -8,6 +8,7 @@ import { obtenerTablero } from "@/lib/reportes";
 import { ESTADOS, type EstadoSolicitud } from "@/lib/solicitudes";
 import { listarBloques, SEDE_PRINCIPAL } from "@/lib/inventario";
 import { useConsulta } from "@/lib/useConsulta";
+import { ExportacionesTablero } from "./exportaciones";
 
 function Cifra({ titulo, valor, detalle }: { titulo: string; valor: string; detalle?: string }) {
   return (
@@ -51,6 +52,8 @@ export function Tablero() {
           Del {fecha(t.desde)} al {fecha(t.hasta)}.
         </p>
       </header>
+
+      <ExportacionesTablero desde={t.desde} hasta={t.hasta} />
 
       {bloques.resultado.estado === "listo" && <CampusIsometrico bloques={bloques.resultado.datos} />}
 

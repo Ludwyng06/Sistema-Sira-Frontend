@@ -58,10 +58,13 @@ export function CalendarioEspacio({
   espacioId,
   onSeleccion,
   seleccion,
+  fechaInicial,
 }: {
   espacioId: string;
   onSeleccion?: (s: SeleccionCalendario) => void;
   seleccion?: SeleccionCalendario | null;
+  /** Centra la revisión en el horario solicitado, también para solicitudes pasadas. */
+  fechaInicial?: string;
 }) {
   const ancho = useSyncExternalStore(
     suscribir,
@@ -73,9 +76,9 @@ export function CalendarioEspacio({
     <div className="flex flex-col gap-3">
       <LeyendaEstados />
       {ancho ? (
-        <VistaCalendario espacioId={espacioId} onSeleccion={onSeleccion} seleccion={seleccion} />
+        <VistaCalendario espacioId={espacioId} onSeleccion={onSeleccion} seleccion={seleccion} fechaInicial={fechaInicial} />
       ) : (
-        <ListaPorDia espacioId={espacioId} onSeleccion={onSeleccion} />
+        <ListaPorDia espacioId={espacioId} onSeleccion={onSeleccion} fechaInicial={fechaInicial} />
       )}
     </div>
   );
@@ -105,10 +108,12 @@ function VistaCalendario({
   espacioId,
   onSeleccion,
   seleccion,
+  fechaInicial,
 }: {
   espacioId: string;
   onSeleccion?: (s: SeleccionCalendario) => void;
   seleccion?: SeleccionCalendario | null;
+  fechaInicial?: string;
 }) {
   const [error, setError] = useState<string | null>(null);
   const [clave, setClave] = useState(0);
@@ -154,6 +159,7 @@ function VistaCalendario({
         timeZone="UTC"
         now={() => aRelojBogota(new Date())}
         initialView="timeGridWeek"
+        initialDate={fechaInicial ? aRelojBogota(fechaInicial) : undefined}
         headerToolbar={{
           left: "prev,next today",
           center: "title",
@@ -213,15 +219,17 @@ function VistaCalendario({
 /** Vista para celular: lista de los próximos días con sus franjas ocupadas. */
 function ListaPorDia({
   espacioId,
+  fechaInicial,
 }: {
   espacioId: string;
   onSeleccion?: (s: SeleccionCalendario) => void;
+  fechaInicial?: string;
 }) {
   const { resultado, recargar } = useConsulta(() => {
-    const desde = new Date();
+    const desde = fechaInicial ? new Date(fechaInicial) : new Date();
     const hasta = new Date(desde.getTime() + DIAS_LISTA * 86_400_000);
     return obtenerDisponibilidad(espacioId, desde.toISOString(), hasta.toISOString());
-  }, [espacioId]);
+  }, [espacioId, fechaInicial ?? ""]);
 
   if (resultado.estado === "cargando") {
     return (
@@ -242,7 +250,7 @@ function ListaPorDia({
   if (porDia.size === 0) {
     return (
       <p className="rounded-campo border border-gris-claro bg-fondo-suave p-4">
-        Sin ocupaciones en los próximos {DIAS_LISTA} días: el espacio está libre.
+        Sin ocupaciones en los {DIAS_LISTA} días consultados.
       </p>
     );
   }
