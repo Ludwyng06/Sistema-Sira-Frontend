@@ -170,8 +170,13 @@ export function PlanoCampus({
           const contenido = (
             <>
               <span className="font-titulo text-3xl font-black leading-none text-white sm:text-5xl">{ala.codigo}</span>
-              <span className="text-meta font-medium leading-tight text-white">
-                {bloque ? `${bloque.totalEspacios} espacios` : <span className="sr-only">Cargando</span>}
+              <span className="text-meta font-semibold leading-tight text-white">
+                {bloque ? `${bloque.numeroPisos} pisos · ${bloque.totalEspacios} espacios` : <span className="sr-only">Cargando</span>}
+              </span>
+              <span className="hidden text-[11px] font-medium leading-tight text-white/85 sm:block">
+                {ala.codigo === "A" && "Aulas 105–125 · Salas info 118–123"}
+                {ala.codigo === "B" && "B101–B205 · Auditorio · Labs"}
+                {ala.codigo === "C" && "C101–C204 · Cancha · Coliseo"}
               </span>
             </>
           );
