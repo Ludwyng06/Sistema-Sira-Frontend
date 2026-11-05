@@ -3,7 +3,14 @@ import clsx from "clsx";
 type Variante = "aulas" | "auditorio" | "cancha";
 
 /** El bloque A son aulas, el B el auditorio y los laboratorios, el C el escenario deportivo. */
-const POR_CODIGO: Record<string, Variante> = { A: "aulas", B: "auditorio", C: "cancha" };
+const POR_CODIGO: Record<string, Variante> = {
+  A: "aulas",
+  B: "aulas",
+  C: "aulas",
+  D: "auditorio",
+  E: "cancha",
+  F: "aulas",
+};
 const ORDEN: Variante[] = ["aulas", "auditorio", "cancha"];
 
 export function varianteDeBloque(codigo: string): Variante {

@@ -36,13 +36,15 @@ interface Pieza {
 }
 
 const BLOQUES: Pieza[] = [
-  { id: "A", nombre: "Bloque A", x: 0, y: 0, ancho: 3.6, fondo: 2.8 },
-  { id: "B", nombre: "Bloque B", x: 4.6, y: 0, ancho: 3.6, fondo: 2.8 },
-  { id: "C", nombre: "Bloque C", x: 9.2, y: 0, ancho: 3.6, fondo: 2.8 },
+  { id: "D", nombre: "Edificio Labs, Auditorio y Cafetería", x: 0, y: 0, ancho: 4.2, fondo: 2.8 },
+  { id: "C", nombre: "Bloque C (C101–C204)", x: 9.2, y: 0.6, ancho: 3.2, fondo: 2.6 },
+  { id: "F", nombre: "Biblioteca, Administración y CIECYT", x: 8.2, y: 4.2, ancho: 4.2, fondo: 2.6 },
+  { id: "A", nombre: "Bloque A (Zona A · 101–125)", x: 0.2, y: 5.8, ancho: 5.4, fondo: 3.2 },
+  { id: "B", nombre: "Bloque B (B101–B205)", x: 7.8, y: 7.4, ancho: 4.0, fondo: 2.6 },
 ];
-const CANCHA: Pieza = { id: "cancha", nombre: "Cancha sintética", x: 0.4, y: 4.6, ancho: 4.8, fondo: 3 };
-const COLISEO: Pieza = { id: "coliseo", nombre: "Coliseo", x: 6.4, y: 5.4, ancho: 6.2, fondo: 3.4 };
-const ENTRADA = { x: 6.2, y: 10 };
+const CANCHA: Pieza = { id: "E", nombre: "Escenarios Deportivos (Cancha y Coliseo)", x: 4.6, y: 0.8, ancho: 4.0, fondo: 2.6 };
+const COLISEO: Pieza = { id: "coliseo", nombre: "Coliseo", x: 5.0, y: 3.6, ancho: 2.8, fondo: 1.8 };
+const ENTRADA = { x: 6.6, y: 7.2 };
 const PISOS = 2;
 
 /** Una caja con tapa, cara izquierda y cara derecha. */
