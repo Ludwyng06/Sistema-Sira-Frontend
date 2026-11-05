@@ -39,7 +39,7 @@ const ENTRADAS = {
     activaEn: ["/mis-solicitudes", "/solicitar"],
   },
   espacios: {
-    href: "/espacios",
+    href: "/",
     texto: "Espacios",
     icono: LayoutGrid,
     activaEn: ["/espacios", "/sedes"],

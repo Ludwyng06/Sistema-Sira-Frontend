@@ -4,8 +4,7 @@ import { Marca } from "./marca/Logo";
 import { SolRadial } from "./marca/SolRadial";
 
 const enlaces = [
-  { href: "/espacios", texto: "Espacios" },
-  { href: "/sedes", texto: "Sedes" },
+  { href: "/", texto: "Espacios" },
   { href: "/buscar", texto: "Buscar por fecha" },
   { href: "/servicios", texto: "Servicios" },
   { href: "/simulador", texto: "Simulador de tarifa" },
