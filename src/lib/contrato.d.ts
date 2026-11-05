@@ -3877,6 +3877,8 @@ export interface components {
             registradaEn: string;
         };
         ReservaItemDto: {
+            /** @description Tipo del espacio reservado; sirve para filtrar el catálogo de servicios. Opcional si el servidor es antiguo. (Editado a mano: aún no regenerado desde Swagger.) */
+            tipoEspacioId?: string;
             /** @example B-101 */
             espacioCodigo?: string;
             /** @example Auditorio Mayor */

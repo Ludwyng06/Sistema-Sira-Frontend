@@ -139,9 +139,12 @@ const PLANTILLAS: Record<string, Plantilla> = {
     porQue: "Cada solicitud tiene un máximo de horarios, servicios y documentos.",
     queHacer: "Quita alguno, o crea otra solicitud para el resto.",
   },
+  SERVICIO_NO_PERMITIDO: {
+    titulo: "Ese servicio no aplica",
+    queHacer: "Elige otro servicio o revisa los espacios de tu solicitud.",
+  },
   SOLICITUD_SIN_RESERVAS: {
     titulo: "Falta el horario",
-    porQue: "Una solicitud necesita al menos un espacio y una franja.",
     queHacer: "Vuelve al paso 1 y agrega uno.",
   },
   SOLICITUD_INCOMPLETA: {

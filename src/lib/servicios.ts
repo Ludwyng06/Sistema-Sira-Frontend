@@ -22,3 +22,11 @@ export const UNIDADES_COBRO: Record<UnidadCobro, string> = {
 
 export const listarServicios = (tipoEspacioId?: string) =>
   api<Servicio[]>("/servicios", { query: { tipoEspacioId } });
+
+/** Unidad escrita junto al selector de cantidad. */
+export const UNIDADES_PLURAL: Record<UnidadCobro, string> = {
+  EVENTO: "eventos",
+  HORA: "horas",
+  PERSONA: "personas",
+  UNIDAD: "unidades",
+};
