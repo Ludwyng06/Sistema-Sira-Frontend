@@ -3102,6 +3102,10 @@ export interface components {
             hasta: string;
             /** @description Franjas ocupadas, ordenadas por inicio. */
             franjas: components["schemas"]["FranjaDisponibilidadDto"][];
+            /** @description Franjas de operación (diaSemana 0 = domingo; HH:mm de Bogotá). Vacío = sin restricción. Un día sin fila está cerrado. (Editado a mano: aún no regenerado desde Swagger.) */
+            horarios?: components["schemas"]["HorarioEspacioDto"][];
+            /** @description Primer instante (ISO UTC) en que puede empezar una franja por la anticipación mínima. (Editado a mano.) */
+            reservableDesde?: string;
         };
         CodigoNombreOcupacionDto: {
             /** @example MOC */

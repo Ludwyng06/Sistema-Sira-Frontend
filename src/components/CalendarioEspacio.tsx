@@ -17,6 +17,7 @@ import {
 import { ErrorApi } from "@/lib/api";
 import { fecha, hora } from "@/lib/formato";
 import { aRelojBogota, deRelojBogota, partesBogota } from "@/lib/zona";
+import type { HorarioEspacio } from "@/lib/horario";
 import { useConsulta } from "@/lib/useConsulta";
 
 const FullCalendar = dynamic(() => import("@fullcalendar/react"), {
@@ -59,12 +60,19 @@ export function CalendarioEspacio({
   onSeleccion,
   seleccion,
   fechaInicial,
+  restringirAHorario = false,
 }: {
   espacioId: string;
   onSeleccion?: (s: SeleccionCalendario) => void;
   seleccion?: SeleccionCalendario | null;
   /** Centra la revisión en el horario solicitado, también para solicitudes pasadas. */
   fechaInicial?: string;
+  /**
+   * Solo para el flujo de solicitud: impide seleccionar fuera del horario del espacio o antes de
+   * la anticipación mínima. Sin esto (bloqueos, ficha pública) el horario solo se muestra sombreado.
+   * Es ayuda visual: el servidor valida de todos modos.
+   */
+  restringirAHorario?: boolean;
 }) {
   const ancho = useSyncExternalStore(
     suscribir,
@@ -76,7 +84,7 @@ export function CalendarioEspacio({
     <div className="flex flex-col gap-3">
       <LeyendaEstados />
       {ancho ? (
-        <VistaCalendario espacioId={espacioId} onSeleccion={onSeleccion} seleccion={seleccion} fechaInicial={fechaInicial} />
+        <VistaCalendario espacioId={espacioId} onSeleccion={onSeleccion} seleccion={seleccion} fechaInicial={fechaInicial} restringirAHorario={restringirAHorario} />
       ) : (
         <ListaPorDia espacioId={espacioId} onSeleccion={onSeleccion} fechaInicial={fechaInicial} />
       )}
@@ -109,14 +117,27 @@ function VistaCalendario({
   onSeleccion,
   seleccion,
   fechaInicial,
+  restringirAHorario,
 }: {
   espacioId: string;
   onSeleccion?: (s: SeleccionCalendario) => void;
   seleccion?: SeleccionCalendario | null;
   fechaInicial?: string;
+  restringirAHorario: boolean;
 }) {
   const [error, setError] = useState<string | null>(null);
   const [clave, setClave] = useState(0);
+  // Ausentes en la respuesta = sin restricción (comportamiento anterior).
+  const [reglas, setReglas] = useState<{ horarios: HorarioEspacio[]; reservableDesde?: string }>({
+    horarios: [],
+  });
+  const { horarios, reservableDesde } = reglas;
+  const hayHorario = horarios.length > 0;
+  const minimos = hayHorario ? horarios.map((h) => h.abre).sort() : [];
+  const maximos = hayHorario ? horarios.map((h) => h.cierra).sort() : [];
+  const slotMin = minimos[0] ?? "06:00";
+  const slotMax = maximos[maximos.length - 1] ?? "22:00";
+  const limiteAnticipacion = reservableDesde ? aRelojBogota(reservableDesde).getTime() : 0;
 
   const eventos: EventInput[] = [];
   if (seleccion) {
@@ -167,8 +188,13 @@ function VistaCalendario({
         }}
         firstDay={1}
         allDaySlot={false}
-        slotMinTime="06:00:00"
-        slotMaxTime="22:00:00"
+        slotMinTime={`${slotMin}:00`}
+        slotMaxTime={`${slotMax}:00`}
+        businessHours={
+          hayHorario
+            ? horarios.map((h) => ({ daysOfWeek: [h.diaSemana], startTime: h.abre, endTime: h.cierra }))
+            : false
+        }
         height="auto"
         nowIndicator
         eventInteractive
@@ -183,7 +209,11 @@ function VistaCalendario({
         selectable={Boolean(onSeleccion)}
         selectMirror
         selectOverlap={false}
-        selectAllow={(span) => span.start.getTime() >= aRelojBogota(new Date()).getTime()}
+        selectConstraint={restringirAHorario && hayHorario ? "businessHours" : undefined}
+        selectAllow={(span) =>
+          span.start.getTime() >= aRelojBogota(new Date()).getTime() &&
+          (!restringirAHorario || span.start.getTime() >= limiteAnticipacion)
+        }
         select={(info) =>
           onSeleccion?.({ inicio: deRelojBogota(info.start), fin: deRelojBogota(info.end) })
         }
@@ -194,7 +224,15 @@ function VistaCalendario({
             const tope = new Date(desde.getTime() + MAX_DIAS * 86_400_000);
             if (hasta > tope) hasta = tope;
             const r = await obtenerDisponibilidad(espacioId, desde.toISOString(), hasta.toISOString());
+            const nuevos = r.horarios ?? [];
+            setReglas((previo) =>
+              JSON.stringify(previo.horarios) === JSON.stringify(nuevos) &&
+              previo.reservableDesde === r.reservableDesde
+                ? previo
+                : { horarios: nuevos, reservableDesde: r.reservableDesde },
+            );
             correcto([
+              ...sombreados(info.start, info.end, nuevos, restringirAHorario ? r.reservableDesde : undefined),
               ...r.franjas.map<EventInput>((f, i) => ({
                 id: `franja-${i}`,
                 title: textoFranja(f),
@@ -214,6 +252,58 @@ function VistaCalendario({
       />
     </div>
   );
+}
+
+/** Fondos con texto visible (no solo color): horas y días cerrados, y fechas sin la anticipación mínima. */
+function sombreados(
+  desde: Date,
+  hasta: Date,
+  horarios: HorarioEspacio[],
+  reservableDesde?: string,
+): EventInput[] {
+  const fondos: EventInput[] = [];
+  const dia = 86_400_000;
+  const fondo = (id: string, start: string, end: string, title: string, clase: string): EventInput => ({
+    id,
+    start,
+    end,
+    title,
+    display: "background",
+    classNames: [clase],
+  });
+  if (horarios.length > 0) {
+    for (let t = Date.UTC(desde.getUTCFullYear(), desde.getUTCMonth(), desde.getUTCDate()); t < hasta.getTime(); t += dia) {
+      const d = new Date(t);
+      const ymd = d.toISOString().slice(0, 10);
+      const sig = new Date(t + dia).toISOString().slice(0, 10);
+      const fila = horarios.find((h) => h.diaSemana === d.getUTCDay());
+      if (!fila) {
+        fondos.push(fondo(`cerrado-${ymd}`, `${ymd}T00:00:00`, `${sig}T00:00:00`, "Cerrado", "horario-cerrado"));
+        continue;
+      }
+      if (fila.abre > "00:00") {
+        fondos.push(fondo(`cerrado-a-${ymd}`, `${ymd}T00:00:00`, `${ymd}T${fila.abre}:00`, "Cerrado", "horario-cerrado"));
+      }
+      if (fila.cierra < "24:00") {
+        fondos.push(fondo(`cerrado-c-${ymd}`, `${ymd}T${fila.cierra}:00`, `${sig}T00:00:00`, "Cerrado", "horario-cerrado"));
+      }
+    }
+  }
+  if (reservableDesde) {
+    const limite = aRelojBogota(reservableDesde);
+    if (limite.getTime() > desde.getTime()) {
+      fondos.push(
+        fondo(
+          "anticipacion",
+          desde.toISOString(),
+          new Date(Math.min(limite.getTime(), hasta.getTime())).toISOString(),
+          "Requiere más anticipación",
+          "horario-anticipacion",
+        ),
+      );
+    }
+  }
+  return fondos;
 }
 
 /** Vista para celular: lista de los próximos días con sus franjas ocupadas. */

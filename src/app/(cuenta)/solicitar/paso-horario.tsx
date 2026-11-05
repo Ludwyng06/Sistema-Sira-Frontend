@@ -7,6 +7,8 @@ import { IndicadorAforo } from "@/components/IndicadorAforo";
 import { Alerta, Boton, Campo, CampoHora, Selector } from "@/components/formularios";
 import { resolverCodigoPorId, resolverEspacioId } from "@/lib/espacio-id";
 import { fecha, hora, pesos } from "@/lib/formato";
+import { obtenerDisponibilidad } from "@/lib/disponibilidad";
+import { motivoFueraDeReglas, textoHorario } from "@/lib/horario";
 import { obtenerEspacio } from "@/lib/inventario";
 import { agregarReserva, quitarReserva } from "@/lib/solicitudes";
 import { useConsulta } from "@/lib/useConsulta";
@@ -49,6 +51,20 @@ export function PasoHorario({
   const personasValidas = Number.isFinite(personas) && personas > 0;
 
   const espacioId = useConsulta(() => resolverEspacioId(codigo), [codigo]);
+  // Horario y anticipación del espacio (ayuda visual; el servidor valida). Ausentes = sin restricción.
+  const idEspacio = espacioId.resultado.estado === "listo" ? espacioId.resultado.datos : null;
+  const reglas = useConsulta(async () => {
+    if (!idEspacio) return null;
+    const ahora = new Date();
+    const r = await obtenerDisponibilidad(
+      idEspacio,
+      ahora.toISOString(),
+      new Date(ahora.getTime() + 86_400_000).toISOString(),
+    );
+    return { horarios: r.horarios ?? [], reservableDesde: r.reservableDesde };
+  }, [idEspacio ?? ""]);
+  const horarios = reglas.resultado.estado === "listo" ? reglas.resultado.datos?.horarios ?? [] : [];
+  const reservableDesde = reglas.resultado.estado === "listo" ? reglas.resultado.datos?.reservableDesde : undefined;
   const ficha = useConsulta(
     () => obtenerEspacio(codigo, personasValidas ? personas : undefined),
     [codigo, personasValidas ? personas : 0],
@@ -69,6 +85,8 @@ export function PasoHorario({
       }
     : null;
 
+  const motivo = seleccion ? motivoFueraDeReglas(seleccion.inicio, seleccion.fin, horarios, reservableDesde) : null;
+
   async function agregar() {
     setError(null);
     if (!personasValidas) {
@@ -83,6 +101,13 @@ export function PasoHorario({
         titulo: "Falta completar el horario",
         porQue: "Cada horario necesita un día, una hora de inicio y una hora de fin posterior.",
         queHacer: "Elige el día y revisa que “Hasta” sea después de “Desde”.",
+      });
+    }
+    if (motivo) {
+      return avisar.errorManual({
+        titulo: "Ese horario no es posible",
+        porQue: motivo,
+        queHacer: "Elige otro día u otra hora.",
       });
     }
     if (espacioId.resultado.estado !== "listo" || !espacioId.resultado.datos) {
@@ -183,6 +208,12 @@ export function PasoHorario({
               onChange={(e) => setFranja({ ...franja, horaFin: e.target.value })}
             />
           </div>
+          {horarios.length > 0 && (
+            <p className="text-gris">
+              <span className="font-bold text-tinta">Horario del espacio:</span> {textoHorario(horarios)}
+            </p>
+          )}
+          {motivo && <Alerta tipo="error">{motivo}</Alerta>}
           <p className="text-gris">También puedes tocar o arrastrar sobre el calendario.</p>
           {error && <Alerta tipo="error">{error}</Alerta>}
           <Boton
@@ -240,6 +271,7 @@ export function PasoHorario({
           <CalendarioEspacio
             espacioId={espacioId.resultado.datos}
             seleccion={seleccion}
+            restringirAHorario
             onSeleccion={(s) => {
               const ini = partesBogota(s.inicio);
               const fin = partesBogota(s.fin);

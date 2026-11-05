@@ -304,6 +304,24 @@ h4 {
   border: 2px dashed var(--color-azul-oscuro);
   color: var(--color-texto);
 }
+/* Horas cerradas y falta de anticipación: patrón diagonal + texto, no solo color (AA). */
+.fc .fc-bg-event.horario-cerrado,
+.fc .fc-bg-event.horario-anticipacion {
+  opacity: 1;
+  background-color: #e3e5e6;
+  background-image: repeating-linear-gradient(135deg, rgb(89 89 87 / 28%) 0 2px, transparent 2px 9px);
+  color: var(--color-texto);
+}
+.fc .fc-bg-event.horario-anticipacion {
+  background-color: #eceae2;
+}
+.fc .fc-bg-event .fc-event-title {
+  padding: 2px 6px;
+  font-size: 0.8125rem;
+  font-style: normal;
+  font-weight: 600;
+  color: var(--color-texto);
+}
 .fc .fc-event {
   cursor: default;
 }

@@ -187,7 +187,6 @@ const PLANTILLAS: Record<string, Plantilla> = {
   },
   ANTICIPACION_INSUFICIENTE: {
     titulo: "Muy cerca de la fecha",
-    porQue: "Cada tipo de espacio se pide con cierta anticipación para poder revisarlo y prepararlo.",
     queHacer: "Elige una fecha más lejana.",
   },
   PLAZO_INSUFICIENTE: {
@@ -203,7 +202,6 @@ const PLANTILLAS: Record<string, Plantilla> = {
   },
   FUERA_DE_HORARIO: {
     titulo: "Ese espacio no opera a esa hora",
-    porQue: "Cada espacio tiene sus propios horarios de uso.",
     queHacer: "Ajusta la hora de inicio o de fin.",
   },
   POLIZA_REQUERIDA: {
