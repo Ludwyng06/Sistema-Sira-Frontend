@@ -28,6 +28,12 @@ import {
   type DecidirSolicitud,
   type SolicitudDetalle,
 } from "@/lib/solicitudes";
+
+const ESTADO_REEMBOLSO = {
+  SOLICITADO: "En trámite con Tesorería",
+  APLICADO: "Reembolsado",
+  RECHAZADO: "Rechazado",
+} as const;
 import { useConsulta } from "@/lib/useConsulta";
 import { avisar } from "@/lib/avisos";
 import { descargarActaPdf } from "@/lib/actas";
@@ -145,6 +151,40 @@ export function DetalleSolicitud({
         </div>
         <BotonImprimir titulo={`Solicitud ${s.consecutivo ?? "borrador"} - SIRA`} className="mt-2" />
       </header>
+
+      {s.reembolso ? (
+        <section
+          aria-labelledby="titulo-reembolso"
+          className="flex flex-col gap-2 rounded-tarjeta border-2 border-azul bg-turquesa-suave p-5"
+        >
+          <h2 id="titulo-reembolso" className="text-xl font-extrabold">
+            Reembolso
+          </h2>
+          <p className="text-t2 font-black">{pesos(s.reembolso.valor)}</p>
+          {s.reembolso.porcentaje !== null && <p>{s.reembolso.porcentaje} % del valor pagado</p>}
+          <p>
+            <span className="font-bold">Estado: </span>
+            {ESTADO_REEMBOLSO[s.reembolso.estado]}
+          </p>
+          <p>
+            <span className="font-bold">Motivo: </span>
+            {s.reembolso.motivo}
+          </p>
+          <p className="text-gris">
+            Registrado el {fecha(s.reembolso.creadoEn)} a las {hora(s.reembolso.creadoEn)}
+          </p>
+        </section>
+      ) : (
+        s.reembolso === null &&
+        (s.estado === "CANCELADA" || s.estado === "REEMBOLSADA") && (
+          <section aria-labelledby="titulo-reembolso" className="rounded-tarjeta border border-gris-claro/60 bg-fondo-suave p-5">
+            <h2 id="titulo-reembolso" className="text-xl font-extrabold">
+              Reembolso
+            </h2>
+            <p>Esta cancelación no tiene reembolso.</p>
+          </section>
+        )
+      )}
 
       <section aria-labelledby="titulo-linea" className="rounded-tarjeta border border-gris-claro/60 bg-fondo-suave px-4 py-6 sm:px-8">
         <h2 id="titulo-linea" className="mb-5 text-xl font-extrabold">

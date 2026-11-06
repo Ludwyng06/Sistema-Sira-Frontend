@@ -4023,6 +4023,18 @@ export interface components {
             reservas: components["schemas"]["ReservaItemDto"][];
             /** @description Servicios complementarios solicitados. */
             servicios: components["schemas"]["ServicioItemDto"][];
+            /** @description Reembolso de la solicitud cancelada, o null si no tiene. Opcional si el servidor es antiguo. (Editado a mano: aún no regenerado desde Swagger.) */
+            reembolso?: {
+                /** @description Valor a reembolsar, en pesos enteros. */
+                valor: number;
+                /** @description Porcentaje del valor pagado, o null. */
+                porcentaje: number | null;
+                /** @enum {string} */
+                estado: "SOLICITADO" | "APLICADO" | "RECHAZADO";
+                motivo: string;
+                /** @description ISO 8601 UTC. */
+                creadoEn: string;
+            } | null;
             /** @description Avales y aprobaciones, de la más antigua a la reciente. */
             decisiones: components["schemas"]["DecisionHistorialDto"][];
             /** @description Última cotización emitida, si hay. */
