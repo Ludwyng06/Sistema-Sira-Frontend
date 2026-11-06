@@ -99,11 +99,19 @@ export function CampoHora({
   id,
   etiqueta,
   ayuda,
+  horas,
   ...props
-}: Omit<ComponentProps<"select">, "id" | "children"> & { id: string; etiqueta: string; ayuda?: string }) {
+}: Omit<ComponentProps<"select">, "id" | "children"> & {
+  id: string;
+  etiqueta: string;
+  ayuda?: string;
+  /** Si se da, solo estas horas ("HH:mm") aparecen en la lista. */
+  horas?: string[];
+}) {
   const actual = String(props.value ?? props.defaultValue ?? "");
-  const opciones =
-    actual && !HORARIOS.some((h) => h.valor === actual) ? [...HORARIOS, etiquetaHora(actual)].sort((x, y) => x.valor.localeCompare(y.valor)) : HORARIOS;
+  const opciones = horas
+    ? horas.map(etiquetaHora)
+    : actual && !HORARIOS.some((h) => h.valor === actual) ? [...HORARIOS, etiquetaHora(actual)].sort((x, y) => x.valor.localeCompare(y.valor)) : HORARIOS;
   return (
     <Selector id={id} etiqueta={etiqueta} ayuda={ayuda} {...props}>
       {opciones.map((h) => (

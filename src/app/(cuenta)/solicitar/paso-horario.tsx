@@ -8,7 +8,9 @@ import { Alerta, Boton, Campo, CampoHora, Selector } from "@/components/formular
 import { resolverCodigoPorId, resolverEspacioId } from "@/lib/espacio-id";
 import { fecha, hora, pesos } from "@/lib/formato";
 import { obtenerDisponibilidad } from "@/lib/disponibilidad";
-import { motivoFueraDeReglas, textoHorario } from "@/lib/horario";
+import { avisoAnticipacion, motivoFueraDeReglas, opcionesHora, textoHorario } from "@/lib/horario";
+import { SelectorFecha } from "@/components/SelectorFecha";
+import { ErrorApi } from "@/lib/api";
 import { obtenerEspacio } from "@/lib/inventario";
 import { agregarReserva, quitarReserva } from "@/lib/solicitudes";
 import { useConsulta } from "@/lib/useConsulta";
@@ -46,6 +48,8 @@ export function PasoHorario({
   const [franja, setFranja] = useState<Franja>({ dia: "", horaInicio: "08:00", horaFin: "10:00" });
   const [error, setError] = useState<string | null>(null);
   const [agregando, setAgregando] = useState(false);
+  // Aviso de anticipación: solo aparece al intentar agregar, y se va al cambiar la franja.
+  const [avisoAntic, setAvisoAntic] = useState<{ clave: string; texto: string } | null>(null);
 
   const personas = Number.parseInt(asistentes, 10);
   const personasValidas = Number.isFinite(personas) && personas > 0;
@@ -77,15 +81,48 @@ export function PasoHorario({
 
   const aforo = ficha.resultado.estado === "listo" ? ficha.resultado.datos.aforo : undefined;
   const noCabe = aforo?.nivel === "NO_CABE";
-  const franjaCompleta = franja.dia !== "" && franja.horaInicio < franja.horaFin;
+
+  // Reglas del día elegido (ayuda visual; el servidor valida). Sin datos de horario = sin restricción.
+  const hoy = partesBogota(new Date()).dia;
+  const filaDeDia = (dia: string) =>
+    horarios.length > 0 ? horarios.find((h) => h.diaSemana === new Date(`${dia}T12:00:00Z`).getUTCDay()) : undefined;
+  /** Días que no se pueden escoger: cerrados por horario de operación y pasados. La anticipación se avisa al agregar. */
+  const motivoDia = (dia: string): string | null =>
+    horarios.length > 0 && !filaDeDia(dia) ? "Cerrado" : dia < hoy ? "Pasado" : null;
+  const filaDia =
+    franja.dia ? filaDeDia(franja.dia) : undefined;
+  const avisoDia =
+    franja.dia === ""
+      ? null
+      : horarios.length > 0 && !filaDia
+        ? "El espacio no abre ese día. Elige otro día."
+        : franja.dia < hoy
+          ? "Ese día ya pasó. Elige otro día."
+          : null;
+  const diaValido = franja.dia !== "" && avisoDia === null;
+  // Horas ofrecidas: solo las de operación de ese día.
+  const horasDesde = filaDia ? opcionesHora(filaDia.abre, filaDia.cierra).slice(0, -1) : undefined;
+  const horaInicio =
+    horasDesde && horasDesde.length > 0 && !horasDesde.includes(franja.horaInicio) ? (horasDesde[0] as string) : franja.horaInicio;
+  const horasHasta = filaDia ? opcionesHora(filaDia.abre, filaDia.cierra).filter((h) => h > horaInicio) : undefined;
+  const horaFin =
+    horasHasta && horasHasta.length > 0 && !horasHasta.includes(franja.horaFin)
+      ? ((horasHasta.find((h) => h >= franja.horaFin) ?? horasHasta[Math.min(7, horasHasta.length - 1)]) as string)
+      : franja.horaFin;
+
+  const franjaCompleta = diaValido && horaInicio < horaFin;
   const seleccion = franjaCompleta
     ? {
-        inicio: aInstanteUtc(franja.dia, franja.horaInicio),
-        fin: aInstanteUtc(franja.dia, franja.horaFin),
+        inicio: aInstanteUtc(franja.dia, horaInicio),
+        fin: aInstanteUtc(franja.dia, horaFin),
       }
     : null;
 
-  const motivo = seleccion ? motivoFueraDeReglas(seleccion.inicio, seleccion.fin, horarios, reservableDesde) : null;
+  const motivo = seleccion ? motivoFueraDeReglas(seleccion.inicio, seleccion.fin, horarios) : null;
+
+  const claveFranja = `${codigo}|${franja.dia}|${horaInicio}|${horaFin}`;
+  const anticipacionVisible = avisoAntic && avisoAntic.clave === claveFranja ? avisoAntic.texto : null;
+  const reglasTipo = ficha.resultado.estado === "listo" ? ficha.resultado.datos.reglasTipo : undefined;
 
   async function agregar() {
     setError(null);
@@ -95,6 +132,9 @@ export function PasoHorario({
         porQue: "Con ese número vemos si el espacio tiene capacidad y avisamos si sobra demasiado.",
         queHacer: "Escribe cuántas personas van en el campo de arriba.",
       });
+    }
+    if (avisoDia) {
+      return avisar.errorManual({ titulo: "Ese día no está disponible", porQue: avisoDia, queHacer: "Elige otro día." });
     }
     if (!seleccion) {
       return avisar.errorManual({
@@ -110,6 +150,17 @@ export function PasoHorario({
         queHacer: "Elige otro día u otra hora.",
       });
     }
+    const antic = avisoAnticipacion(
+      seleccion.inicio,
+      reservableDesde,
+      reglasTipo?.anticipacionMinimaDias,
+      reglasTipo?.anticipacionEnHabiles,
+    );
+    if (antic) {
+      setAvisoAntic({ clave: claveFranja, texto: antic });
+      return;
+    }
+    setAvisoAntic(null);
     if (espacioId.resultado.estado !== "listo" || !espacioId.resultado.datos) {
       return avisar.errorManual({ titulo: "No pudimos identificar el espacio", porQue: "La conexión con el servidor falló un momento al buscarlo.", queHacer: "Espera unos segundos e inténtalo de nuevo." });
     }
@@ -121,7 +172,20 @@ export function PasoHorario({
       setFranja((f) => ({ ...f, dia: "" }));
       avisar.exito("Horario agregado", "Quedó en tu borrador. El espacio se retiene cuando envíes la solicitud, no antes.");
     } catch (e) {
-      avisar.error(e, "No pudimos agregar el horario. Intenta de nuevo.");
+      if (e instanceof ErrorApi && e.codigo === "ANTICIPACION_INSUFICIENTE") {
+        setAvisoAntic({
+          clave: claveFranja,
+          texto:
+            avisoAnticipacion(
+              seleccion.inicio,
+              reservableDesde ?? seleccion.fin,
+              reglasTipo?.anticipacionMinimaDias,
+              reglasTipo?.anticipacionEnHabiles,
+            ) ?? `No puedes continuar con esta reserva: ${e.message}`,
+        });
+      } else {
+        avisar.error(e, "No pudimos agregar el horario. Intenta de nuevo.");
+      }
     } finally {
       setAgregando(false);
     }
@@ -187,24 +251,28 @@ export function PasoHorario({
 
         <fieldset className="flex flex-col gap-4">
           <legend className="mb-1 text-xl font-extrabold text-tinta">¿Cuándo?</legend>
-          <Campo
+          <SelectorFecha
             id="dia"
             etiqueta="Día"
-            type="date"
             value={franja.dia}
-            onChange={(e) => setFranja({ ...franja, dia: e.target.value })}
+            onChange={(dia) => setFranja({ ...franja, dia })}
+            motivoDeshabilitado={motivoDia}
           />
           <div className="grid grid-cols-2 gap-4">
             <CampoHora
               id="horaInicio"
               etiqueta="Desde"
-              value={franja.horaInicio}
+              value={horaInicio}
+              horas={horasDesde}
+              disabled={franja.dia !== "" && !diaValido}
               onChange={(e) => setFranja({ ...franja, horaInicio: e.target.value })}
             />
             <CampoHora
               id="horaFin"
               etiqueta="Hasta"
-              value={franja.horaFin}
+              value={horaFin}
+              horas={horasHasta}
+              disabled={franja.dia !== "" && !diaValido}
               onChange={(e) => setFranja({ ...franja, horaFin: e.target.value })}
             />
           </div>
@@ -213,7 +281,7 @@ export function PasoHorario({
               <span className="font-bold text-tinta">Horario del espacio:</span> {textoHorario(horarios)}
             </p>
           )}
-          {motivo && <Alerta tipo="error">{motivo}</Alerta>}
+          {(avisoDia || motivo) && <Alerta tipo="error">{avisoDia ?? motivo}</Alerta>}
           <p className="text-gris">También puedes tocar o arrastrar sobre el calendario.</p>
           {error && <Alerta tipo="error">{error}</Alerta>}
           <Boton
@@ -224,6 +292,7 @@ export function PasoHorario({
           >
             Agregar este horario
           </Boton>
+          {anticipacionVisible && <Alerta tipo="error">{anticipacionVisible}</Alerta>}
         </fieldset>
 
         <section aria-labelledby="titulo-agregados" className="flex flex-col gap-3">

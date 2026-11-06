@@ -131,13 +131,21 @@ function VistaCalendario({
   const [reglas, setReglas] = useState<{ horarios: HorarioEspacio[]; reservableDesde?: string }>({
     horarios: [],
   });
-  const { horarios, reservableDesde } = reglas;
+  const { horarios } = reglas;
   const hayHorario = horarios.length > 0;
   const minimos = hayHorario ? horarios.map((h) => h.abre).sort() : [];
   const maximos = hayHorario ? horarios.map((h) => h.cierra).sort() : [];
   const slotMin = minimos[0] ?? "06:00";
   const slotMax = maximos[maximos.length - 1] ?? "22:00";
-  const limiteAnticipacion = reservableDesde ? aRelojBogota(reservableDesde).getTime() : 0;
+
+  /**
+   * Etiqueta de un día completo cerrado por horario de operación (solo en el flujo de solicitud).
+   * La anticipación mínima NO deshabilita días: se avisa al agregar.
+   */
+  function motivoDia(dia: Date): string | null {
+    if (!restringirAHorario || !hayHorario) return null;
+    return horarios.some((h) => h.diaSemana === dia.getUTCDay()) ? null : "Cerrado";
+  }
 
   const eventos: EventInput[] = [];
   if (seleccion) {
@@ -172,7 +180,7 @@ function VistaCalendario({
   }
 
   return (
-    <div className="rounded-campo border border-gris-claro bg-fondo p-2">
+    <div className={`rounded-campo border border-gris-claro bg-fondo p-2 ${restringirAHorario ? "calendario-restringido" : ""}`}>
       <FullCalendar
         key={clave}
         plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
@@ -195,6 +203,30 @@ function VistaCalendario({
             ? horarios.map((h) => ({ daysOfWeek: [h.diaSemana], startTime: h.abre, endTime: h.cierra }))
             : false
         }
+        dayCellClassNames={(arg) => (motivoDia(arg.date) ? ["dia-deshabilitado"] : [])}
+        dayHeaderClassNames={(arg) => (arg.view.type !== "dayGridMonth" && motivoDia(arg.date) ? ["dia-deshabilitado"] : [])}
+        dayHeaderContent={(arg) => {
+          const motivo = arg.view.type === "dayGridMonth" ? null : motivoDia(arg.date);
+          if (!motivo) return arg.text;
+          const caja = document.createElement("span");
+          caja.textContent = arg.text;
+          const etiqueta = document.createElement("span");
+          etiqueta.className = "dia-etiqueta";
+          etiqueta.textContent = motivo;
+          caja.append(etiqueta);
+          return { domNodes: [caja] };
+        }}
+        dayCellContent={(arg) => {
+          const motivo = motivoDia(arg.date);
+          if (!motivo) return arg.dayNumberText;
+          const caja = document.createElement("span");
+          caja.textContent = arg.dayNumberText;
+          const etiqueta = document.createElement("span");
+          etiqueta.className = "dia-etiqueta";
+          etiqueta.textContent = motivo;
+          caja.append(etiqueta);
+          return { domNodes: [caja] };
+        }}
         height="auto"
         nowIndicator
         eventInteractive
@@ -210,10 +242,7 @@ function VistaCalendario({
         selectMirror
         selectOverlap={false}
         selectConstraint={restringirAHorario && hayHorario ? "businessHours" : undefined}
-        selectAllow={(span) =>
-          span.start.getTime() >= aRelojBogota(new Date()).getTime() &&
-          (!restringirAHorario || span.start.getTime() >= limiteAnticipacion)
-        }
+        selectAllow={(span) => span.start.getTime() >= aRelojBogota(new Date()).getTime()}
         select={(info) =>
           onSeleccion?.({ inicio: deRelojBogota(info.start), fin: deRelojBogota(info.end) })
         }
@@ -232,7 +261,7 @@ function VistaCalendario({
                 : { horarios: nuevos, reservableDesde: r.reservableDesde },
             );
             correcto([
-              ...sombreados(info.start, info.end, nuevos, restringirAHorario ? r.reservableDesde : undefined),
+              ...(restringirAHorario ? [] : sombreados(info.start, info.end, nuevos)),
               ...r.franjas.map<EventInput>((f, i) => ({
                 id: `franja-${i}`,
                 title: textoFranja(f),
@@ -254,12 +283,11 @@ function VistaCalendario({
   );
 }
 
-/** Fondos con texto visible (no solo color): horas y días cerrados, y fechas sin la anticipación mínima. */
+/** Vista informativa (ficha pública, bloqueos): fondos con texto para horas y días cerrados. */
 function sombreados(
   desde: Date,
   hasta: Date,
   horarios: HorarioEspacio[],
-  reservableDesde?: string,
 ): EventInput[] {
   const fondos: EventInput[] = [];
   const dia = 86_400_000;
@@ -287,20 +315,6 @@ function sombreados(
       if (fila.cierra < "24:00") {
         fondos.push(fondo(`cerrado-c-${ymd}`, `${ymd}T${fila.cierra}:00`, `${sig}T00:00:00`, "Cerrado", "horario-cerrado"));
       }
-    }
-  }
-  if (reservableDesde) {
-    const limite = aRelojBogota(reservableDesde);
-    if (limite.getTime() > desde.getTime()) {
-      fondos.push(
-        fondo(
-          "anticipacion",
-          desde.toISOString(),
-          new Date(Math.min(limite.getTime(), hasta.getTime())).toISOString(),
-          "Requiere más anticipación",
-          "horario-anticipacion",
-        ),
-      );
     }
   }
   return fondos;
