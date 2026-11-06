@@ -49,6 +49,7 @@ export function FormularioIngreso({
         if (window.location.pathname === "/ingresar") window.location.assign(destino);
       }, 4000);
     } catch (e) {
+      setError(e instanceof ErrorApi ? e.message : "No pudimos iniciar tu sesión. Intenta de nuevo.");
       avisar.error(e, "No pudimos iniciar tu sesión. Intenta de nuevo.");
       if (e instanceof ErrorApi && e.codigo.includes("CORREO")) setCorreoSinVerificar(correo);
       setEnviando(false);

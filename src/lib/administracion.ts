@@ -11,6 +11,8 @@ export type RegistroAuditoria = Esquemas["RegistroAuditoriaDto"];
 export type PaginaAuditoria = Esquemas["PaginaAuditoriaDto"];
 export type PaginaDependencias = Esquemas["PaginaDependenciasDto"];
 export type Dependencia = Esquemas["DependenciaAdminDto"];
+export type CrearDependencia = Esquemas["CrearDependenciaDto"];
+export type ActualizarDependencia = Esquemas["ActualizarDependenciaDto"];
 
 export const listarUsuarios = (filtros: {
   rol?: RolAsignar["rol"];
@@ -36,6 +38,15 @@ export const listarDependencias = () =>
   api<PaginaDependencias>("/dependencias", { query: { activa: true, porPagina: 100 } });
 
 export const listarParametros = () => api<Parametro[]>("/parametros");
+
+export const listarDependenciasAdmin = (filtros: { activa?: boolean; pagina?: number; porPagina?: number } = {}) =>
+  api<PaginaDependencias>("/dependencias", { query: filtros });
+
+export const crearDependencia = (datos: CrearDependencia) =>
+  api<Dependencia>("/dependencias", { method: "POST", json: datos });
+
+export const actualizarDependencia = (id: string, datos: ActualizarDependencia) =>
+  api<Dependencia>(`/dependencias/${encodeURIComponent(id)}`, { method: "PATCH", json: datos });
 
 export const actualizarParametro = (clave: string, valor: unknown) =>
   api<Parametro>(`/parametros/${encodeURIComponent(clave)}`, {

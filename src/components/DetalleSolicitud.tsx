@@ -13,6 +13,9 @@ import { BotonImprimir } from "@/components/BotonImprimir";
 import { EncabezadoImpresion } from "@/components/EncabezadoImpresion";
 import { PanelPago } from "@/components/PanelPago";
 import { ResumenCotizacion } from "@/components/ResumenCotizacion";
+import { BotonDescarga } from "@/components/BotonDescarga";
+import { DocumentosSolicitud } from "@/components/DocumentosSolicitud";
+import { CalendarioEspacio } from "@/components/CalendarioEspacio";
 import { Alerta, Boton } from "@/components/formularios";
 import { useSesion } from "@/components/SesionProvider";
 import { fecha, hora, pesos } from "@/lib/formato";
@@ -21,11 +24,19 @@ import {
   decidirSolicitud,
   ESTADOS,
   obtenerSolicitud,
+  descargarCotizacionPdf,
   type DecidirSolicitud,
   type SolicitudDetalle,
 } from "@/lib/solicitudes";
+
+const ESTADO_REEMBOLSO = {
+  SOLICITADO: "En trámite con Tesorería",
+  APLICADO: "Reembolsado",
+  RECHAZADO: "Rechazado",
+} as const;
 import { useConsulta } from "@/lib/useConsulta";
 import { avisar } from "@/lib/avisos";
+import { descargarActaPdf } from "@/lib/actas";
 
 type Accion =
   | "cancelar"
@@ -97,13 +108,14 @@ export function DetalleSolicitud({
 
   const s: SolicitudDetalle = resultado.datos;
   const avalAprobado = s.decisiones.some((d) => d.tipo === "AVAL" && d.resultado === "APROBADA");
+  const puedeAvalar = !avalAprobado && tieneRol("RESPONSABLE_ESPACIO");
   const tipoDecision: DecidirSolicitud["tipo"] =
-    !avalAprobado && tieneRol("RESPONSABLE_ESPACIO") ? "AVAL" : "APROBACION";
+    puedeAvalar ? "AVAL" : "APROBACION";
   const puedeCancelar = modo === "solicitante" && ESTADOS_CANCELABLES.has(s.estado);
   const puedeDecidir =
     modo === "revisor" &&
     ESTADOS_DECIDIBLES.has(s.estado) &&
-    tieneRol("RESPONSABLE_ESPACIO", "APROBADOR");
+    (puedeAvalar || tieneRol("APROBADOR"));
 
   async function decidir(resultadoDecision: DecidirSolicitud["resultado"], motivo: string) {
     await decidirSolicitud(s.id, {
@@ -139,6 +151,40 @@ export function DetalleSolicitud({
         </div>
         <BotonImprimir titulo={`Solicitud ${s.consecutivo ?? "borrador"} - SIRA`} className="mt-2" />
       </header>
+
+      {s.reembolso ? (
+        <section
+          aria-labelledby="titulo-reembolso"
+          className="flex flex-col gap-2 rounded-tarjeta border-2 border-azul bg-turquesa-suave p-5"
+        >
+          <h2 id="titulo-reembolso" className="text-xl font-extrabold">
+            Reembolso
+          </h2>
+          <p className="text-t2 font-black">{pesos(s.reembolso.valor)}</p>
+          {s.reembolso.porcentaje !== null && <p>{s.reembolso.porcentaje} % del valor pagado</p>}
+          <p>
+            <span className="font-bold">Estado: </span>
+            {ESTADO_REEMBOLSO[s.reembolso.estado]}
+          </p>
+          <p>
+            <span className="font-bold">Motivo: </span>
+            {s.reembolso.motivo}
+          </p>
+          <p className="text-gris">
+            Registrado el {fecha(s.reembolso.creadoEn)} a las {hora(s.reembolso.creadoEn)}
+          </p>
+        </section>
+      ) : (
+        s.reembolso === null &&
+        (s.estado === "CANCELADA" || s.estado === "REEMBOLSADA") && (
+          <section aria-labelledby="titulo-reembolso" className="rounded-tarjeta border border-gris-claro/60 bg-fondo-suave p-5">
+            <h2 id="titulo-reembolso" className="text-xl font-extrabold">
+              Reembolso
+            </h2>
+            <p>Esta cancelación no tiene reembolso.</p>
+          </section>
+        )
+      )}
 
       <section aria-labelledby="titulo-linea" className="rounded-tarjeta border border-gris-claro/60 bg-fondo-suave px-4 py-6 sm:px-8">
         <h2 id="titulo-linea" className="mb-5 text-xl font-extrabold">
@@ -264,6 +310,7 @@ export function DetalleSolicitud({
             {s.reservas.map((r) => (
               <li key={r.id} className="flex flex-wrap justify-between gap-2 px-4 py-2">
                 <span>
+                  {r.espacioCodigo && r.espacioNombre ? `${r.espacioCodigo} · ${r.espacioNombre} — ` : ""}
                   {fecha(r.inicio)} · {hora(r.inicio)} a {hora(r.fin)}
                 </span>
                 {!s.esExenta && <span className="font-medium">{pesos(r.subtotal)}</span>}
@@ -272,6 +319,12 @@ export function DetalleSolicitud({
           </ul>
         )}
       </section>
+
+      {modo === "revisor" && s.reservas.length > 0 && <section className="flex flex-col gap-4" aria-labelledby="titulo-calendario-revision">
+        <h2 id="titulo-calendario-revision" className="text-2xl font-bold">Calendario de revisión</h2>
+        {s.reservas.filter((reserva, indice, reservas) => reservas.findIndex((otra) => otra.espacioId === reserva.espacioId) === indice).map((reserva) =>
+          <CalendarioEspacio key={reserva.espacioId} espacioId={reserva.espacioId} fechaInicial={reserva.inicio} seleccion={{ inicio: reserva.inicio, fin: reserva.fin }} />)}
+      </section>}
 
       {s.servicios.length > 0 && (
         <section aria-labelledby="titulo-servicios" className="flex flex-col gap-3">
@@ -291,7 +344,48 @@ export function DetalleSolicitud({
         </section>
       )}
 
-      {s.cotizacion && <ResumenCotizacion cotizacion={s.cotizacion} esExenta={s.esExenta} />}
+      <DocumentosSolicitud solicitudId={s.id} />
+
+      {s.actas && s.actas.length > 0 && (
+        <section aria-labelledby="titulo-actas" className="flex flex-col gap-3">
+          <h2 id="titulo-actas" className="text-2xl font-bold">
+            Actas registradas
+          </h2>
+          <ul className="divide-y divide-gris-claro rounded-campo border border-gris-claro">
+            {s.actas.map((a) => (
+              <li key={a.id} className="flex flex-wrap items-center justify-between gap-3 p-4">
+                <div className="flex flex-col gap-1">
+                  <div className="flex items-center gap-2">
+                    <span className="font-bold">{a.consecutivo}</span>
+                    <span className="rounded bg-gris-claro/50 px-2 py-0.5 text-xs font-semibold">
+                      {a.tipo === "ENTREGA" ? "Entrega" : "Devolución"}
+                    </span>
+                  </div>
+                  <span className="text-sm text-gris">
+                    {fecha(a.registradaEn)} · {hora(a.registradaEn)}
+                  </span>
+                  {a.observaciones && (
+                    <p className="text-sm text-gris-oscuro">{a.observaciones}</p>
+                  )}
+                </div>
+                <BotonDescarga
+                  descargar={() => descargarActaPdf(a.id)}
+                  nombreArchivo={`Acta-${a.consecutivo}.pdf`}
+                >
+                  Descargar acta en PDF
+                </BotonDescarga>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      {s.cotizacion && <div className="flex flex-col items-start gap-3">
+        <ResumenCotizacion cotizacion={s.cotizacion} esExenta={s.esExenta} />
+        <BotonDescarga descargar={() => descargarCotizacionPdf(s.id)} nombreArchivo={`Cotizacion-${s.cotizacion.consecutivo}.pdf`}>
+          Descargar cotización en PDF
+        </BotonDescarga>
+      </div>}
 
       {modo === "solicitante" && !s.esExenta && (s.estado === "COTIZADA" || s.estado === "PAGO_PENDIENTE") && (
         <PanelPago solicitudId={s.id} consecutivo={s.consecutivo} alCambiar={recargar} />

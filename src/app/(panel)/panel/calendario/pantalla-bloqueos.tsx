@@ -16,6 +16,8 @@ import { fecha, hora } from "@/lib/formato";
 import { useConsulta } from "@/lib/useConsulta";
 import { aInstanteUtc } from "@/lib/zona";
 import { avisar } from "@/lib/avisos";
+import { useSesion } from "@/components/SesionProvider";
+import { ImportacionHorario } from "./importacion-horario";
 
 const REPETICIONES = [
   { valor: "", texto: "No se repite" },
@@ -30,6 +32,7 @@ export function PantallaBloqueos({
 }: {
   espacios: { codigo: string; nombre: string; bloque: string }[];
 }) {
+  const { tieneRol } = useSesion();
   const [codigo, setCodigo] = useState(espacios[0]?.codigo ?? "");
   const [creados, setCreados] = useState<BloqueoCreado[]>([]);
   const [anulando, setAnulando] = useState<BloqueoCreado | null>(null);
@@ -101,6 +104,8 @@ export function PantallaBloqueos({
       {espacioId.resultado.estado === "listo" && espacioId.resultado.datos && (
         <CalendarioEspacio key={`${codigo}-${version}`} espacioId={espacioId.resultado.datos} />
       )}
+
+      {tieneRol("ADMINISTRADOR") && <ImportacionHorario alImportar={() => setVersion((valor) => valor + 1)} />}
 
       <form onSubmit={crear} className="flex flex-col gap-4 rounded-campo border border-gris-claro p-6">
         <h2 className="text-2xl font-bold">Nuevo bloqueo</h2>

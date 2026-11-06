@@ -6,8 +6,7 @@ import { ChevronDown, ChevronRight, Plus } from "lucide-react";
 import { Esqueleto, RegionCargando } from "@/components/Esqueleto";
 import { EstadoError } from "@/components/EstadoError";
 import { useSesion } from "@/components/SesionProvider";
-import { listarBloquesAdmin, listarSedesAdmin } from "@/lib/inventario-admin";
-import { listarEspacios } from "@/lib/inventario";
+import { listarBloquesAdmin, listarEspaciosAdmin, listarSedesAdmin } from "@/lib/inventario-admin";
 import { useConsulta } from "@/lib/useConsulta";
 import { FormularioEspacio } from "./formulario-espacio";
 
@@ -151,7 +150,10 @@ function NodoBloque({
 }) {
   const [abierto, setAbierto] = useState(false);
   const espacios = useConsulta(
-    () => (abierto ? listarEspacios({ sede: sedeCodigo, bloque: bloque.codigo, porPagina: 100 }) : Promise.resolve(null)),
+    () =>
+      abierto
+        ? listarEspaciosAdmin({ sede: sedeCodigo, bloque: bloque.codigo, activo: true, porPagina: 100 })
+        : Promise.resolve(null),
     [abierto, sedeCodigo, bloque.codigo, version],
   );
   const Icono = abierto ? ChevronDown : ChevronRight;
@@ -185,11 +187,45 @@ function NodoBloque({
                       alElegir({ tipo: "espacio", codigo: e.codigo, sede: sedeCodigo, bloque: bloque.codigo })
                     }
                     className={clsx(
-                      "w-full rounded-campo px-2 py-1.5 text-left",
+                      "flex w-full flex-wrap items-center justify-between gap-1 rounded-campo px-2 py-1.5 text-left",
                       activo ? "bg-azul text-white" : "hover:bg-fondo-suave",
                     )}
                   >
-                    {e.codigo} · {e.nombre}
+                    <span>
+                      {e.codigo} · {e.nombre}
+                    </span>
+                    <span className="flex flex-wrap items-center gap-1 text-xs">
+                      {e.estado === "EN_MANTENIMIENTO" && (
+                        <span
+                          className={clsx(
+                            "rounded px-1.5 py-0.5 font-semibold",
+                            activo ? "bg-white/20 text-white" : "bg-amarillo-alerta/20 text-amarillo-texto",
+                          )}
+                        >
+                          Mantenimiento
+                        </span>
+                      )}
+                      {e.estado === "FUERA_DE_SERVICIO" && (
+                        <span
+                          className={clsx(
+                            "rounded px-1.5 py-0.5 font-semibold",
+                            activo ? "bg-white/20 text-white" : "bg-error-suave text-error",
+                          )}
+                        >
+                          Fuera de servicio
+                        </span>
+                      )}
+                      {!e.esReservable && (
+                        <span
+                          className={clsx(
+                            "rounded px-1.5 py-0.5 font-semibold",
+                            activo ? "bg-white/20 text-white" : "bg-gris-claro text-gris-oscuro",
+                          )}
+                        >
+                          No reservable
+                        </span>
+                      )}
+                    </span>
                   </button>
                 </li>
               );

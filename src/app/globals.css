@@ -19,6 +19,9 @@
   --color-fondo: #ffffff;
   --color-fondo-suave: #f2f8fb;
   --color-papel: #fbfaf6;
+  /* Días y horas que no se pueden escoger: gris neutro, nunca verde. */
+  --color-deshabilitado: #e3e5e6;
+  --color-deshabilitado-texto: #595957;
 
   --font-titulo: var(--font-raleway), ui-sans-serif, system-ui, sans-serif;
   --font-texto: var(--font-roboto), ui-sans-serif, system-ui, sans-serif;
@@ -302,6 +305,47 @@ h4 {
 .estado-seleccion {
   background-color: rgb(128 191 31 / 30%);
   border: 2px dashed var(--color-azul-oscuro);
+  color: var(--color-texto);
+}
+/* Horas cerradas y falta de anticipación: patrón diagonal + texto, no solo color (AA). */
+.fc .fc-bg-event.horario-cerrado {
+  opacity: 1;
+  background-color: var(--color-deshabilitado);
+  background-image: repeating-linear-gradient(135deg, rgb(89 89 87 / 28%) 0 2px, transparent 2px 9px);
+  color: var(--color-texto);
+}
+/* Flujo de solicitud: lo no seleccionable se ve gris y opaco, como un día deshabilitado. */
+.calendario-restringido {
+  --fc-bg-event-color: var(--color-deshabilitado);
+  --fc-bg-event-opacity: 1;
+  --fc-non-business-color: var(--color-deshabilitado);
+}
+.calendario-restringido .fc-non-business {
+  background-color: var(--color-deshabilitado);
+  opacity: 1;
+}
+.calendario-restringido .fc-timegrid-col.dia-deshabilitado,
+.calendario-restringido .fc-daygrid-day.dia-deshabilitado {
+  background-color: var(--color-deshabilitado);
+  cursor: not-allowed;
+}
+.calendario-restringido .fc-col-header-cell.dia-deshabilitado {
+  background-color: var(--color-deshabilitado);
+  color: var(--color-deshabilitado-texto);
+}
+.calendario-restringido .fc-daygrid-day.dia-deshabilitado .fc-daygrid-day-number {
+  color: var(--color-deshabilitado-texto);
+}
+.calendario-restringido .dia-etiqueta {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+.fc .fc-bg-event .fc-event-title {
+  padding: 2px 6px;
+  font-size: 0.8125rem;
+  font-style: normal;
+  font-weight: 600;
   color: var(--color-texto);
 }
 .fc .fc-event {

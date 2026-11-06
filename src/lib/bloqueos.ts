@@ -6,6 +6,13 @@ type Esquemas = components["schemas"];
 export type CrearBloqueo = Esquemas["CrearBloqueoDto"];
 export type BloqueoCreado = Esquemas["BloqueoCreadoDto"];
 export type BloqueoAnulado = Esquemas["BloqueoAnuladoDto"];
+export type ReporteImportacion = Esquemas["ReporteImportacionDto"];
+
+export function importarHorarioCsv(archivo: File) {
+  const formulario = new FormData();
+  formulario.set("archivo", archivo);
+  return api<ReporteImportacion>("/bloqueos/importar-horario", { method: "POST", formData: formulario });
+}
 export type MotivoBloqueo = Exclude<CrearBloqueo["motivo"], "RESERVA">;
 
 export const MOTIVOS_BLOQUEO: Record<MotivoBloqueo, string> = {

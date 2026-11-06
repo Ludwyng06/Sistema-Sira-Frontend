@@ -36,6 +36,8 @@ export interface ElementoDotacion {
 
 /** Tarjeta de espacio: listados de bloque, búsqueda y sugerencias. */
 export interface TarjetaEspacio {
+  /** UUID publicado por la API para disponibilidad, tarifas y reservas. */
+  id: string;
   codigo: string;
   nombre: string;
   piso: number;

@@ -139,9 +139,12 @@ const PLANTILLAS: Record<string, Plantilla> = {
     porQue: "Cada solicitud tiene un máximo de horarios, servicios y documentos.",
     queHacer: "Quita alguno, o crea otra solicitud para el resto.",
   },
+  SERVICIO_NO_PERMITIDO: {
+    titulo: "Ese servicio no aplica",
+    queHacer: "Elige otro servicio o revisa los espacios de tu solicitud.",
+  },
   SOLICITUD_SIN_RESERVAS: {
     titulo: "Falta el horario",
-    porQue: "Una solicitud necesita al menos un espacio y una franja.",
     queHacer: "Vuelve al paso 1 y agrega uno.",
   },
   SOLICITUD_INCOMPLETA: {
@@ -187,7 +190,6 @@ const PLANTILLAS: Record<string, Plantilla> = {
   },
   ANTICIPACION_INSUFICIENTE: {
     titulo: "Muy cerca de la fecha",
-    porQue: "Cada tipo de espacio se pide con cierta anticipación para poder revisarlo y prepararlo.",
     queHacer: "Elige una fecha más lejana.",
   },
   PLAZO_INSUFICIENTE: {
@@ -203,7 +205,6 @@ const PLANTILLAS: Record<string, Plantilla> = {
   },
   FUERA_DE_HORARIO: {
     titulo: "Ese espacio no opera a esa hora",
-    porQue: "Cada espacio tiene sus propios horarios de uso.",
     queHacer: "Ajusta la hora de inicio o de fin.",
   },
   POLIZA_REQUERIDA: {

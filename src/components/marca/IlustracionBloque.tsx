@@ -3,7 +3,14 @@ import clsx from "clsx";
 type Variante = "aulas" | "auditorio" | "cancha";
 
 /** El bloque A son aulas, el B el auditorio y los laboratorios, el C el escenario deportivo. */
-const POR_CODIGO: Record<string, Variante> = { A: "aulas", B: "auditorio", C: "cancha" };
+const POR_CODIGO: Record<string, Variante> = {
+  A: "aulas",
+  B: "aulas",
+  C: "aulas",
+  D: "auditorio",
+  E: "cancha",
+  F: "aulas",
+};
 const ORDEN: Variante[] = ["aulas", "auditorio", "cancha"];
 
 export function varianteDeBloque(codigo: string): Variante {
@@ -40,10 +47,10 @@ export function IlustracionBloque({
 
 function Aulas() {
   const ventanas: React.ReactNode[] = [];
-  for (let fila = 0; fila < 3; fila++) {
+  for (let fila = 0; fila < 2; fila++) {
     for (let col = 0; col < 6; col++) {
       ventanas.push(
-        <rect key={`${fila}-${col}`} x={74 + col * 26} y={84 + fila * 26} width="16" height="14" rx="2" fill="#0f4a69" fillOpacity=".55" />,
+        <rect key={`${fila}-${col}`} x={74 + col * 26} y={88 + fila * 30} width="16" height="16" rx="2" fill="#0f4a69" fillOpacity=".55" />,
       );
     }
   }

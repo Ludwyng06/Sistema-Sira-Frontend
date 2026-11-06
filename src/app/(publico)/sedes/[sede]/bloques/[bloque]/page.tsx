@@ -5,6 +5,7 @@ import { ChevronLeft } from "lucide-react";
 import { EstadoError } from "@/components/EstadoError";
 import { EstadoVacio } from "@/components/EstadoVacio";
 import { Foto } from "@/components/Foto";
+import { PlanoBloque } from "@/components/marca/PlanoBloque";
 import { TarjetaEspacio } from "@/components/TarjetaEspacio";
 import { enteroPositivo, obtenerBloque, resolver } from "@/lib/inventario";
 import { EsqueletoBloque } from "./esqueleto-bloque";
@@ -80,20 +81,24 @@ async function ContenidoBloque({
 
       <section aria-labelledby="titulo-plano" className="flex flex-col gap-3">
         <h2 id="titulo-plano" className="text-2xl font-bold">
-          Plano
+          Plano del bloque ({bloque.numeroPisos} pisos)
         </h2>
-        <Foto
-          foto={
-            bloque.planoUrl
-              ? {
-                  url: bloque.planoUrl,
-                  alt: `Plano del bloque ${bloque.codigo} con la numeración de sus espacios`,
-                }
-              : null
-          }
-          className="h-56 w-full rounded-campo border border-gris-claro"
-          marcador="El plano de este bloque aún no está disponible"
-        />
+        {bloque.planoUrl ? (
+          <Foto
+            foto={{
+              url: bloque.planoUrl,
+              alt: `Plano del bloque ${bloque.codigo} con la numeración de sus espacios`,
+            }}
+            className="h-56 w-full rounded-campo border border-gris-claro"
+            marcador="El plano de este bloque aún no está disponible"
+          />
+        ) : (
+          <PlanoBloque
+            codigoBloque={bloque.codigo}
+            numeroPisos={bloque.numeroPisos}
+            pisos={bloque.pisos}
+          />
+        )}
       </section>
 
       <form

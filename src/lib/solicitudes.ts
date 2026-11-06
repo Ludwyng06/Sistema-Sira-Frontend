@@ -95,6 +95,9 @@ export const enviarSolicitud = (id: string) =>
 
 export const listarDocumentos = (id: string) => api<Documento[]>(`${ruta(id)}/documentos`);
 
+export const descargarDocumento = (id: string, documentoId: string) =>
+  api<Blob>(`${ruta(id)}/documentos/${encodeURIComponent(documentoId)}/archivo`, { blob: true });
+
 export function subirDocumento(id: string, tipo: TipoDocumento, archivo: File) {
   const formulario = new FormData();
   formulario.set("tipo", tipo);

@@ -10,14 +10,15 @@ import {
   archivarEspacio,
   crearEspacio,
   ESTADOS_ESPACIO,
-  type ActualizarEspacio,
+  obtenerEspacioAdmin,
   type EstadoEspacio,
 } from "@/lib/inventario-admin";
 import { listarUsuarios } from "@/lib/administracion";
-import { listarTiposEspacio, obtenerEspacio } from "@/lib/inventario";
+import { listarTiposEspacio } from "@/lib/inventario";
 import { useConsulta } from "@/lib/useConsulta";
 import type { Seleccion } from "./pantalla-inventario";
 import { avisar } from "@/lib/avisos";
+import { HorariosOperacion, ElementosDotacion } from "./gestiones-espacio";
 
 const texto = (d: FormData, k: string) => String(d.get(k) ?? "").trim();
 const numero = (d: FormData, k: string) => Number(d.get(k));
@@ -35,7 +36,7 @@ export function FormularioEspacio({
   alCerrar: () => void;
 }) {
   const codigo = seleccion.tipo === "espacio" ? seleccion.codigo : null;
-  const ficha = useConsulta(() => (codigo ? obtenerEspacio(codigo) : Promise.resolve(null)), [codigo ?? ""]);
+  const ficha = useConsulta(() => (codigo ? obtenerEspacioAdmin(codigo) : Promise.resolve(null)), [codigo ?? ""]);
   const tipos = useConsulta(() => listarTiposEspacio(), []);
   const responsables = useConsulta(() => listarUsuarios({ rol: "RESPONSABLE_ESPACIO", activo: true, porPagina: 100 }), []);
   const [enviando, setEnviando] = useState(false);
@@ -73,7 +74,6 @@ export function FormularioEspacio({
     setAviso(null);
     try {
       if (actual) {
-        // Swagger tipa los campos que aceptan null como objeto; el cuerpo real es número, texto o null.
         await actualizarEspacio(actual.codigo, {
           tipo: texto(d, "tipo"),
           nombre: texto(d, "nombre"),
@@ -85,8 +85,12 @@ export function FormularioEspacio({
           estado: (texto(d, "estado") || undefined) as EstadoEspacio | undefined,
           minutosMontaje: numero(d, "minutosMontaje"),
           minutosDesmontaje: numero(d, "minutosDesmontaje"),
-          ...(texto(d, "responsableId") ? { responsableId: texto(d, "responsableId") } : {}),
-        } as ActualizarEspacio);
+          responsableId: texto(d, "responsableId") || null,
+          requiereAval: d.get("requiereAval") === "on",
+          esReservable: d.get("esReservable") === "on",
+          depositoValorFijo: opcionalNumero(d, "depositoValorFijo") ?? null,
+          depositoPorcentaje: opcionalNumero(d, "depositoPorcentaje") ?? null,
+        });
         avisar.exito("Los cambios del espacio quedaron guardados.");
       } else {
         const responsableId = texto(d, "responsableId");
@@ -110,11 +114,13 @@ export function FormularioEspacio({
           minutosDesmontaje: numero(d, "minutosDesmontaje"),
           requiereAval: d.get("requiereAval") === "on",
           esReservable: d.get("esReservable") === "on",
+          depositoValorFijo: opcionalNumero(d, "depositoValorFijo"),
+          depositoPorcentaje: opcionalNumero(d, "depositoPorcentaje"),
+          responsableId,
         });
-        // El contrato de creación no trae el responsable: se asigna enseguida, con el espacio ya creado.
-        await actualizarEspacio(creado.codigo, { responsableId } as unknown as ActualizarEspacio);
         avisar.exito(`El espacio ${creado.codigo} se creó.`);
       }
+      ficha.recargar();
       alCambiar();
     } catch (e) {
       avisar.error(e, "No pudimos guardar el espacio.");
@@ -124,7 +130,8 @@ export function FormularioEspacio({
   }
 
   return (
-    <form onSubmit={guardar} className="flex flex-col gap-4 rounded-campo border border-gris-claro p-6">
+    <div className="flex flex-col gap-6">
+      <form onSubmit={guardar} className="flex flex-col gap-4 rounded-campo border border-gris-claro p-6">
       <h2 className="text-2xl font-bold">
         {actual ? `${actual.codigo} · ${actual.nombre}` : `Nuevo espacio en el bloque ${seleccion.bloque}`}
       </h2>
@@ -174,14 +181,31 @@ export function FormularioEspacio({
             min={0}
             defaultValue={actual?.minutosDesmontaje ?? 0}
           />
+          <Campo
+            id="depositoValorFijo"
+            etiqueta="Depósito fijo ($)"
+            type="number"
+            min={0}
+            step={1}
+            defaultValue={actual?.depositoValorFijo ?? undefined}
+            ayuda="Valor fijo en pesos enteros (opcional)."
+          />
+          <Campo
+            id="depositoPorcentaje"
+            etiqueta="Depósito porcentual (%)"
+            type="number"
+            min={0}
+            max={100}
+            step={1}
+            defaultValue={actual?.depositoPorcentaje ?? undefined}
+            ayuda="Porcentaje a retener (0 a 100, opcional)."
+          />
           {actual && (
             <Selector
               id="estado"
               etiqueta="Estado del espacio"
-              ayuda="Déjalo en “Sin cambios” si no vas a modificarlo."
-              defaultValue=""
+              defaultValue={actual.estado}
             >
-              <option value="">Sin cambios</option>
               {(Object.keys(ESTADOS_ESPACIO) as EstadoEspacio[]).map((k) => (
                 <option key={k} value={k}>
                   {ESTADOS_ESPACIO[k]}
@@ -194,14 +218,10 @@ export function FormularioEspacio({
           id="responsableId"
           etiqueta="Responsable del espacio"
           required={!actual}
-          defaultValue=""
-          ayuda={
-            actual
-              ? "Es quien da el aval antes de que Vicerrectoría apruebe. Déjalo en “Sin cambios” si ya tiene uno."
-              : "Es quien da el aval antes de que Vicerrectoría apruebe. Es obligatorio."
-          }
+          defaultValue={actual?.responsableId ?? ""}
+          ayuda="Es quien da el aval antes de que Vicerrectoría apruebe."
         >
-          <option value="">{actual ? "Sin cambios" : "Elige una persona"}</option>
+          <option value="">{actual ? "Sin responsable asignado" : "Elige una persona"}</option>
           {listaResponsables.map((u) => (
             <option key={u.id} value={u.id}>
               {u.nombre ? `${u.nombre} · ${u.correo}` : u.correo}
@@ -213,18 +233,26 @@ export function FormularioEspacio({
             No hay usuarios con el rol de responsable de espacio. Asigna ese rol a alguien en Configuración y vuelve aquí.
           </Alerta>
         )}
-        {!actual && (
-          <div className="flex flex-col gap-2">
-            <label className="flex min-h-11 items-center gap-2">
-              <input name="requiereAval" type="checkbox" defaultChecked className="size-6" />
-              Requiere el aval del responsable del espacio
-            </label>
-            <label className="flex min-h-11 items-center gap-2">
-              <input name="esReservable" type="checkbox" defaultChecked className="size-6" />
-              Se puede reservar
-            </label>
-          </div>
-        )}
+        <div className="flex flex-col gap-2">
+          <label className="flex min-h-11 items-center gap-2">
+            <input
+              name="requiereAval"
+              type="checkbox"
+              defaultChecked={actual ? actual.requiereAval : true}
+              className="size-6"
+            />
+            Requiere el aval del responsable del espacio
+          </label>
+          <label className="flex min-h-11 items-center gap-2">
+            <input
+              name="esReservable"
+              type="checkbox"
+              defaultChecked={actual ? actual.esReservable : true}
+              className="size-6"
+            />
+            Se puede reservar
+          </label>
+        </div>
         <AreaTexto id="descripcion" etiqueta="Descripción" maxLength={1000} defaultValue={actual?.descripcion ?? ""} />
         <AreaTexto
           id="condicionesUso"
@@ -269,5 +297,22 @@ export function FormularioEspacio({
         </p>
       </DialogoConfirmacion>
     </form>
-  );
+
+    {actual && (
+      <>
+        <HorariosOperacion
+          key={`${actual.codigo}-${JSON.stringify(actual.horarios)}`}
+          codigo={actual.codigo}
+          horarios={actual.horarios}
+          puedeEditar={puedeEditar}
+          alGuardar={() => {
+            ficha.recargar();
+            alCambiar();
+          }}
+        />
+        <ElementosDotacion espacioId={actual.id} puedeEditar={puedeEditar} />
+      </>
+    )}
+  </div>
+);
 }

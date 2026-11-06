@@ -34,7 +34,16 @@ export const descargarActaPdf = (id: string) =>
   api<Blob>(`/actas/${encodeURIComponent(id)}.pdf`, { blob: true });
 
 /** Elementos en servicio de un espacio, para armar el checklist. */
-export const listarElementosDeEspacio = (espacioId: string) =>
-  api<PaginaElementos>("/elementos", {
-    query: { espacioId, estado: "EN_SERVICIO", porPagina: 100 },
-  });
+export async function listarElementosDeEspacio(espacioId: string, porPagina = 100): Promise<ElementoAdmin[]> {
+  const elementos: ElementoAdmin[] = [];
+  let pagina = 1;
+  while (true) {
+    const respuesta = await api<PaginaElementos>("/elementos", {
+      query: { espacioId, estado: "EN_SERVICIO", pagina, porPagina },
+    });
+    elementos.push(...respuesta.datos);
+    if (respuesta.pagina * respuesta.porPagina >= respuesta.total || respuesta.datos.length === 0) break;
+    pagina += 1;
+  }
+  return elementos;
+}
