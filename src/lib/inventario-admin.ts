@@ -69,3 +69,6 @@ export const actualizarEspacio = (codigo: string, datos: ActualizarEspacio) =>
 
 export const archivarEspacio = (codigo: string) =>
   api<void>(`/espacios/${encodeURIComponent(codigo)}/archivar`, { method: "PATCH" });
+
+export const restaurarEspacio = (codigo: string) =>
+  api<void>(`/espacios/${encodeURIComponent(codigo)}/restaurar`, { method: "PATCH" });

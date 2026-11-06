@@ -48,3 +48,57 @@ export const verificarPago = (
     method: "POST",
     json: { resultado, observacion },
   });
+
+export type EstadoReembolso = "SOLICITADO" | "APROBADO" | "RECHAZADO" | "APLICADO";
+
+export interface ReembolsoResumen {
+  id: string;
+  ordenPagoId: string;
+  referenciaOrden: string;
+  solicitudId: string;
+  consecutivoSolicitud: string | null;
+  valor: number;
+  motivo: string;
+  estado: EstadoReembolso;
+  tieneSoporte: boolean;
+  creadoEn: string;
+  resueltoEn: string | null;
+}
+
+export interface PaginaReembolsos {
+  datos: ReembolsoResumen[];
+  total: number;
+  pagina: number;
+  porPagina: number;
+}
+
+export const ETIQUETAS_REEMBOLSO: Record<EstadoReembolso, string> = {
+  SOLICITADO: "Por reembolsar",
+  APROBADO: "Aprobado",
+  APLICADO: "Reembolsado",
+  RECHAZADO: "Rechazado",
+};
+
+export const listarReembolsos = (filtros: {
+  estado?: EstadoReembolso;
+  pagina?: number;
+  porPagina?: number;
+}) => api<PaginaReembolsos>("/pagos/reembolsos", { query: filtros });
+
+export function resolverReembolso(
+  reembolsoId: string,
+  resultado: "APLICADO" | "RECHAZADO",
+  opciones: { observacion?: string; archivo?: File } = {},
+) {
+  const formulario = new FormData();
+  formulario.set("resultado", resultado);
+  if (opciones.observacion) formulario.set("observacion", opciones.observacion);
+  if (opciones.archivo) formulario.set("archivo", opciones.archivo);
+  return api<{ id: string; estadoReembolso: EstadoReembolso; estadoSolicitud: string }>(
+    `/pagos/reembolsos/${encodeURIComponent(reembolsoId)}/resolucion`,
+    { method: "POST", formData: formulario },
+  );
+}
+
+export const descargarSoporteReembolso = (reembolsoId: string) =>
+  api<Blob>(`/pagos/reembolsos/${encodeURIComponent(reembolsoId)}/soporte`, { blob: true });

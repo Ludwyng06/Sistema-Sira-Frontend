@@ -54,6 +54,21 @@ export const cancelarSolicitud = (id: string, motivo: string) =>
     json: { motivo },
   });
 
+export type ResultadoDepositoCierre =
+  | "NO_APLICA"
+  | "DEVUELTO"
+  | "RETENIDO_PARCIAL"
+  | "RETENIDO_TOTAL";
+
+export const cerrarSolicitud = (
+  id: string,
+  datos: { resultadoDeposito?: ResultadoDepositoCierre; observaciones?: string },
+) =>
+  api<{ estadoSolicitud: EstadoSolicitud; resultadoDeposito: ResultadoDepositoCierre; observaciones: string | null }>(
+    `/solicitudes/${encodeURIComponent(id)}/cerrar`,
+    { method: "POST", json: datos },
+  );
+
 export type CrearSolicitud = Esquemas["CrearSolicitudDto"];
 export type ActualizarSolicitud = Esquemas["ActualizarSolicitudDto"];
 export type SolicitudEnviada = Esquemas["SolicitudEnviadaDto"];

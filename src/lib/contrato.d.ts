@@ -2421,6 +2421,8 @@ export interface components {
             minutosDesmontaje: number;
             depositoValorFijo: number | null;
             depositoPorcentaje: number | null;
+            valorComercialReferencia?: number | null;
+            valorTotalElementos?: number;
             /** Format: uuid */
             responsableId: string | null;
             /** Format: uuid */
@@ -2489,6 +2491,8 @@ export interface components {
             depositoValorFijo?: number;
             /** @description Depósito como porcentaje (0 a 100). */
             depositoPorcentaje?: number;
+            /** @description Valor comercial de referencia por hora en pesos enteros. */
+            valorComercialReferencia?: number;
         };
         EspacioCreadoDto: {
             /** @example A-401 */
@@ -2535,6 +2539,8 @@ export interface components {
             depositoValorFijo?: number | null;
             /** @description Depósito como porcentaje (0 a 100). */
             depositoPorcentaje?: number | null;
+            /** @description Valor comercial de referencia por hora en pesos enteros. */
+            valorComercialReferencia?: number | null;
         };
         HorarioEspacioDto: {
             /**
@@ -4537,11 +4543,10 @@ export interface components {
             solicitudesPorEstado: components["schemas"]["ConteoEstadoDto"][];
             ocupacion: components["schemas"]["OcupacionDto"];
             recaudo: components["schemas"]["RecaudoDto"];
-            /**
-             * @description Horas promedio entre el envío y la aprobación final. Null si no hubo aprobaciones.
-             * @example 31.4
-             */
+            /** @description Horas promedio entre el envío y la aprobación final. Null si no hubo aprobaciones. */
             tiempoMedioAprobacionHoras: number | null;
+            /** @description Porcentaje de solicitudes no exentas cotizadas que llegaron a pago confirmado. */
+            tasaConversionPorcentaje?: number | null;
             usoInternoNoCobrado: components["schemas"]["UsoInternoDto"];
         };
         RegistroAuditoriaDto: {
