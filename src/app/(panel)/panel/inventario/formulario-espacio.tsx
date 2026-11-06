@@ -1,0 +1,318 @@
+"use client";
+
+import { useState, type FormEvent } from "react";
+import { DialogoConfirmacion } from "@/components/DialogoConfirmacion";
+import { Esqueleto, RegionCargando } from "@/components/Esqueleto";
+import { EstadoError } from "@/components/EstadoError";
+import { Alerta, AreaTexto, Boton, Campo, Selector } from "@/components/formularios";
+import {
+  actualizarEspacio,
+  archivarEspacio,
+  crearEspacio,
+  ESTADOS_ESPACIO,
+  obtenerEspacioAdmin,
+  type EstadoEspacio,
+} from "@/lib/inventario-admin";
+import { listarUsuarios } from "@/lib/administracion";
+import { listarTiposEspacio } from "@/lib/inventario";
+import { useConsulta } from "@/lib/useConsulta";
+import type { Seleccion } from "./pantalla-inventario";
+import { avisar } from "@/lib/avisos";
+import { HorariosOperacion, ElementosDotacion } from "./gestiones-espacio";
+
+const texto = (d: FormData, k: string) => String(d.get(k) ?? "").trim();
+const numero = (d: FormData, k: string) => Number(d.get(k));
+const opcionalNumero = (d: FormData, k: string) => (texto(d, k) === "" ? undefined : Number(texto(d, k)));
+
+export function FormularioEspacio({
+  seleccion,
+  puedeEditar,
+  alCambiar,
+  alCerrar,
+}: {
+  seleccion: NonNullable<Seleccion>;
+  puedeEditar: boolean;
+  alCambiar: () => void;
+  alCerrar: () => void;
+}) {
+  const codigo = seleccion.tipo === "espacio" ? seleccion.codigo : null;
+  const ficha = useConsulta(() => (codigo ? obtenerEspacioAdmin(codigo) : Promise.resolve(null)), [codigo ?? ""]);
+  const tipos = useConsulta(() => listarTiposEspacio(), []);
+  const responsables = useConsulta(() => listarUsuarios({ rol: "RESPONSABLE_ESPACIO", activo: true, porPagina: 100 }), []);
+  const [enviando, setEnviando] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [aviso, setAviso] = useState<string | null>(null);
+  const [archivando, setArchivando] = useState(false);
+
+  if (ficha.resultado.estado === "cargando" || tipos.resultado.estado === "cargando" || responsables.resultado.estado === "cargando") {
+    return (
+      <RegionCargando etiqueta="Cargando el espacio">
+        <div className="flex flex-col gap-3">
+          <Esqueleto className="h-8 w-64" />
+          <Esqueleto className="h-48 w-full" />
+        </div>
+      </RegionCargando>
+    );
+  }
+  if (ficha.resultado.estado === "error") {
+    return <EstadoError mensaje={ficha.resultado.mensaje} alReintentar={ficha.recargar} />;
+  }
+  if (tipos.resultado.estado === "error") {
+    return <EstadoError mensaje={tipos.resultado.mensaje} alReintentar={tipos.recargar} />;
+  }
+
+  const actual = ficha.resultado.datos;
+  const listaTipos = tipos.resultado.datos;
+  const listaResponsables = responsables.resultado.estado === "listo" ? responsables.resultado.datos.datos : [];
+  const soloLectura = !puedeEditar;
+
+  async function guardar(evento: FormEvent<HTMLFormElement>) {
+    evento.preventDefault();
+    const d = new FormData(evento.currentTarget);
+    setEnviando(true);
+    setError(null);
+    setAviso(null);
+    try {
+      if (actual) {
+        await actualizarEspacio(actual.codigo, {
+          tipo: texto(d, "tipo"),
+          nombre: texto(d, "nombre"),
+          piso: numero(d, "piso"),
+          capacidadPersonas: numero(d, "capacidadPersonas"),
+          areaM2: opcionalNumero(d, "areaM2") ?? null,
+          descripcion: texto(d, "descripcion") || null,
+          condicionesUso: texto(d, "condicionesUso") || null,
+          estado: (texto(d, "estado") || undefined) as EstadoEspacio | undefined,
+          minutosMontaje: numero(d, "minutosMontaje"),
+          minutosDesmontaje: numero(d, "minutosDesmontaje"),
+          responsableId: texto(d, "responsableId") || null,
+          requiereAval: d.get("requiereAval") === "on",
+          esReservable: d.get("esReservable") === "on",
+          depositoValorFijo: opcionalNumero(d, "depositoValorFijo") ?? null,
+          depositoPorcentaje: opcionalNumero(d, "depositoPorcentaje") ?? null,
+        });
+        avisar.exito("Los cambios del espacio quedaron guardados.");
+      } else {
+        const responsableId = texto(d, "responsableId");
+        if (!responsableId) {
+          setError("Elige quién es el responsable del espacio. Sin responsable nadie puede dar el aval y las solicitudes se quedan trabadas.");
+          setEnviando(false);
+          return;
+        }
+        const creado = await crearEspacio({
+          sede: seleccion.sede,
+          bloque: seleccion.bloque,
+          tipo: texto(d, "tipo"),
+          codigo: texto(d, "codigo").toUpperCase(),
+          nombre: texto(d, "nombre"),
+          piso: numero(d, "piso"),
+          capacidadPersonas: numero(d, "capacidadPersonas"),
+          areaM2: opcionalNumero(d, "areaM2"),
+          descripcion: texto(d, "descripcion") || undefined,
+          condicionesUso: texto(d, "condicionesUso") || undefined,
+          minutosMontaje: numero(d, "minutosMontaje"),
+          minutosDesmontaje: numero(d, "minutosDesmontaje"),
+          requiereAval: d.get("requiereAval") === "on",
+          esReservable: d.get("esReservable") === "on",
+          depositoValorFijo: opcionalNumero(d, "depositoValorFijo"),
+          depositoPorcentaje: opcionalNumero(d, "depositoPorcentaje"),
+          responsableId,
+        });
+        avisar.exito(`El espacio ${creado.codigo} se creó.`);
+      }
+      ficha.recargar();
+      alCambiar();
+    } catch (e) {
+      avisar.error(e, "No pudimos guardar el espacio.");
+    } finally {
+      setEnviando(false);
+    }
+  }
+
+  return (
+    <div className="flex flex-col gap-6">
+      <form onSubmit={guardar} className="flex flex-col gap-4 rounded-campo border border-gris-claro p-6">
+      <h2 className="text-2xl font-bold">
+        {actual ? `${actual.codigo} · ${actual.nombre}` : `Nuevo espacio en el bloque ${seleccion.bloque}`}
+      </h2>
+      {aviso && <Alerta tipo="exito">{aviso}</Alerta>}
+      {error && <Alerta tipo="error">{error}</Alerta>}
+
+      <fieldset disabled={soloLectura} className="flex flex-col gap-4">
+        <legend className="sr-only">Datos del espacio</legend>
+        <div className="grid gap-4 sm:grid-cols-2">
+          {!actual && (
+            <Campo
+              id="codigo"
+              etiqueta="Código del plano"
+              ayuda="Por ejemplo A-201."
+              required
+            />
+          )}
+          <Campo id="nombre" etiqueta="Nombre" maxLength={120} defaultValue={actual?.nombre} required />
+          <Selector id="tipo" etiqueta="Tipo de espacio" defaultValue={actual?.tipo.codigo} required>
+            {listaTipos.map((t) => (
+              <option key={t.codigo} value={t.codigo}>
+                {t.nombre}
+              </option>
+            ))}
+          </Selector>
+          <Campo id="piso" etiqueta="Piso" type="number" min={1} defaultValue={actual?.piso} required />
+          <Campo
+            id="capacidadPersonas"
+            etiqueta="Capacidad (personas)"
+            type="number"
+            min={1}
+            defaultValue={actual?.capacidadPersonas}
+            required
+          />
+          <Campo id="areaM2" etiqueta="Área (m²)" type="number" min={0} step="any" defaultValue={actual?.areaM2 ?? undefined} />
+          <Campo
+            id="minutosMontaje"
+            etiqueta="Minutos de montaje"
+            type="number"
+            min={0}
+            defaultValue={actual?.minutosMontaje ?? 0}
+          />
+          <Campo
+            id="minutosDesmontaje"
+            etiqueta="Minutos de desmontaje"
+            type="number"
+            min={0}
+            defaultValue={actual?.minutosDesmontaje ?? 0}
+          />
+          <Campo
+            id="depositoValorFijo"
+            etiqueta="Depósito fijo ($)"
+            type="number"
+            min={0}
+            step={1}
+            defaultValue={actual?.depositoValorFijo ?? undefined}
+            ayuda="Valor fijo en pesos enteros (opcional)."
+          />
+          <Campo
+            id="depositoPorcentaje"
+            etiqueta="Depósito porcentual (%)"
+            type="number"
+            min={0}
+            max={100}
+            step={1}
+            defaultValue={actual?.depositoPorcentaje ?? undefined}
+            ayuda="Porcentaje a retener (0 a 100, opcional)."
+          />
+          {actual && (
+            <Selector
+              id="estado"
+              etiqueta="Estado del espacio"
+              defaultValue={actual.estado}
+            >
+              {(Object.keys(ESTADOS_ESPACIO) as EstadoEspacio[]).map((k) => (
+                <option key={k} value={k}>
+                  {ESTADOS_ESPACIO[k]}
+                </option>
+              ))}
+            </Selector>
+          )}
+        </div>
+        <Selector
+          id="responsableId"
+          etiqueta="Responsable del espacio"
+          required={!actual}
+          defaultValue={actual?.responsableId ?? ""}
+          ayuda="Es quien da el aval antes de que Vicerrectoría apruebe."
+        >
+          <option value="">{actual ? "Sin responsable asignado" : "Elige una persona"}</option>
+          {listaResponsables.map((u) => (
+            <option key={u.id} value={u.id}>
+              {u.nombre ? `${u.nombre} · ${u.correo}` : u.correo}
+            </option>
+          ))}
+        </Selector>
+        {listaResponsables.length === 0 && (
+          <Alerta tipo="error">
+            No hay usuarios con el rol de responsable de espacio. Asigna ese rol a alguien en Configuración y vuelve aquí.
+          </Alerta>
+        )}
+        <div className="flex flex-col gap-2">
+          <label className="flex min-h-11 items-center gap-2">
+            <input
+              name="requiereAval"
+              type="checkbox"
+              defaultChecked={actual ? actual.requiereAval : true}
+              className="size-6"
+            />
+            Requiere el aval del responsable del espacio
+          </label>
+          <label className="flex min-h-11 items-center gap-2">
+            <input
+              name="esReservable"
+              type="checkbox"
+              defaultChecked={actual ? actual.esReservable : true}
+              className="size-6"
+            />
+            Se puede reservar
+          </label>
+        </div>
+        <AreaTexto id="descripcion" etiqueta="Descripción" maxLength={1000} defaultValue={actual?.descripcion ?? ""} />
+        <AreaTexto
+          id="condicionesUso"
+          etiqueta="Condiciones de uso"
+          maxLength={1000}
+          defaultValue={actual?.condicionesUso ?? ""}
+        />
+      </fieldset>
+
+      <div className="flex flex-wrap gap-3">
+        {puedeEditar && (
+          <Boton type="submit" cargando={enviando}>
+            {actual ? "Guardar cambios" : "Crear espacio"}
+          </Boton>
+        )}
+        {puedeEditar && actual && (
+          <Boton variante="secundario" onClick={() => setArchivando(true)}>
+            Archivar espacio
+          </Boton>
+        )}
+        <Boton variante="secundario" onClick={alCerrar}>
+          Cerrar
+        </Boton>
+      </div>
+
+      <DialogoConfirmacion
+        abierto={archivando}
+        titulo="¿Archivar este espacio?"
+        textoConfirmar="Archivar espacio"
+        variante="peligro"
+        alConfirmar={async () => {
+          if (!actual) return;
+          await archivarEspacio(actual.codigo);
+          alCambiar();
+          alCerrar();
+        }}
+        alCerrar={() => setArchivando(false)}
+      >
+        <p className="text-gris">
+          {actual?.codigo} dejará de mostrarse en el portal y no se podrá reservar. Nada se borra:
+          puedes volver a tenerlo si lo necesitas.
+        </p>
+      </DialogoConfirmacion>
+    </form>
+
+    {actual && (
+      <>
+        <HorariosOperacion
+          key={`${actual.codigo}-${JSON.stringify(actual.horarios)}`}
+          codigo={actual.codigo}
+          horarios={actual.horarios}
+          puedeEditar={puedeEditar}
+          alGuardar={() => {
+            ficha.recargar();
+            alCambiar();
+          }}
+        />
+        <ElementosDotacion espacioId={actual.id} puedeEditar={puedeEditar} />
+      </>
+    )}
+  </div>
+);
+}

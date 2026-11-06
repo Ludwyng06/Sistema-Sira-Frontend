@@ -1,8 +1,13 @@
 import type { Metadata } from "next";
-import { EnConstruccion } from "@/components/EnConstruccion";
+import { GuardiaSesion } from "@/components/GuardiaSesion";
+import { Tablero } from "./tablero";
 
-export const metadata: Metadata = { title: "Panel" };
+export const metadata: Metadata = { title: "Tablero" };
 
 export default function Panel() {
-  return <EnConstruccion titulo="Panel de gestión" responsable="Jensen Ordóñez (panel)" />;
+  return (
+    <GuardiaSesion roles={["ADMINISTRADOR", "APROBADOR", "TESORERIA", "AUDITOR"]}>
+      <Tablero />
+    </GuardiaSesion>
+  );
 }
