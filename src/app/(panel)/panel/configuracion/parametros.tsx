@@ -3,8 +3,14 @@
 import { useState, type FormEvent } from "react";
 import { Alerta, AreaTexto, Boton, Campo } from "@/components/formularios";
 import { EstadoError } from "@/components/EstadoError";
-import { actualizarParametro, listarParametros, type Parametro } from "@/lib/administracion";
-import { fecha, hora } from "@/lib/formato";
+import {
+  actualizarParametro,
+  guardarSmmlv,
+  listarParametros,
+  listarSmmlv,
+  type Parametro,
+} from "@/lib/administracion";
+import { fecha, hora, pesos } from "@/lib/formato";
 import { useConsulta } from "@/lib/useConsulta";
 import { avisar } from "@/lib/avisos";
 
@@ -77,9 +83,84 @@ export function ParametrosSistema() {
   const { resultado, recargar } = useConsulta(listarParametros, []);
   if (resultado.estado === "cargando") return <p role="status">Cargando parámetros…</p>;
   if (resultado.estado === "error") return <EstadoError mensaje={resultado.mensaje} alReintentar={recargar} />;
-  return <section className="flex flex-col gap-4" aria-label="Parámetros del sistema">
-    <h2 className="text-2xl font-bold">Parámetros del sistema</h2>
-    {resultado.datos.length === 0 && <p>No hay parámetros registrados.</p>}
-    {resultado.datos.map((parametro) => <EditorParametro key={`${parametro.clave}-${parametro.actualizadoEn}`} parametro={parametro} alGuardar={recargar} />)}
+  return <section className="flex flex-col gap-6" aria-label="Parámetros del sistema">
+    <VigenciasSmmlv />
+    <div className="flex flex-col gap-4">
+      <h2 className="text-2xl font-bold">Parámetros del sistema</h2>
+      {resultado.datos.length === 0 && <p>No hay parámetros registrados.</p>}
+      {resultado.datos.map((parametro) => <EditorParametro key={`${parametro.clave}-${parametro.actualizadoEn}`} parametro={parametro} alGuardar={recargar} />)}
+    </div>
   </section>;
+}
+
+function VigenciasSmmlv() {
+  const { resultado, recargar } = useConsulta(listarSmmlv, []);
+  const [guardando, setGuardando] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function guardar(evento: FormEvent<HTMLFormElement>) {
+    evento.preventDefault();
+    const datos = new FormData(evento.currentTarget);
+    const anio = Number(datos.get("anio"));
+    const valor = Number(datos.get("valor"));
+    setGuardando(true);
+    setError(null);
+    try {
+      await guardarSmmlv(anio, valor);
+      avisar.exito(`SMMLV del año ${anio} guardado en ${pesos(valor)}.`);
+      recargar();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "No pudimos guardar el SMMLV.");
+    } finally {
+      setGuardando(false);
+    }
+  }
+
+  return (
+    <div className="flex flex-col gap-4 rounded-campo border border-gris-claro p-4">
+      <div className="flex flex-col gap-1">
+        <h2 className="text-2xl font-bold">Valor anual del SMMLV (RN-06)</h2>
+        <p className="text-gris">
+          Se usa para liquidar las tarifas expresadas en fracciones del salario mínimo mensual legal vigente.
+        </p>
+      </div>
+      {resultado.estado === "listo" && resultado.datos.length > 0 && (
+        <ul className="flex flex-wrap gap-3">
+          {resultado.datos.map((s) => (
+            <li
+              key={s.anio}
+              className="rounded-campo border border-gris-claro bg-fondo-suave px-4 py-2 font-bold text-azul-oscuro"
+            >
+              {s.anio}: {pesos(s.valor)}
+            </li>
+          ))}
+        </ul>
+      )}
+      <form onSubmit={guardar} className="flex flex-wrap items-end gap-3">
+        <Campo
+          id="anio"
+          etiqueta="Año de vigencia"
+          type="number"
+          min={2020}
+          max={2100}
+          defaultValue={new Date().getFullYear()}
+          required
+          className="w-36"
+        />
+        <Campo
+          id="valor"
+          etiqueta="Valor SMMLV ($)"
+          type="number"
+          min={1}
+          step={1}
+          required
+          className="w-48"
+        />
+        <Boton type="submit" cargando={guardando}>
+          Guardar SMMLV
+        </Boton>
+      </form>
+      {error && <Alerta tipo="error">{error}</Alerta>}
+    </div>
+  );
 }

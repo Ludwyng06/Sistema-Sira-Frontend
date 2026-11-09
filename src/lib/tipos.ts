@@ -146,6 +146,7 @@ export interface FichaEspacio extends TarjetaEspacio {
   minutosDesmontaje: number;
   depositoValorFijo: number | null;
   depositoPorcentaje: number | null;
+  valorTotalElementos?: number;
   fotos: FotoDetalle[];
   /** Dotación completa en servicio. */
   elementos: ElementoFicha[];

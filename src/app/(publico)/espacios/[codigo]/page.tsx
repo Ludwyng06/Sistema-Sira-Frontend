@@ -150,17 +150,27 @@ async function FichaDelEspacio({ params }: { params: Props["params"] }) {
           {espacio.elementos.length === 0 ? (
             <p className="text-gris">Este espacio no tiene dotación registrada.</p>
           ) : (
-            <ul className="divide-y divide-gris-claro rounded-campo border border-gris-claro">
-              {espacio.elementos.map((d) => (
-                <li key={d.nombre} className="flex justify-between gap-4 px-4 py-2">
-                  <span>{d.nombre}</span>
-                  <span className="font-bold">
-                    {d.cantidad}{" "}
-                    <span className="font-normal text-gris">{d.unidad}</span>
+            <>
+              <ul className="divide-y divide-gris-claro rounded-campo border border-gris-claro">
+                {espacio.elementos.map((d) => (
+                  <li key={d.nombre} className="flex justify-between gap-4 px-4 py-2">
+                    <span>{d.nombre}</span>
+                    <span className="font-bold">
+                      {d.cantidad}{" "}
+                      <span className="font-normal text-gris">{d.unidad}</span>
+                    </span>
+                  </li>
+                ))}
+              </ul>
+              {typeof espacio.valorTotalElementos === "number" && espacio.valorTotalElementos > 0 && (
+                <p className="text-base text-gris">
+                  Valor de inventario del espacio:{" "}
+                  <span className="font-bold text-azul-oscuro">
+                    {pesos(espacio.valorTotalElementos)}
                   </span>
-                </li>
-              ))}
-            </ul>
+                </p>
+              )}
+            </>
           )}
         </section>
 

@@ -13,11 +13,17 @@ import { useSesion } from "@/components/SesionProvider";
 import { fecha, hora, pesos } from "@/lib/formato";
 import {
   descargarSoporte,
+  descargarSoporteReembolso,
   ETIQUETAS_ORDEN,
+  ETIQUETAS_REEMBOLSO,
   listarOrdenes,
+  listarReembolsos,
+  resolverReembolso,
   verificarPago,
   type EstadoOrden,
+  type EstadoReembolso,
   type OrdenPagoResumen,
+  type ReembolsoResumen,
 } from "@/lib/pagos";
 import { guardarArchivo } from "@/lib/descarga";
 import { useConsulta } from "@/lib/useConsulta";
@@ -30,11 +36,19 @@ const PESTANAS: { estado: EstadoOrden; texto: string }[] = [
   { estado: "VENCIDA", texto: "Vencidos" },
 ];
 
+const PESTANAS_REEMBOLSO: { estado: EstadoReembolso | "TODOS"; texto: string }[] = [
+  { estado: "SOLICITADO", texto: "Por reembolsar" },
+  { estado: "APLICADO", texto: "Reembolsados" },
+  { estado: "RECHAZADO", texto: "Rechazados" },
+  { estado: "TODOS", texto: "Todos" },
+];
+
 const POR_PAGINA = 20;
 
 export function PantallaPagos() {
   const { tieneRol } = useSesion();
   const puedeVerificar = tieneRol("TESORERIA");
+  const [seccion, setSeccion] = useState<"ORDENES" | "REEMBOLSOS">("ORDENES");
   const [estado, setEstado] = useState<EstadoOrden>("EN_VERIFICACION");
   const [pagina, setPagina] = useState(1);
   const [rechazando, setRechazando] = useState<OrdenPagoResumen | null>(null);
@@ -75,10 +89,41 @@ export function PantallaPagos() {
   return (
     <div className="flex flex-col gap-6">
       <header className="flex flex-col gap-1">
-        <h1 className="text-t1 font-black">Pagos</h1>
-        <p className="text-gris">Verifica las consignaciones de las solicitudes cotizadas.</p>
+        <h1 className="text-t1 font-black">Pagos y reembolsos</h1>
+        <p className="text-gris">Verifica las consignaciones de las solicitudes cotizadas y gestiona los reembolsos por cancelación.</p>
       </header>
 
+      <div role="tablist" aria-label="Sección de pagos" className="flex flex-wrap gap-2 border-b border-gris-claro pb-3">
+        <button
+          type="button"
+          role="tab"
+          aria-selected={seccion === "ORDENES"}
+          onClick={() => setSeccion("ORDENES")}
+          className={clsx(
+            "min-h-11 rounded-campo px-5 font-bold",
+            seccion === "ORDENES" ? "bg-azul-oscuro text-white" : "border border-gris-claro text-azul-oscuro hover:bg-fondo-suave",
+          )}
+        >
+          Órdenes de pago
+        </button>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={seccion === "REEMBOLSOS"}
+          onClick={() => setSeccion("REEMBOLSOS")}
+          className={clsx(
+            "min-h-11 rounded-campo px-5 font-bold",
+            seccion === "REEMBOLSOS" ? "bg-azul-oscuro text-white" : "border border-gris-claro text-azul-oscuro hover:bg-fondo-suave",
+          )}
+        >
+          Reembolsos
+        </button>
+      </div>
+
+      {seccion === "REEMBOLSOS" ? (
+        <SeccionReembolsos puedeVerificar={puedeVerificar} />
+      ) : (
+        <>
       <div role="tablist" aria-label="Estado del pago" className="flex flex-wrap gap-2">
         {PESTANAS.map((p) => (
           <button
@@ -234,6 +279,237 @@ export function PantallaPagos() {
         alCerrar={() => setRechazando(null)}
       >
         <p className="text-gris">Compara el comprobante con la referencia y el valor de la orden.</p>
+      </DialogoConfirmacion>
+        </>
+      )}
+    </div>
+  );
+}
+
+function SeccionReembolsos({ puedeVerificar }: { puedeVerificar: boolean }) {
+  const [estado, setEstado] = useState<EstadoReembolso | "TODOS">("SOLICITADO");
+  const [pagina, setPagina] = useState(1);
+  const [aplicando, setAplicando] = useState<ReembolsoResumen | null>(null);
+  const [rechazando, setRechazando] = useState<ReembolsoResumen | null>(null);
+  const [archivoSoporte, setArchivoSoporte] = useState<File | null>(null);
+  const [observacionAplicar, setObservacionAplicar] = useState("");
+  const [enviandoAplicar, setEnviandoAplicar] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const { resultado, recargar } = useConsulta(
+    () =>
+      listarReembolsos({
+        estado: estado === "TODOS" ? undefined : estado,
+        pagina,
+        porPagina: POR_PAGINA,
+      }),
+    [estado, pagina],
+  );
+
+  async function confirmarAplicar() {
+    if (!aplicando) return;
+    setEnviandoAplicar(true);
+    setError(null);
+    try {
+      await resolverReembolso(aplicando.id, "APLICADO", {
+        observacion: observacionAplicar.trim() || undefined,
+        archivo: archivoSoporte ?? undefined,
+      });
+      avisar.exito(
+        `Reembolso de ${aplicando.consecutivoSolicitud ?? aplicando.referenciaOrden} marcado como aplicado.`,
+      );
+      setAplicando(null);
+      setArchivoSoporte(null);
+      setObservacionAplicar("");
+      recargar();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "No pudimos aplicar el reembolso.");
+    } finally {
+      setEnviandoAplicar(false);
+    }
+  }
+
+  async function bajarSoporte(r: ReembolsoResumen) {
+    setError(null);
+    try {
+      const blob = await descargarSoporteReembolso(r.id);
+      const ext = blob.type === "application/pdf" ? "pdf" : blob.type.split("/")[1] ?? "pdf";
+      guardarArchivo(blob, `Reembolso-${r.consecutivoSolicitud ?? r.referenciaOrden}.${ext}`);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "No pudimos descargar el soporte del reembolso.");
+    }
+  }
+
+  return (
+    <div className="flex flex-col gap-5">
+      <div role="tablist" aria-label="Estado del reembolso" className="flex flex-wrap gap-2">
+        {PESTANAS_REEMBOLSO.map((p) => (
+          <button
+            key={p.estado}
+            type="button"
+            role="tab"
+            aria-selected={estado === p.estado}
+            onClick={() => {
+              setEstado(p.estado);
+              setPagina(1);
+            }}
+            className={clsx(
+              "min-h-11 rounded-full px-5 text-base font-bold",
+              estado === p.estado
+                ? "bg-azul text-white"
+                : "border border-gris-claro text-azul-oscuro hover:bg-fondo-suave",
+            )}
+          >
+            {p.texto}
+          </button>
+        ))}
+      </div>
+
+      {error && <Alerta tipo="error">{error}</Alerta>}
+
+      {resultado.estado === "cargando" && (
+        <RegionCargando etiqueta="Cargando reembolsos">
+          <div className="flex flex-col gap-3">
+            {[0, 1].map((i) => (
+              <Esqueleto key={i} className="h-24 w-full" />
+            ))}
+          </div>
+        </RegionCargando>
+      )}
+      {resultado.estado === "error" && (
+        <EstadoError mensaje={resultado.mensaje} alReintentar={recargar} />
+      )}
+      {resultado.estado === "listo" &&
+        (resultado.datos.total === 0 ? (
+          <EstadoVacio
+            titulo="No hay reembolsos en este estado"
+            mensaje="Cuando se cancele una solicitud pagada con derecho a devolución aparecerá aquí."
+          />
+        ) : (
+          <>
+            <ul className="flex flex-col gap-3">
+              {resultado.datos.datos.map((r) => (
+                <li
+                  key={r.id}
+                  className="flex flex-col gap-3 rounded-tarjeta bg-fondo p-4 shadow-tarjeta"
+                >
+                  <div className="flex flex-wrap items-baseline justify-between gap-2">
+                    <p className="font-bold text-azul-oscuro">
+                      {r.consecutivoSolicitud ? (
+                        <Link
+                          href={`/panel/aprobaciones/${r.solicitudId}`}
+                          className="underline underline-offset-4"
+                        >
+                          {r.consecutivoSolicitud}
+                        </Link>
+                      ) : (
+                        "Solicitud"
+                      )}
+                      {" · Orden "}
+                      {r.referenciaOrden}
+                    </p>
+                    <p className="text-xl font-bold text-azul-oscuro">{pesos(r.valor)}</p>
+                  </div>
+                  <p className="text-base text-gris">
+                    <span className="font-semibold text-azul-oscuro">
+                      {ETIQUETAS_REEMBOLSO[r.estado]}
+                    </span>
+                    {" · solicitado el "}
+                    {fecha(r.creadoEn)} a las {hora(r.creadoEn)}
+                    {r.resueltoEn && <> · resuelto el {fecha(r.resueltoEn)}</>}
+                  </p>
+                  <p className="text-base">{r.motivo}</p>
+
+                  {aplicando?.id === r.id && (
+                    <div className="flex flex-col gap-3 rounded-campo border border-gris-claro bg-fondo-suave p-4">
+                      <p className="font-bold text-azul-oscuro">
+                        Registrar devolución de {pesos(r.valor)}
+                      </p>
+                      <label className="flex flex-col gap-1 text-base font-medium">
+                        Comprobante de transferencia o devolución (PDF, PNG o JPG, opcional)
+                        <input
+                          type="file"
+                          accept=".pdf,image/png,image/jpeg"
+                          onChange={(e) => setArchivoSoporte(e.target.files?.[0] ?? null)}
+                          className="rounded-campo border border-gris/70 bg-fondo p-2"
+                        />
+                      </label>
+                      <label className="flex flex-col gap-1 text-base font-medium">
+                        Observación (opcional)
+                        <input
+                          type="text"
+                          value={observacionAplicar}
+                          onChange={(e) => setObservacionAplicar(e.target.value)}
+                          placeholder="Ej. Transferencia realizada según comprobante..."
+                          className="rounded-campo border border-gris/70 bg-fondo px-3 py-2"
+                        />
+                      </label>
+                      <div className="flex flex-wrap gap-3">
+                        <Boton onClick={confirmarAplicar} cargando={enviandoAplicar}>
+                          Confirmar reembolso aplicado
+                        </Boton>
+                        <Boton
+                          variante="secundario"
+                          onClick={() => {
+                            setAplicando(null);
+                            setArchivoSoporte(null);
+                            setObservacionAplicar("");
+                          }}
+                          disabled={enviandoAplicar}
+                        >
+                          Cancelar
+                        </Boton>
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="flex flex-wrap gap-3">
+                    {r.tieneSoporte && (
+                      <Boton variante="secundario" onClick={() => bajarSoporte(r)}>
+                        Descargar comprobante de reembolso
+                      </Boton>
+                    )}
+                    {puedeVerificar &&
+                      (r.estado === "SOLICITADO" || r.estado === "APROBADO") &&
+                      aplicando?.id !== r.id && (
+                        <>
+                          <Boton onClick={() => setAplicando(r)}>Aplicar reembolso</Boton>
+                          <Boton variante="secundario" onClick={() => setRechazando(r)}>
+                            Rechazar reembolso
+                          </Boton>
+                        </>
+                      )}
+                  </div>
+                </li>
+              ))}
+            </ul>
+            <Paginador
+              pagina={resultado.datos.pagina}
+              total={resultado.datos.total}
+              porPagina={resultado.datos.porPagina}
+              alCambiar={setPagina}
+            />
+          </>
+        ))}
+
+      <DialogoConfirmacion
+        abierto={rechazando !== null}
+        titulo="Rechazar el reembolso"
+        textoConfirmar="Rechazar reembolso"
+        variante="peligro"
+        pedirMotivo
+        etiquetaMotivo="Motivo por el que no procede el reembolso"
+        alConfirmar={async (observacion) => {
+          if (!rechazando) return;
+          await resolverReembolso(rechazando.id, "RECHAZADO", { observacion });
+          avisar.exito("Reembolso rechazado.");
+          recargar();
+        }}
+        alCerrar={() => setRechazando(null)}
+      >
+        <p className="text-gris">
+          Se notificará al solicitante el motivo del rechazo.
+        </p>
       </DialogoConfirmacion>
     </div>
   );

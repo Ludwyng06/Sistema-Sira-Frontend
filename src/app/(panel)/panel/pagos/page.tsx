@@ -6,7 +6,7 @@ export const metadata: Metadata = { title: "Pagos" };
 
 export default function Pagos() {
   return (
-    <GuardiaSesion roles={["TESORERIA", "AUDITOR"]}>
+    <GuardiaSesion roles={["TESORERIA", "AUDITOR", "ADMINISTRADOR"]}>
       <PantallaPagos />
     </GuardiaSesion>
   );

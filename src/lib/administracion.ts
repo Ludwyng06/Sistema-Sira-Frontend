@@ -62,3 +62,16 @@ export const listarAuditoria = (filtros: {
   pagina?: number;
   porPagina?: number;
 }) => api<PaginaAuditoria>("/auditoria", { query: filtros });
+
+export interface SmmlvVigencia {
+  anio: number;
+  valor: number;
+}
+
+export const listarSmmlv = () => api<SmmlvVigencia[]>("/smmlv");
+
+export const guardarSmmlv = (anio: number, valor: number) =>
+  api<SmmlvVigencia>(`/smmlv/${encodeURIComponent(String(anio))}`, {
+    method: "PUT",
+    json: { valor },
+  });
