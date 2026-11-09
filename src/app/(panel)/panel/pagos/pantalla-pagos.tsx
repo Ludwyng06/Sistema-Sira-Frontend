@@ -1,5 +1,7 @@
 "use client";
 
+import { AnclaResultados } from "@/components/AnclaResultados";
+import { useIrAResultados } from "@/lib/useIrAResultados";
 import Link from "next/link";
 import { useState } from "react";
 import clsx from "clsx";
@@ -58,6 +60,7 @@ export function PantallaPagos() {
     () => listarOrdenes({ estado, pagina, porPagina: POR_PAGINA }),
     [estado, pagina],
   );
+  const { destino: anclaResultados, ir: irAResultados, buscando: buscandoResultados } = useIrAResultados(resultado.estado !== "cargando");
 
   function cerrarSoporte() {
     if (soporte) URL.revokeObjectURL(soporte.url);
@@ -134,6 +137,7 @@ export function PantallaPagos() {
             onClick={() => {
               setEstado(p.estado);
               setPagina(1);
+              irAResultados();
             }}
             className={clsx(
               "min-h-11 rounded-full px-5 text-base font-bold",
@@ -148,6 +152,7 @@ export function PantallaPagos() {
       </div>
       {errorSoporte && <Alerta tipo="error">{errorSoporte}</Alerta>}
 
+      <AnclaResultados ref={anclaResultados} buscando={buscandoResultados} etiqueta="Resultados de los pagos" />
       {resultado.estado === "cargando" && (
         <RegionCargando etiqueta="Cargando pagos">
           <div className="flex flex-col gap-3">
@@ -258,7 +263,10 @@ export function PantallaPagos() {
               pagina={resultado.datos.pagina}
               total={resultado.datos.total}
               porPagina={resultado.datos.porPagina}
-              alCambiar={setPagina}
+              alCambiar={(p) => {
+                irAResultados();
+                setPagina(p);
+              }}
             />
           </>
         ))}
@@ -305,6 +313,7 @@ function SeccionReembolsos({ puedeVerificar }: { puedeVerificar: boolean }) {
       }),
     [estado, pagina],
   );
+  const { destino: anclaResultados, ir: irAResultados, buscando: buscandoResultados } = useIrAResultados(resultado.estado !== "cargando");
 
   async function confirmarAplicar() {
     if (!aplicando) return;
@@ -352,6 +361,7 @@ function SeccionReembolsos({ puedeVerificar }: { puedeVerificar: boolean }) {
             onClick={() => {
               setEstado(p.estado);
               setPagina(1);
+              irAResultados();
             }}
             className={clsx(
               "min-h-11 rounded-full px-5 text-base font-bold",
@@ -367,6 +377,7 @@ function SeccionReembolsos({ puedeVerificar }: { puedeVerificar: boolean }) {
 
       {error && <Alerta tipo="error">{error}</Alerta>}
 
+      <AnclaResultados ref={anclaResultados} buscando={buscandoResultados} etiqueta="Reembolsos encontrados" />
       {resultado.estado === "cargando" && (
         <RegionCargando etiqueta="Cargando reembolsos">
           <div className="flex flex-col gap-3">
@@ -487,7 +498,10 @@ function SeccionReembolsos({ puedeVerificar }: { puedeVerificar: boolean }) {
               pagina={resultado.datos.pagina}
               total={resultado.datos.total}
               porPagina={resultado.datos.porPagina}
-              alCambiar={setPagina}
+              alCambiar={(p) => {
+                irAResultados();
+                setPagina(p);
+              }}
             />
           </>
         ))}

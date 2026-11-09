@@ -1,5 +1,7 @@
 "use client";
 
+import { AnclaResultados } from "@/components/AnclaResultados";
+import { useIrAResultados } from "@/lib/useIrAResultados";
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { DialogoConfirmacion } from "@/components/DialogoConfirmacion";
 import { Esqueleto, RegionCargando } from "@/components/Esqueleto";
@@ -55,11 +57,13 @@ function UsuariosRoles() {
     () => listarUsuarios({ busqueda: busqueda || undefined, pagina, porPagina: POR_PAGINA }),
     [busqueda, pagina],
   );
+  const { destino: anclaResultados, ir: irAResultados, buscando: buscandoResultados } = useIrAResultados(resultado.estado !== "cargando");
 
   function buscar(evento: FormEvent<HTMLFormElement>) {
     evento.preventDefault();
     setBusqueda(String(new FormData(evento.currentTarget).get("busqueda") ?? "").trim());
     setPagina(1);
+    irAResultados();
   }
 
   async function activar(u: UsuarioAdmin) {
@@ -86,6 +90,7 @@ function UsuariosRoles() {
       </form>
       {error && <Alerta tipo="error">{error}</Alerta>}
 
+      <AnclaResultados ref={anclaResultados} buscando={buscandoResultados} etiqueta="Resultados de usuarios" />
       {resultado.estado === "cargando" && (
         <RegionCargando etiqueta="Cargando usuarios">
           <div className="flex flex-col gap-2">
@@ -137,7 +142,10 @@ function UsuariosRoles() {
               pagina={resultado.datos.pagina}
               total={resultado.datos.total}
               porPagina={resultado.datos.porPagina}
-              alCambiar={setPagina}
+              alCambiar={(p) => {
+                irAResultados();
+                setPagina(p);
+              }}
             />
           </>
         ))}
@@ -175,7 +183,20 @@ function UsuariosRoles() {
   );
 }
 
-/** Reemplaza la lista completa de roles. APROBADOR exige dependencia. Se monta solo al editar. */
+/** Roles que se asignan por dependencia: una persona puede tenerlos en varias dependencias. */
+const ROLES_CON_DEPENDENCIA: Rol[] = ["APROBADOR", "RESPONSABLE_ESPACIO"];
+
+interface Asignacion {
+  /** Clave local para React; no viaja a la API. */
+  clave: number;
+  rol: Rol;
+  dependenciaId: string;
+}
+
+/**
+ * Reemplaza la lista completa de roles. APROBADOR exige dependencia; APROBADOR y RESPONSABLE_ESPACIO pueden
+ * repetirse con dependencias distintas (el backend rechaza la misma pareja dos veces). Se monta solo al editar.
+ */
 function EditorRoles({
   usuario,
   alCerrar,
@@ -187,9 +208,10 @@ function EditorRoles({
 }) {
   const dialogo = useRef<HTMLDialogElement>(null);
   const dependencias = useConsulta(() => listarDependencias(), []);
-  const [seleccion, setSeleccion] = useState<Record<string, string>>(() =>
-    Object.fromEntries(usuario.roles.map((r) => [r.rol, r.dependenciaId ?? ""])),
+  const [asignaciones, setAsignaciones] = useState<Asignacion[]>(() =>
+    usuario.roles.map((r, i) => ({ clave: i, rol: r.rol as Rol, dependenciaId: r.dependenciaId ?? "" })),
   );
+  const [siguienteClave, setSiguienteClave] = useState(usuario.roles.length);
   const [guardando, setGuardando] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -201,22 +223,36 @@ function EditorRoles({
   const listaDependencias =
     dependencias.resultado.estado === "listo" ? dependencias.resultado.datos.datos : [];
 
-  function alternar(rol: Rol, marcado: boolean) {
-    setSeleccion((previa) => {
-      const nueva = { ...previa };
-      if (marcado) nueva[rol] = "";
-      else delete nueva[rol];
-      return nueva;
-    });
+  function agregar(rol: Rol) {
+    setAsignaciones((previas) => [...previas, { clave: siguienteClave, rol, dependenciaId: "" }]);
+    setSiguienteClave((c) => c + 1);
   }
+
+  function alternar(rol: Rol, marcado: boolean) {
+    if (marcado) agregar(rol);
+    else setAsignaciones((previas) => previas.filter((a) => a.rol !== rol));
+  }
+
+  const cambiarDependencia = (clave: number, dependenciaId: string) =>
+    setAsignaciones((previas) => previas.map((a) => (a.clave === clave ? { ...a, dependenciaId } : a)));
+  const quitar = (clave: number) => setAsignaciones((previas) => previas.filter((a) => a.clave !== clave));
 
   async function guardar(evento: FormEvent) {
     evento.preventDefault();
-    setGuardando(true);
     setError(null);
-    const roles: RolAsignar[] = Object.entries(seleccion).map(([rol, dep]) => ({
-      rol: rol as Rol,
-      dependenciaId: dep || undefined,
+    const vistas = new Set<string>();
+    for (const a of asignaciones) {
+      const pareja = `${a.rol}:${a.dependenciaId}`;
+      if (vistas.has(pareja)) {
+        setError(`${ETIQUETAS_ROL[a.rol]} está repetido con la misma dependencia. Quita una de las filas.`);
+        return;
+      }
+      vistas.add(pareja);
+    }
+    setGuardando(true);
+    const roles: RolAsignar[] = asignaciones.map((a) => ({
+      rol: a.rol,
+      dependenciaId: a.dependenciaId || undefined,
     }));
     try {
       const actualizado = await reemplazarRoles(usuario.id, roles);
@@ -241,9 +277,11 @@ function EditorRoles({
         <fieldset className="flex flex-col gap-3">
           <legend className="sr-only">Roles</legend>
           {ROLES.map((rol) => {
-            const marcado = rol in seleccion;
+            const filas = asignaciones.filter((a) => a.rol === rol);
+            const marcado = filas.length > 0;
+            const conDependencia = ROLES_CON_DEPENDENCIA.includes(rol);
             return (
-              <div key={rol} className="flex flex-col gap-1">
+              <div key={rol} className="flex flex-col gap-2">
                 <label className="flex items-center gap-2 font-medium">
                   <input
                     type="checkbox"
@@ -253,23 +291,41 @@ function EditorRoles({
                   />
                   {ETIQUETAS_ROL[rol]}
                 </label>
-                {marcado && (rol === "APROBADOR" || rol === "RESPONSABLE_ESPACIO") && (
-                  <select
-                    aria-label={`Dependencia del rol ${ETIQUETAS_ROL[rol]}`}
-                    value={seleccion[rol] ?? ""}
-                    onChange={(e) => setSeleccion((p) => ({ ...p, [rol]: e.target.value }))}
-                    className="ml-7 rounded-campo border border-gris/70 bg-fondo px-3.5 py-2.5 transition-colors hover:border-azul focus:border-azul"
-                    required={rol === "APROBADOR"}
-                  >
-                    <option value="">
-                      {rol === "APROBADOR" ? "Elige la dependencia" : "Sin dependencia"}
-                    </option>
-                    {listaDependencias.map((d) => (
-                      <option key={d.id} value={d.id}>
-                        {d.nombre}
-                      </option>
+                {marcado && conDependencia && (
+                  <div className="ml-7 flex flex-col gap-2">
+                    {filas.map((fila, i) => (
+                      <div key={fila.clave} className="flex flex-wrap items-center gap-2">
+                        <select
+                          aria-label={`Dependencia ${i + 1} del rol ${ETIQUETAS_ROL[rol]}`}
+                          value={fila.dependenciaId}
+                          onChange={(e) => cambiarDependencia(fila.clave, e.target.value)}
+                          className="min-w-0 flex-1 rounded-campo border border-gris/70 bg-fondo px-3.5 py-2.5 transition-colors hover:border-azul focus:border-azul"
+                          required={rol === "APROBADOR"}
+                        >
+                          <option value="">
+                            {rol === "APROBADOR" ? "Elige la dependencia" : "Sin dependencia"}
+                          </option>
+                          {listaDependencias.map((d) => (
+                            <option key={d.id} value={d.id}>
+                              {d.nombre}
+                            </option>
+                          ))}
+                        </select>
+                        {filas.length > 1 && (
+                          <Boton variante="secundario" className="min-h-11 px-3 py-1" onClick={() => quitar(fila.clave)}>
+                            Quitar
+                          </Boton>
+                        )}
+                      </div>
                     ))}
-                  </select>
+                    <button
+                      type="button"
+                      onClick={() => agregar(rol)}
+                      className="min-h-11 w-fit font-bold text-azul-oscuro underline underline-offset-4"
+                    >
+                      Agregar otra dependencia
+                    </button>
+                  </div>
                 )}
               </div>
             );

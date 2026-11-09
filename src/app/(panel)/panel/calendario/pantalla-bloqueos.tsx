@@ -4,11 +4,13 @@ import { useState, type FormEvent } from "react";
 import { CalendarioEspacio } from "@/components/CalendarioEspacio";
 import { DialogoConfirmacion } from "@/components/DialogoConfirmacion";
 import { Alerta, AreaTexto, Boton, Campo, CampoHora, Selector } from "@/components/formularios";
+import { EstadoError } from "@/components/EstadoError";
 import {
   anularBloqueo,
   crearBloqueo,
+  listarBloqueos,
   MOTIVOS_BLOQUEO,
-  type BloqueoCreado,
+  type BloqueoResumen,
   type MotivoBloqueo,
 } from "@/lib/bloqueos";
 import { resolverEspacioId } from "@/lib/espacio-id";
@@ -34,13 +36,19 @@ export function PantallaBloqueos({
 }) {
   const { tieneRol } = useSesion();
   const [codigo, setCodigo] = useState(espacios[0]?.codigo ?? "");
-  const [creados, setCreados] = useState<BloqueoCreado[]>([]);
-  const [anulando, setAnulando] = useState<BloqueoCreado | null>(null);
+  const [anulando, setAnulando] = useState<BloqueoResumen | null>(null);
   const [version, setVersion] = useState(0);
   const [enviando, setEnviando] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [aviso, setAviso] = useState<string | null>(null);
   const espacioId = useConsulta(() => resolverEspacioId(codigo), [codigo]);
+  const idEspacio = espacioId.resultado.estado === "listo" ? espacioId.resultado.datos : null;
+  // Bloqueos vigentes del espacio, incluso los creados en otras sesiones (RF-CAL-07): los que aún tienen
+  // franjas desde ahora.
+  const vigentes = useConsulta(
+    () => (idEspacio ? listarBloqueos({ espacioId: idEspacio, desde: new Date().toISOString() }) : Promise.resolve([])),
+    [idEspacio ?? "", version],
+  );
 
   async function crear(evento: FormEvent<HTMLFormElement>) {
     evento.preventDefault();
@@ -72,7 +80,6 @@ export function PantallaBloqueos({
         rrule: repeticion || undefined,
         repetirHasta: repeticion ? aInstanteUtc(hasta, "23:59") : undefined,
       });
-      setCreados((previos) => [creado, ...previos]);
       avisar.exito(`Bloqueo creado: ${creado.franjasCreadas} ${creado.franjasCreadas === 1 ? "franja" : "franjas"}.`);
       setVersion((v) => v + 1);
     } catch (e) {
@@ -145,26 +152,43 @@ export function PantallaBloqueos({
         </Boton>
       </form>
 
-      {creados.length > 0 && (
-        <section aria-labelledby="titulo-creados" className="flex flex-col gap-3">
-          <h2 id="titulo-creados" className="text-2xl font-bold">
-            Bloqueos creados en esta sesión
-          </h2>
-          <ul className="divide-y divide-gris-claro rounded-campo border border-gris-claro">
-            {creados.map((b) => (
-              <li key={b.id} className="flex flex-wrap items-center justify-between gap-3 px-4 py-3">
-                <span>
-                  {b.motivo} · {b.franjasCreadas} {b.franjasCreadas === 1 ? "franja" : "franjas"} · desde el{" "}
-                  {fecha(b.inicio)} {hora(b.inicio)}
-                </span>
-                <Boton variante="secundario" onClick={() => setAnulando(b)}>
-                  Anular
-                </Boton>
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
+      <section aria-labelledby="titulo-vigentes" className="flex flex-col gap-3">
+        <h2 id="titulo-vigentes" className="text-2xl font-bold">
+          Bloqueos vigentes de este espacio
+        </h2>
+        {vigentes.resultado.estado === "cargando" && <p role="status">Cargando bloqueos…</p>}
+        {vigentes.resultado.estado === "error" && (
+          <EstadoError mensaje={vigentes.resultado.mensaje} alReintentar={vigentes.recargar} />
+        )}
+        {vigentes.resultado.estado === "listo" &&
+          (vigentes.resultado.datos.length === 0 ? (
+            <p className="text-gris">Este espacio no tiene bloqueos vigentes.</p>
+          ) : (
+            <ul className="divide-y divide-gris-claro rounded-campo border border-gris-claro">
+              {vigentes.resultado.datos.map((b) => (
+                <li key={b.id} className="flex flex-wrap items-center justify-between gap-3 px-4 py-3">
+                  <span>
+                    <span className="font-bold">{MOTIVOS_BLOQUEO[b.motivo as MotivoBloqueo] ?? b.motivo}</span> ·{" "}
+                    {fecha(b.inicio)} · {hora(b.inicio)} a {hora(b.fin)}
+                    {b.rrule && (
+                      <span className="text-gris">
+                        {" "}
+                        · se repite{b.repetirHasta ? ` hasta el ${fecha(b.repetirHasta)}` : ""}
+                      </span>
+                    )}
+                    <span className="block text-base text-gris">
+                      {b.franjasActivas} {b.franjasActivas === 1 ? "franja activa" : "franjas activas"}
+                      {b.descripcion && ` · ${b.descripcion}`}
+                    </span>
+                  </span>
+                  <Boton variante="secundario" onClick={() => setAnulando(b)}>
+                    Anular
+                  </Boton>
+                </li>
+              ))}
+            </ul>
+          ))}
+      </section>
 
       <DialogoConfirmacion
         abierto={anulando !== null}
@@ -176,7 +200,6 @@ export function PantallaBloqueos({
         alConfirmar={async (motivo) => {
           if (!anulando) return;
           const r = await anularBloqueo(anulando.id, motivo);
-          setCreados((previos) => previos.filter((b) => b.id !== anulando.id));
           avisar.exito(`Bloqueo anulado: ${r.franjasLiberadas} franjas volvieron a quedar libres.`);
           setVersion((v) => v + 1);
         }}

@@ -8,6 +8,7 @@ import { Alerta, AreaTexto, Boton, Campo, Selector } from "@/components/formular
 import {
   actualizarEspacio,
   archivarEspacio,
+  restaurarEspacio,
   crearEspacio,
   ESTADOS_ESPACIO,
   obtenerEspacioAdmin,
@@ -18,7 +19,7 @@ import { listarTiposEspacio } from "@/lib/inventario";
 import { useConsulta } from "@/lib/useConsulta";
 import type { Seleccion } from "./pantalla-inventario";
 import { avisar } from "@/lib/avisos";
-import { HorariosOperacion, ElementosDotacion } from "./gestiones-espacio";
+import { HorariosOperacion, ElementosDotacion, FotosEspacio } from "./gestiones-espacio";
 
 const texto = (d: FormData, k: string) => String(d.get(k) ?? "").trim();
 const numero = (d: FormData, k: string) => Number(d.get(k));
@@ -43,6 +44,8 @@ export function FormularioEspacio({
   const [error, setError] = useState<string | null>(null);
   const [aviso, setAviso] = useState<string | null>(null);
   const [archivando, setArchivando] = useState(false);
+  // El responsable solo es obligatorio cuando el espacio exige aval (el backend responde 422 si falta).
+  const [requiereAval, setRequiereAval] = useState<boolean | null>(null);
 
   if (ficha.resultado.estado === "cargando" || tipos.resultado.estado === "cargando" || responsables.resultado.estado === "cargando") {
     return (
@@ -65,6 +68,7 @@ export function FormularioEspacio({
   const listaTipos = tipos.resultado.datos;
   const listaResponsables = responsables.resultado.estado === "listo" ? responsables.resultado.datos.datos : [];
   const soloLectura = !puedeEditar;
+  const exigeAval = requiereAval ?? (actual ? actual.requiereAval : true);
 
   async function guardar(evento: FormEvent<HTMLFormElement>) {
     evento.preventDefault();
@@ -73,6 +77,14 @@ export function FormularioEspacio({
     setError(null);
     setAviso(null);
     try {
+      const responsableElegido = texto(d, "responsableId");
+      if (exigeAval && !responsableElegido) {
+        setError(
+          "Elige quién es el responsable del espacio o desmarca «Requiere el aval». Sin responsable nadie puede dar el aval y las solicitudes se quedan trabadas.",
+        );
+        setEnviando(false);
+        return;
+      }
       if (actual) {
         await actualizarEspacio(actual.codigo, {
           tipo: texto(d, "tipo"),
@@ -86,19 +98,13 @@ export function FormularioEspacio({
           minutosMontaje: numero(d, "minutosMontaje"),
           minutosDesmontaje: numero(d, "minutosDesmontaje"),
           responsableId: texto(d, "responsableId") || null,
-          requiereAval: d.get("requiereAval") === "on",
+          requiereAval: exigeAval,
           esReservable: d.get("esReservable") === "on",
           depositoValorFijo: opcionalNumero(d, "depositoValorFijo") ?? null,
           depositoPorcentaje: opcionalNumero(d, "depositoPorcentaje") ?? null,
         });
         avisar.exito("Los cambios del espacio quedaron guardados.");
       } else {
-        const responsableId = texto(d, "responsableId");
-        if (!responsableId) {
-          setError("Elige quién es el responsable del espacio. Sin responsable nadie puede dar el aval y las solicitudes se quedan trabadas.");
-          setEnviando(false);
-          return;
-        }
         const creado = await crearEspacio({
           sede: seleccion.sede,
           bloque: seleccion.bloque,
@@ -112,11 +118,11 @@ export function FormularioEspacio({
           condicionesUso: texto(d, "condicionesUso") || undefined,
           minutosMontaje: numero(d, "minutosMontaje"),
           minutosDesmontaje: numero(d, "minutosDesmontaje"),
-          requiereAval: d.get("requiereAval") === "on",
+          requiereAval: exigeAval,
           esReservable: d.get("esReservable") === "on",
           depositoValorFijo: opcionalNumero(d, "depositoValorFijo"),
           depositoPorcentaje: opcionalNumero(d, "depositoPorcentaje"),
-          responsableId,
+          responsableId: responsableElegido || undefined,
         });
         avisar.exito(`El espacio ${creado.codigo} se creó.`);
       }
@@ -217,20 +223,25 @@ export function FormularioEspacio({
         <Selector
           id="responsableId"
           etiqueta="Responsable del espacio"
-          required={!actual}
+          required={exigeAval}
           defaultValue={actual?.responsableId ?? ""}
-          ayuda="Es quien da el aval antes de que Vicerrectoría apruebe."
+          ayuda={
+            exigeAval
+              ? "Es quien da el aval antes de que Vicerrectoría apruebe."
+              : "Opcional: el espacio no exige aval, así que la solicitud va directo a Vicerrectoría."
+          }
         >
-          <option value="">{actual ? "Sin responsable asignado" : "Elige una persona"}</option>
+          <option value="">{exigeAval ? "Elige una persona" : "Sin responsable asignado"}</option>
           {listaResponsables.map((u) => (
             <option key={u.id} value={u.id}>
               {u.nombre ? `${u.nombre} · ${u.correo}` : u.correo}
             </option>
           ))}
         </Selector>
-        {listaResponsables.length === 0 && (
+        {exigeAval && listaResponsables.length === 0 && (
           <Alerta tipo="error">
-            No hay usuarios con el rol de responsable de espacio. Asigna ese rol a alguien en Configuración y vuelve aquí.
+            No hay usuarios con el rol de responsable de espacio. Asigna ese rol a alguien en Configuración, o desmarca
+            «Requiere el aval» si este espacio no lo necesita.
           </Alerta>
         )}
         <div className="flex flex-col gap-2">
@@ -238,7 +249,8 @@ export function FormularioEspacio({
             <input
               name="requiereAval"
               type="checkbox"
-              defaultChecked={actual ? actual.requiereAval : true}
+              checked={exigeAval}
+              onChange={(e) => setRequiereAval(e.target.checked)}
               className="size-6"
             />
             Requiere el aval del responsable del espacio
@@ -268,9 +280,26 @@ export function FormularioEspacio({
             {actual ? "Guardar cambios" : "Crear espacio"}
           </Boton>
         )}
-        {puedeEditar && actual && (
+        {puedeEditar && actual && actual.activo && (
           <Boton variante="secundario" onClick={() => setArchivando(true)}>
             Archivar espacio
+          </Boton>
+        )}
+        {puedeEditar && actual && !actual.activo && (
+          <Boton
+            variante="secundario"
+            onClick={async () => {
+              try {
+                await restaurarEspacio(actual.codigo);
+                avisar.exito(`${actual.codigo} quedó restaurado y vuelve a verse en el portal.`);
+                alCambiar();
+                alCerrar();
+              } catch (e) {
+                avisar.error(e, "No pudimos restaurar el espacio.");
+              }
+            }}
+          >
+            Restaurar espacio
           </Boton>
         )}
         <Boton variante="secundario" onClick={alCerrar}>
@@ -278,25 +307,26 @@ export function FormularioEspacio({
         </Boton>
       </div>
 
-      <DialogoConfirmacion
-        abierto={archivando}
-        titulo="¿Archivar este espacio?"
-        textoConfirmar="Archivar espacio"
-        variante="peligro"
-        alConfirmar={async () => {
-          if (!actual) return;
-          await archivarEspacio(actual.codigo);
-          alCambiar();
-          alCerrar();
-        }}
-        alCerrar={() => setArchivando(false)}
-      >
-        <p className="text-gris">
-          {actual?.codigo} dejará de mostrarse en el portal y no se podrá reservar. Nada se borra:
-          puedes volver a tenerlo si lo necesitas.
-        </p>
-      </DialogoConfirmacion>
     </form>
+
+    <DialogoConfirmacion
+      abierto={archivando}
+      titulo="¿Archivar este espacio?"
+      textoConfirmar="Archivar espacio"
+      variante="peligro"
+      alConfirmar={async () => {
+        if (!actual) return;
+        await archivarEspacio(actual.codigo);
+        alCambiar();
+        alCerrar();
+      }}
+      alCerrar={() => setArchivando(false)}
+    >
+      <p className="text-gris">
+        {actual?.codigo} dejará de mostrarse en el portal y no se podrá reservar. Nada se borra:
+        puedes restaurarlo desde «Ver archivados».
+      </p>
+    </DialogoConfirmacion>
 
     {actual && (
       <>
@@ -310,6 +340,7 @@ export function FormularioEspacio({
             alCambiar();
           }}
         />
+        <FotosEspacio espacioId={actual.id} codigo={actual.codigo} activo={actual.activo} puedeEditar={puedeEditar} />
         <ElementosDotacion espacioId={actual.id} puedeEditar={puedeEditar} />
       </>
     )}

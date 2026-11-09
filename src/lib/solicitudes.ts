@@ -14,6 +14,7 @@ export type ReservaItem = Esquemas["ReservaItemDto"];
 export type ServicioItem = Esquemas["ServicioItemDto"];
 export type DecisionHistorial = Esquemas["DecisionHistorialDto"];
 export type CotizacionResumen = Esquemas["CotizacionResumenDto"];
+export type EstimadoSolicitud = NonNullable<SolicitudDetalle["estimado"]>;
 
 /** Texto para el usuario y próxima acción de cada estado. */
 export const ESTADOS: Record<EstadoSolicitud, { etiqueta: string; proxima: string }> = {
@@ -125,3 +126,9 @@ export const quitarDocumento = (id: string, documentoId: string) =>
 
 export const descargarCotizacionPdf = (id: string) =>
   api<Blob>(`${ruta(id)}/cotizacion.pdf`, { blob: true });
+
+export type SimulacionCancelacion = Esquemas["SimulacionCancelacionDto"];
+
+/** Cuánto se reembolsaría si se cancela ahora (RN-14). No cambia el estado de la solicitud. */
+export const simularCancelacion = (id: string) =>
+  api<SimulacionCancelacion>(`/solicitudes/${encodeURIComponent(id)}/simulacion-cancelacion`);

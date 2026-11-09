@@ -27,5 +27,7 @@ async function Contenido({
   const tipo = (Array.isArray(consulta.tipo) ? consulta.tipo[0] : consulta.tipo) === "DEVOLUCION"
     ? "DEVOLUCION"
     : "ENTREGA";
-  return <FormularioActa solicitudId={solicitudId} tipo={tipo} />;
+  // La ruta es la misma para ENTREGA y DEVOLUCION (solo cambia ?tipo=): con la key, React monta un formulario
+  // nuevo al cambiar de tipo en vez de reutilizar el estado del acta anterior.
+  return <FormularioActa key={`${solicitudId}-${tipo}`} solicitudId={solicitudId} tipo={tipo} />;
 }

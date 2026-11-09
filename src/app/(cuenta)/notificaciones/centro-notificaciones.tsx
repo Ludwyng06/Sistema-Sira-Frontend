@@ -1,5 +1,7 @@
 "use client";
 
+import { AnclaResultados } from "@/components/AnclaResultados";
+import { useIrAResultados } from "@/lib/useIrAResultados";
 import Link from "next/link";
 import { useState } from "react";
 import clsx from "clsx";
@@ -23,6 +25,7 @@ export function CentroNotificaciones() {
     () => listarNotificaciones({ soloNoLeidas: soloNoLeidas || undefined, pagina, porPagina: POR_PAGINA }),
     [soloNoLeidas, pagina],
   );
+  const { destino: anclaResultados, ir: irAResultados, buscando: buscandoResultados } = useIrAResultados(resultado.estado !== "cargando");
 
   async function leer(id: string) {
     try {
@@ -41,12 +44,14 @@ export function CentroNotificaciones() {
           onChange={(e) => {
             setSoloNoLeidas(e.target.checked);
             setPagina(1);
+            irAResultados();
           }}
           className="size-6"
         />
         Ver solo las no leídas
       </label>
 
+      <AnclaResultados ref={anclaResultados} buscando={buscandoResultados} etiqueta="Tus notificaciones" />
       {resultado.estado === "cargando" && (
         <RegionCargando etiqueta="Cargando notificaciones">
           <div className="flex flex-col gap-3">
@@ -112,7 +117,10 @@ export function CentroNotificaciones() {
               pagina={resultado.datos.pagina}
               total={resultado.datos.total}
               porPagina={resultado.datos.porPagina}
-              alCambiar={setPagina}
+              alCambiar={(p) => {
+                irAResultados();
+                setPagina(p);
+              }}
             />
           </>
         ))}

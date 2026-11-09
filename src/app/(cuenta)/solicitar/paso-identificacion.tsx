@@ -4,6 +4,7 @@ import { useState } from "react";
 import { CargadorArchivos } from "@/components/CargadorArchivos";
 import { Esqueleto } from "@/components/Esqueleto";
 import { Alerta, Boton, Selector } from "@/components/formularios";
+import { NombreDependencia } from "@/components/NombreDependencia";
 import { useSesion } from "@/components/SesionProvider";
 import {
   actualizarSolicitud,
@@ -25,14 +26,18 @@ export function PasoIdentificacion({
   contexto,
   alContinuar,
   alVolver,
+  tipoDocumentoInicial,
 }: {
   contexto: ContextoAsistente;
   alContinuar: () => void;
   alVolver: () => void;
+  /** "POLIZA" cuando se llega desde el Resumen porque el envío respondió POLIZA_REQUERIDA. */
+  tipoDocumentoInicial?: TipoDocumento;
 }) {
   const { borrador, recargar } = contexto;
   const { usuario } = useSesion();
-  const [tipo, setTipo] = useState<TipoDocumento>("CARTA_SOLICITUD");
+  const [tipo, setTipo] = useState<TipoDocumento>(tipoDocumentoInicial ?? "CARTA_SOLICITUD");
+  const vieneDePoliza = tipoDocumentoInicial === "POLIZA";
   const [error, setError] = useState<string | null>(null);
   const [subiendo, setSubiendo] = useState(false);
   const [uso, setUso] = useState<"INSTITUCIONAL" | "PARTICULAR">(
@@ -46,6 +51,8 @@ export function PasoIdentificacion({
   if (!borrador) return null;
   const id = borrador.id;
   const esInterno = usuario?.esInstitucional === true;
+  const listaDocumentos = documentos.resultado.estado === "listo" ? documentos.resultado.datos : null;
+  const tienePoliza = listaDocumentos?.some((d) => d.tipo === "POLIZA") ?? false;
 
   async function elegirUso(valor: "INSTITUCIONAL" | "PARTICULAR") {
     setUso(valor);
@@ -117,6 +124,21 @@ export function PasoIdentificacion({
               <span className="block text-base text-gris">Actividad personal: se cotiza como persona natural.</span>
             </span>
           </label>
+          {uso === "INSTITUCIONAL" && (
+            <div className="rounded-campo bg-fondo-suave p-3">
+              {(borrador.dependenciaId ?? usuario?.perfil?.dependenciaId) ? (
+                <p>
+                  <span className="font-medium">Dependencia (centro de costo): </span>
+                  <NombreDependencia id={(borrador.dependenciaId ?? usuario?.perfil?.dependenciaId)!} />
+                </p>
+              ) : (
+                <p className="text-base">
+                  <span className="font-bold">Tu cuenta no tiene dependencia asignada.</span> Sin ella la solicitud no
+                  puede quedar sin costo: pídele al administrador de SIRA que te la asigne.
+                </p>
+              )}
+            </div>
+          )}
         </fieldset>
       )}
 
@@ -126,8 +148,18 @@ export function PasoIdentificacion({
         </h2>
         <p className="max-w-prose text-gris">
           Adjunta lo que corresponda a tu caso (carta de solicitud, RUT, cámara de comercio, cédula del
-          representante). Si el aforo lo exige, también la póliza: te avisamos al enviar.
+          representante).
         </p>
+        {listaDocumentos && !tienePoliza && (
+          <Alerta
+            tipo={vieneDePoliza ? "error" : "info"}
+            titulo={vieneDePoliza ? "Falta la póliza de responsabilidad civil" : "¿Tu evento exige póliza?"}
+          >
+            {vieneDePoliza
+              ? "Por el número de asistentes, este espacio exige póliza. Ya dejamos elegido «Póliza» en Tipo de documento: sube el PDF y vuelve al resumen para enviar."
+              : "Algunos espacios exigen póliza de responsabilidad civil según el aforo. Si es tu caso, elige «Póliza» en Tipo de documento antes de subir el PDF; si la subes con otro tipo, el envío la sigue pidiendo."}
+          </Alerta>
+        )}
         <Selector
           id="tipoDocumento"
           etiqueta="Tipo de documento"

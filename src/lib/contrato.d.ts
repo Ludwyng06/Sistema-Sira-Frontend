@@ -312,7 +312,7 @@ export interface paths {
         put?: never;
         /**
          * Crea un espacio.
-         * @description Permite asignar un responsable activo. Errores: 422 RESPONSABLE_NO_VALIDO.
+         * @description Permite asignar un responsable activo. Errores: 422 RESPONSABLE_NO_VALIDO o AVAL_SIN_RESPONSABLE (exigir aval requiere responsable).
          */
         post: operations["EspaciosAdminController_crear"];
         delete?: never;
@@ -339,7 +339,7 @@ export interface paths {
          * Modifica un espacio.
          * @description El código y el bloque no cambian.
          *
-         *     Errores: 404 NO_ENCONTRADO, TIPO_ESPACIO_NO_ENCONTRADO o DEPENDENCIA_NO_ENCONTRADA; 422 PISO_INVALIDO o RESPONSABLE_NO_VALIDO.
+         *     Errores: 404 NO_ENCONTRADO, TIPO_ESPACIO_NO_ENCONTRADO o DEPENDENCIA_NO_ENCONTRADA; 422 PISO_INVALIDO, RESPONSABLE_NO_VALIDO o AVAL_SIN_RESPONSABLE (no se exige aval sin responsable ni se quita el responsable de un espacio con aval).
          */
         patch: operations["EspaciosAdminController_actualizar"];
         trace?: never;
@@ -381,6 +381,26 @@ export interface paths {
         head?: never;
         /** Archiva un espacio (nunca se borra). */
         patch: operations["EspaciosAdminController_archivar"];
+        trace?: never;
+    };
+    "/api/espacios/{codigo}/restaurar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Restaura un espacio archivado (RF-INV-03).
+         * @description Es idempotente. Errores: 404 NO_ENCONTRADO; 422 SEDE_ARCHIVADA o BLOQUE_ARCHIVADO.
+         */
+        patch: operations["EspaciosAdminController_restaurar"];
         trace?: never;
     };
     "/api/sedes": {
@@ -946,7 +966,11 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        /**
+         * Lista los bloqueos activos de calendario filtrados por espacio y rango opcional (RF-CAL-07).
+         * @description Devuelve los bloqueos no anulados dentro del alcance del usuario, con el conteo de sus franjas activas.
+         */
+        get: operations["BloqueosController_listar"];
         put?: never;
         /**
          * Bloquea un espacio, con repetición opcional.
@@ -1158,6 +1182,46 @@ export interface paths {
          *     Errores: 404 NO_ENCONTRADO.
          */
         delete: operations["FestivosAdminController_eliminar"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/smmlv": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Lista los valores anuales del SMMLV configurados (RN-06, RF-TAR-06).
+         * @description Ordenados del año más reciente al más antiguo.
+         */
+        get: operations["SmmlvAdminController_listar"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/smmlv/{anio}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Registra o actualiza el SMMLV de un año y recalcula las tarifas indexadas de ese año (RN-06, RF-TAR-06).
+         * @description Crea o actualiza el valor en pesos enteros del año y actualiza las tarifas indexadas en SMMLV.
+         */
+        put: operations["SmmlvAdminController_guardar"];
+        post?: never;
+        delete?: never;
         options?: never;
         head?: never;
         patch?: never;
@@ -1421,6 +1485,28 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/solicitudes/{id}/simulacion-cancelacion": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Simula el porcentaje y valor de reembolso antes de cancelar (RN-14, SRS 10.4).
+         * @description Calcula los días de antelación, el porcentaje aplicable según la política de cancelación y el valor a reembolsar en pesos enteros sin modificar el estado de la solicitud.
+         *
+         *     Errores: 404 NO_ENCONTRADO.
+         */
+        get: operations["SolicitudesController_simularCancelacion"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/solicitudes/{id}/cancelar": {
         parameters: {
             query?: never;
@@ -1443,6 +1529,28 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/solicitudes/{id}/cerrar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Cierra formalmente una solicitud finalizada tras el acta de devolución (RN-13, RN-15, RF-ENT-04).
+         * @description Pasa la solicitud de FINALIZADA a CERRADA verificando que exista el acta de devolución registrada y dejando constancia en historial y bitácora.
+         *
+         *     Errores: 404 NO_ENCONTRADO; 409 SOLICITUD_NO_CERRABLE o ACTA_DEVOLUCION_REQUERIDA.
+         */
+        post: operations["SolicitudesController_cerrar"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/solicitudes/{id}/reservas": {
         parameters: {
             query?: never;
@@ -1456,7 +1564,7 @@ export interface paths {
          * Agrega un espacio y su horario al borrador.
          * @description Estima el valor con el tarifario (no es la cotización). La disponibilidad se valida y se retiene al enviar la solicitud. Cada reserva termina el mismo día en que empieza; máximo 20 por solicitud.
          *
-         *     Errores: 400 RANGO_INVALIDO; 404 NO_ENCONTRADO; 409 SOLICITUD_NO_EDITABLE o RESERVA_DUPLICADA; 422 LIMITE_DE_ITEMS o TARIFA_NO_DEFINIDA.
+         *     Errores: 400 RANGO_INVALIDO; 404 NO_ENCONTRADO; 409 SOLICITUD_NO_EDITABLE o RESERVA_DUPLICADA; 422 FUERA_DE_HORARIO (la franja no cabe en el horario de operación del espacio), ANTICIPACION_INSUFICIENTE (no cumple la anticipación mínima del tipo de espacio), LIMITE_DE_ITEMS o TARIFA_NO_DEFINIDA.
          */
         post: operations["ItemsController_agregarReserva"];
         delete?: never;
@@ -1498,7 +1606,7 @@ export interface paths {
          * Agrega un servicio complementario al borrador.
          * @description El valor unitario es la tarifa vigente para el tipo de tarifa de la solicitud (0 si el servicio no tiene tarifa definida). Un servicio no se repite; máximo 30 por solicitud.
          *
-         *     Errores: 404 NO_ENCONTRADO; 409 SOLICITUD_NO_EDITABLE o SERVICIO_DUPLICADO; 422 CANTIDAD_EXCEDIDA o LIMITE_DE_ITEMS.
+         *     Errores: 404 NO_ENCONTRADO; 409 SOLICITUD_NO_EDITABLE o SERVICIO_DUPLICADO; 422 SOLICITUD_SIN_RESERVAS (primero se agrega un espacio), SERVICIO_NO_PERMITIDO (el servicio no aplica a los tipos de espacio de la solicitud), CANTIDAD_EXCEDIDA o LIMITE_DE_ITEMS.
          */
         post: operations["ItemsController_agregarServicio"];
         delete?: never;
@@ -1695,6 +1803,70 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/pagos/reembolsos": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Lista los reembolsos solicitados, aplicados o rechazados (RF-PAG-10, RN-14).
+         * @description Paginada, de la más reciente a la más antigua; filtra por estado.
+         */
+        get: operations["ReembolsosController_listar"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/pagos/reembolsos/{id}/resolucion": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Tesorería aplica (con soporte) o rechaza (con motivo) un reembolso (RF-PAG-10, RN-14).
+         * @description Al aplicar un reembolso con soporte (PDF, PNG o JPG de hasta 10 MB), la solicitud pasa de CANCELADA a REEMBOLSADA. Rechazar exige motivo.
+         *
+         *     Errores: 404 NO_ENCONTRADO; 409 REEMBOLSO_YA_RESUELTO; 422 MOTIVO_REQUERIDO, ARCHIVO_REQUERIDO o ARCHIVO_NO_PERMITIDO.
+         */
+        post: operations["ReembolsosController_resolver"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/pagos/reembolsos/{id}/soporte": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Descarga el comprobante del reembolso aplicado.
+         * @description Disponible para el solicitante dueño, tesorería, administración y auditoría.
+         *
+         *     Errores: 404 NO_ENCONTRADO.
+         */
+        get: operations["ReembolsosController_descargarSoporte"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/actas": {
         parameters: {
             query?: never;
@@ -1827,6 +1999,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/reportes/{tipo}.pdf": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Exporta un reporte a PDF (RF-REP-05).
+         * @description Tipos: solicitudes, recaudo, ocupacion e inventario. Mismo alcance por rol que XLSX y CSV.
+         */
+        get: operations["ReportesController_pdf"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/auditoria": {
         parameters: {
             query?: never;
@@ -1926,6 +2118,26 @@ export interface paths {
          *     Errores: 404 NO_ENCONTRADO o DEPENDENCIA_NO_ENCONTRADA; 409 ULTIMO_ADMINISTRADOR; 422 ROL_DUPLICADO, DEPENDENCIA_REQUERIDA o DEPENDENCIA_NO_ADMITIDA.
          */
         put: operations["UsuariosAdminController_reemplazarRoles"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/dependencias/publicas": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Lista las dependencias institucionales activas sin requerir sesión (RF-AUT-02, RN-07).
+         * @description Para poblar el selector del formulario de registro de cuentas institucionales.
+         */
+        get: operations["DependenciasAdminController_listarPublicas"];
+        put?: never;
         post?: never;
         delete?: never;
         options?: never;
@@ -2421,8 +2633,9 @@ export interface components {
             minutosDesmontaje: number;
             depositoValorFijo: number | null;
             depositoPorcentaje: number | null;
-            valorComercialReferencia?: number | null;
-            valorTotalElementos?: number;
+            valorComercialReferencia: number | null;
+            /** @description Suma de cantidad * valorUnitario de los elementos no dados de baja (RF-INV-07). */
+            valorTotalElementos: number;
             /** Format: uuid */
             responsableId: string | null;
             /** Format: uuid */
@@ -2491,7 +2704,7 @@ export interface components {
             depositoValorFijo?: number;
             /** @description Depósito como porcentaje (0 a 100). */
             depositoPorcentaje?: number;
-            /** @description Valor comercial de referencia por hora en pesos enteros. */
+            /** @description Valor comercial de referencia en pesos enteros (RF-INV-02). */
             valorComercialReferencia?: number;
         };
         EspacioCreadoDto: {
@@ -2539,7 +2752,7 @@ export interface components {
             depositoValorFijo?: number | null;
             /** @description Depósito como porcentaje (0 a 100). */
             depositoPorcentaje?: number | null;
-            /** @description Valor comercial de referencia por hora en pesos enteros. */
+            /** @description Valor comercial de referencia en pesos enteros (RF-INV-02). */
             valorComercialReferencia?: number | null;
         };
         HorarioEspacioDto: {
@@ -2761,6 +2974,8 @@ export interface components {
             depositoValorFijo?: number | null;
             /** @description Depósito como porcentaje. */
             depositoPorcentaje?: number | null;
+            /** @description Suma de cantidad * valorUnitario de los elementos del espacio no dados de baja (RF-INV-07). */
+            valorTotalElementos?: number;
             fotos: components["schemas"]["FotoDetalleDto"][];
             /** @description Dotación completa en servicio. */
             elementos: components["schemas"]["ElementoFichaDto"][];
@@ -3096,6 +3311,23 @@ export interface components {
              */
             etiqueta: string;
         };
+        HorarioOperacionDto: {
+            /**
+             * @description Día de la semana: 0 = domingo … 6 = sábado.
+             * @example 1
+             */
+            diaSemana: number;
+            /**
+             * @description Hora de apertura (HH:mm, hora de Bogotá).
+             * @example 06:00
+             */
+            abre: string;
+            /**
+             * @description Hora de cierre (HH:mm, hora de Bogotá).
+             * @example 22:00
+             */
+            cierra: string;
+        };
         DisponibilidadDto: {
             /**
              * Format: uuid
@@ -3108,10 +3340,13 @@ export interface components {
             hasta: string;
             /** @description Franjas ocupadas, ordenadas por inicio. */
             franjas: components["schemas"]["FranjaDisponibilidadDto"][];
-            /** @description Franjas de operación (diaSemana 0 = domingo; HH:mm de Bogotá). Vacío = sin restricción. Un día sin fila está cerrado. (Editado a mano: aún no regenerado desde Swagger.) */
-            horarios?: components["schemas"]["HorarioEspacioDto"][];
-            /** @description Primer instante (ISO UTC) en que puede empezar una franja por la anticipación mínima. (Editado a mano.) */
-            reservableDesde?: string;
+            /** @description Horario de operación del espacio, ordenado por día de la semana (0 = domingo). Arreglo vacío: el espacio no tiene restricción de horario. Los días sin fila están cerrados. */
+            horarios: components["schemas"]["HorarioOperacionDto"][];
+            /**
+             * @description Primer instante (ISO 8601, UTC) en que puede empezar una franja según la anticipación mínima del tipo de espacio (días hábiles y festivos incluidos): el inicio del primer día local de Bogotá que la cumple.
+             * @example 2026-11-10T05:00:00.000Z
+             */
+            reservableDesde: string;
         };
         CodigoNombreOcupacionDto: {
             /** @example MOC */
@@ -3203,6 +3438,32 @@ export interface components {
             espacios: components["schemas"]["EspacioLibreDto"][];
             /** @example 3 */
             total: number;
+        };
+        BloqueoResumenDto: {
+            /**
+             * Format: uuid
+             * @example 5c1d8c1e-6a4d-4e0b-9a57-1c2d3e4f5a6b
+             */
+            id: string;
+            /**
+             * Format: uuid
+             * @example 8a3b8c1e-6a4d-4e0b-9a57-1c2d3e4f5a6b
+             */
+            espacioId: string;
+            /**
+             * @description Motivo del bloqueo.
+             * @example MANTENIMIENTO
+             */
+            motivo: string;
+            descripcion: string | null;
+            /** @example 2026-11-03T13:00:00.000Z */
+            inicio: string;
+            /** @example 2026-11-03T15:00:00.000Z */
+            fin: string;
+            rrule: string | null;
+            repetirHasta: string | null;
+            /** @example 4 */
+            franjasActivas: number;
         };
         CrearBloqueoDto: {
             /**
@@ -3591,6 +3852,24 @@ export interface components {
             /** @example Inmaculada Concepción */
             nombre: string;
         };
+        SmmlvDto: {
+            /** @example 2026 */
+            anio: number;
+            /** @example 1423500 */
+            valor: number;
+            /**
+             * @description Cantidad de tarifas indexadas a SMMLV recalculadas para ese año.
+             * @example 4
+             */
+            tarifasRecalculadas?: number;
+        };
+        GuardarSmmlvDto: {
+            /**
+             * @description Valor del SMMLV en pesos enteros (RN-06, RF-TAR-06).
+             * @example 1423500
+             */
+            valor: number;
+        };
         ServicioDto: {
             /**
              * Format: uuid
@@ -3883,8 +4162,6 @@ export interface components {
             registradaEn: string;
         };
         ReservaItemDto: {
-            /** @description Tipo del espacio reservado; sirve para filtrar el catálogo de servicios. Opcional si el servidor es antiguo. (Editado a mano: aún no regenerado desde Swagger.) */
-            tipoEspacioId?: string;
             /** @example B-101 */
             espacioCodigo?: string;
             /** @example Auditorio Mayor */
@@ -3893,6 +4170,11 @@ export interface components {
             id: string;
             /** Format: uuid */
             espacioId: string;
+            /**
+             * Format: uuid
+             * @description Tipo del espacio reservado; sirve para filtrar el catálogo de servicios compatibles.
+             */
+            tipoEspacioId: string;
             /** @example 2026-11-03T13:00:00.000Z */
             inicio: string;
             /** @example 2026-11-03T17:00:00.000Z */
@@ -3977,6 +4259,63 @@ export interface components {
             /** @example 2026-10-24T15:00:00.000Z */
             validaHasta: string;
         };
+        EstimadoSolicitudDto: {
+            /**
+             * @description Horas × tarifa de las franjas + cantidad × tarifa de los servicios, sin recargos.
+             * @example 80000
+             */
+            base: number;
+            /**
+             * @description Suma de recargos (nocturno, dominical, festivo).
+             * @example 36000
+             */
+            recargos: number;
+            /**
+             * @description base + recargos.
+             * @example 116000
+             */
+            subtotal: number;
+            /**
+             * @description IVA según la tarifa aplicada a cada concepto.
+             * @example 0
+             */
+            iva: number;
+            /**
+             * @description Depósito de garantía de los espacios que lo exigen. Va aparte del total.
+             * @example 0
+             */
+            deposito: number;
+            /**
+             * @description subtotal + iva (sin el depósito).
+             * @example 116000
+             */
+            total: number;
+        };
+        ReembolsoSolicitudDto: {
+            /**
+             * @description Valor a reembolsar en pesos enteros.
+             * @example 333000
+             */
+            valor: number;
+            /**
+             * @description Porcentaje de reembolso aplicado al cancelar. Nulo si no quedó registrado.
+             * @example 50
+             */
+            porcentaje: number | null;
+            /**
+             * @description SOLICITADO: pendiente de que Tesorería lo devuelva. APLICADO: ya devuelto. RECHAZADO: no procede.
+             * @example SOLICITADO
+             * @enum {string}
+             */
+            estado: "SOLICITADO" | "APLICADO" | "RECHAZADO";
+            /** @example Cancelación por el solicitante: 50 % según política (7 días de antelación) */
+            motivo: string;
+            /**
+             * @description Fecha de creación (UTC).
+             * @example 2026-11-05T15:00:00.000Z
+             */
+            creadoEn: string;
+        };
         SolicitudDetalleDto: {
             /**
              * Format: uuid
@@ -4029,22 +4368,14 @@ export interface components {
             reservas: components["schemas"]["ReservaItemDto"][];
             /** @description Servicios complementarios solicitados. */
             servicios: components["schemas"]["ServicioItemDto"][];
-            /** @description Reembolso de la solicitud cancelada, o null si no tiene. Opcional si el servidor es antiguo. (Editado a mano: aún no regenerado desde Swagger.) */
-            reembolso?: {
-                /** @description Valor a reembolsar, en pesos enteros. */
-                valor: number;
-                /** @description Porcentaje del valor pagado, o null. */
-                porcentaje: number | null;
-                /** @enum {string} */
-                estado: "SOLICITADO" | "APLICADO" | "RECHAZADO";
-                motivo: string;
-                /** @description ISO 8601 UTC. */
-                creadoEn: string;
-            } | null;
             /** @description Avales y aprobaciones, de la más antigua a la reciente. */
             decisiones: components["schemas"]["DecisionHistorialDto"][];
             /** @description Última cotización emitida, si hay. */
             cotizacion: components["schemas"]["CotizacionResumenDto"] | null;
+            /** @description Estimado en pesos enteros con la tarifa vigente del tipo de tarifa de la solicitud, calculado con la misma lógica de la cotización. No es la cotización: puede cambiar hasta que se emita. En solicitudes institucionales exentas es solo un valor de referencia. Sigue presente cuando ya existe la cotización. */
+            estimado: components["schemas"]["EstimadoSolicitudDto"];
+            /** @description Reembolso generado al cancelar una solicitud pagada. Nulo si no hay. */
+            reembolso: components["schemas"]["ReembolsoSolicitudDto"] | null;
         };
         ActualizarSolicitudDto: {
             objetoEvento?: string;
@@ -4172,6 +4503,25 @@ export interface components {
             /** @description Avisos que no impidieron el envío, por ejemplo un espacio demasiado grande para el aforo. */
             advertencias: components["schemas"]["AdvertenciaEnvioDto"][];
         };
+        SimulacionCancelacionDto: {
+            /**
+             * @description Días completos de antelación respecto al primer tramo reservado.
+             * @example 5
+             */
+            diasDeAntelacion: number;
+            /**
+             * @description Porcentaje reembolsable según RN-14 (100, 50 o 0).
+             * @example 100
+             */
+            porcentajeReembolso: number;
+            /**
+             * @description Valor estimado a reembolsar en pesos enteros.
+             * @example 180000
+             */
+            valorReembolso: number;
+            /** @example false */
+            canceladaPorInstitucion: boolean;
+        };
         CancelarSolicitudDto: {
             /** @example El evento se canceló por falta de asistentes. */
             motivo: string;
@@ -4194,6 +4544,23 @@ export interface components {
             valorReembolso: number;
             /** @example false */
             canceladaPorInstitucion: boolean;
+        };
+        CerrarSolicitudDto: {
+            /**
+             * @description Observación de cierre sobre la devolución del depósito o liquidación de novedades (RN-13, RN-15).
+             * @example Espacio recibido a conformidad; depósito autorizado para devolución.
+             */
+            observacion?: string;
+        };
+        CierreSolicitudDto: {
+            /**
+             * @example CERRADA
+             * @enum {string}
+             */
+            estadoSolicitud: "BORRADOR" | "ENVIADA" | "EN_REVISION" | "COTIZADA" | "PAGO_PENDIENTE" | "CONFIRMADA" | "EN_USO" | "FINALIZADA" | "CERRADA" | "RECHAZADA" | "VENCIDA" | "CANCELADA" | "REEMBOLSADA";
+            /** @example ACT-2026-00012 */
+            actaDevolucion: string;
+            observacion: string | null;
         };
         AgregarReservaDto: {
             /**
@@ -4380,6 +4747,56 @@ export interface components {
             /** @example 20 */
             porPagina: number;
         };
+        ReembolsoResumenDto: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            ordenPagoId: string;
+            /** @example OP-2026-000001 */
+            referenciaOrden: string;
+            /** Format: uuid */
+            solicitudId: string;
+            /** @example SOL-2026-0001 */
+            consecutivoSolicitud: string | null;
+            /** @example 180000 */
+            valor: number;
+            /** @example Cancelación con 5 días de antelación (100 %) */
+            motivo: string;
+            /** @enum {string} */
+            estado: "SOLICITADO" | "APLICADO" | "RECHAZADO";
+            /** @example false */
+            tieneSoporte: boolean;
+            /** @example 2026-10-25T15:00:00.000Z */
+            creadoEn: string;
+            aplicadoEn: string | null;
+        };
+        PaginaReembolsosDto: {
+            datos: components["schemas"]["ReembolsoResumenDto"][];
+            /** @example 3 */
+            total: number;
+            /** @example 1 */
+            pagina: number;
+            /** @example 20 */
+            porPagina: number;
+        };
+        ResolverReembolsoDto: {
+            /**
+             * @example APLICADO
+             * @enum {string}
+             */
+            resultado: "APLICADO" | "RECHAZADO";
+            /**
+             * @description Obligatorio si el resultado es RECHAZADO.
+             * @example No procede según verificación contable.
+             */
+            motivo?: string;
+        };
+        ReembolsoResueltoDto: {
+            /** @enum {string} */
+            estadoReembolso: "SOLICITADO" | "APLICADO" | "RECHAZADO";
+            /** @example REEMBOLSADA */
+            estadoSolicitud: string;
+        };
         ItemChecklistEntradaDto: {
             /**
              * Format: uuid
@@ -4543,11 +4960,17 @@ export interface components {
             solicitudesPorEstado: components["schemas"]["ConteoEstadoDto"][];
             ocupacion: components["schemas"]["OcupacionDto"];
             recaudo: components["schemas"]["RecaudoDto"];
-            /** @description Horas promedio entre el envío y la aprobación final. Null si no hubo aprobaciones. */
+            /**
+             * @description Horas promedio entre el envío y la aprobación final. Null si no hubo aprobaciones.
+             * @example 31.4
+             */
             tiempoMedioAprobacionHoras: number | null;
-            /** @description Porcentaje de solicitudes no exentas cotizadas que llegaron a pago confirmado. */
-            tasaConversionPorcentaje?: number | null;
             usoInternoNoCobrado: components["schemas"]["UsoInternoDto"];
+            /**
+             * @description Porcentaje de solicitudes enviadas que llegaron a confirmación en el periodo (RF-REP-01).
+             * @example 66.67
+             */
+            tasaConversionPorcentaje?: number | null;
         };
         RegistroAuditoriaDto: {
             /**
@@ -4644,6 +5067,14 @@ export interface components {
         ReemplazarRolesDto: {
             /** @description Lista completa de roles del usuario: reemplaza a la anterior. */
             roles: components["schemas"]["RolAsignarDto"][];
+        };
+        DependenciaPublicaDto: {
+            /** Format: uuid */
+            id: string;
+            /** @example ING-SIS */
+            codigo: string;
+            /** @example Ingeniería de Sistemas */
+            nombre: string;
         };
         JefeDependenciaDto: {
             /** Format: uuid */
@@ -5560,6 +5991,62 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+        };
+    };
+    EspaciosAdminController_restaurar: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                codigo: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Espacio restaurado. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Sin sesión. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RespuestaErrorDto"];
+                };
+            };
+            /** @description Sin permiso para la acción. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RespuestaErrorDto"];
+                };
+            };
+            /** @description No existe o no es tuyo. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RespuestaErrorDto"];
+                };
+            };
+            /** @description Regla de negocio. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RespuestaErrorDto"];
+                };
             };
         };
     };
@@ -7425,6 +7912,59 @@ export interface operations {
             };
         };
     };
+    BloqueosController_listar: {
+        parameters: {
+            query?: {
+                /** @description Filtra por identificador del espacio. */
+                espacioId?: string;
+                /** @description Fecha inicial opcional en formato ISO 8601. */
+                desde?: string;
+                /** @description Fecha final opcional en formato ISO 8601. */
+                hasta?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BloqueoResumenDto"][];
+                };
+            };
+            /** @description Datos inválidos. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RespuestaErrorDto"];
+                };
+            };
+            /** @description Sin sesión. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RespuestaErrorDto"];
+                };
+            };
+            /** @description Sin permiso para la acción. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RespuestaErrorDto"];
+                };
+            };
+        };
+    };
     BloqueosController_crear: {
         parameters: {
             query?: never;
@@ -8135,6 +8675,95 @@ export interface operations {
             };
             /** @description No existe o no es tuyo. */
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RespuestaErrorDto"];
+                };
+            };
+        };
+    };
+    SmmlvAdminController_listar: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SmmlvDto"][];
+                };
+            };
+            /** @description Sin sesión. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RespuestaErrorDto"];
+                };
+            };
+            /** @description Sin permiso para la acción. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RespuestaErrorDto"];
+                };
+            };
+        };
+    };
+    SmmlvAdminController_guardar: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                anio: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["GuardarSmmlvDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SmmlvDto"];
+                };
+            };
+            /** @description Datos inválidos. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RespuestaErrorDto"];
+                };
+            };
+            /** @description Sin sesión. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RespuestaErrorDto"];
+                };
+            };
+            /** @description Sin permiso para la acción. */
+            403: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -9243,6 +9872,54 @@ export interface operations {
             };
         };
     };
+    SolicitudesController_simularCancelacion: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SimulacionCancelacionDto"];
+                };
+            };
+            /** @description Datos inválidos. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RespuestaErrorDto"];
+                };
+            };
+            /** @description Sin sesión. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RespuestaErrorDto"];
+                };
+            };
+            /** @description No existe o no es tuyo. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RespuestaErrorDto"];
+                };
+            };
+        };
+    };
     SolicitudesController_cancelar: {
         parameters: {
             query?: never;
@@ -9277,6 +9954,76 @@ export interface operations {
             };
             /** @description Sin sesión. */
             401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RespuestaErrorDto"];
+                };
+            };
+            /** @description No existe o no es tuyo. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RespuestaErrorDto"];
+                };
+            };
+            /** @description Conflicto de estado. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RespuestaErrorDto"];
+                };
+            };
+        };
+    };
+    SolicitudesController_cerrar: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CerrarSolicitudDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CierreSolicitudDto"];
+                };
+            };
+            /** @description Datos inválidos. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RespuestaErrorDto"];
+                };
+            };
+            /** @description Sin sesión. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RespuestaErrorDto"];
+                };
+            };
+            /** @description Sin permiso para la acción. */
+            403: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -10185,6 +10932,189 @@ export interface operations {
             };
         };
     };
+    ReembolsosController_listar: {
+        parameters: {
+            query?: {
+                estado?: "SOLICITADO" | "APLICADO" | "RECHAZADO";
+                pagina?: number;
+                porPagina?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginaReembolsosDto"];
+                };
+            };
+            /** @description Datos inválidos. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RespuestaErrorDto"];
+                };
+            };
+            /** @description Sin sesión. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RespuestaErrorDto"];
+                };
+            };
+            /** @description Sin permiso para la acción. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RespuestaErrorDto"];
+                };
+            };
+        };
+    };
+    ReembolsosController_resolver: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"]["ResolverReembolsoDto"];
+                "application/json": components["schemas"]["ResolverReembolsoDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReembolsoResueltoDto"];
+                };
+            };
+            /** @description Datos inválidos. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RespuestaErrorDto"];
+                };
+            };
+            /** @description Sin sesión. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RespuestaErrorDto"];
+                };
+            };
+            /** @description Sin permiso para la acción. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RespuestaErrorDto"];
+                };
+            };
+            /** @description No existe o no es tuyo. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RespuestaErrorDto"];
+                };
+            };
+            /** @description Conflicto de estado. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RespuestaErrorDto"];
+                };
+            };
+            /** @description Regla de negocio. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RespuestaErrorDto"];
+                };
+            };
+        };
+    };
+    ReembolsosController_descargarSoporte: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Contenido del soporte. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Datos inválidos. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/pdf": components["schemas"]["RespuestaErrorDto"];
+                    "image/png": components["schemas"]["RespuestaErrorDto"];
+                    "image/jpeg": components["schemas"]["RespuestaErrorDto"];
+                };
+            };
+            /** @description Sin sesión. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/pdf": components["schemas"]["RespuestaErrorDto"];
+                    "image/png": components["schemas"]["RespuestaErrorDto"];
+                    "image/jpeg": components["schemas"]["RespuestaErrorDto"];
+                };
+            };
+            /** @description No existe o no es tuyo. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/pdf": components["schemas"]["RespuestaErrorDto"];
+                    "image/png": components["schemas"]["RespuestaErrorDto"];
+                    "image/jpeg": components["schemas"]["RespuestaErrorDto"];
+                };
+            };
+        };
+    };
     ActasController_crear: {
         parameters: {
             query?: never;
@@ -10418,7 +11348,7 @@ export interface operations {
             };
             header?: never;
             path: {
-                tipo: "solicitudes" | "recaudo" | "ocupacion";
+                tipo: "solicitudes" | "recaudo" | "ocupacion" | "inventario";
             };
             cookie?: never;
         };
@@ -10470,7 +11400,7 @@ export interface operations {
             };
             header?: never;
             path: {
-                tipo: "solicitudes" | "recaudo" | "ocupacion";
+                tipo: "solicitudes" | "recaudo" | "ocupacion" | "inventario";
             };
             cookie?: never;
         };
@@ -10508,6 +11438,58 @@ export interface operations {
                 };
                 content: {
                     "text/csv": components["schemas"]["RespuestaErrorDto"];
+                };
+            };
+        };
+    };
+    ReportesController_pdf: {
+        parameters: {
+            query?: {
+                /** @description Inicio del periodo (ISO 8601, UTC). Por defecto, 30 días antes de «hasta». */
+                desde?: string;
+                /** @description Fin del periodo (ISO 8601, UTC). Por defecto, ahora. El periodo máximo es de 366 días. */
+                hasta?: string;
+            };
+            header?: never;
+            path: {
+                tipo: "solicitudes" | "recaudo" | "ocupacion" | "inventario";
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Archivo PDF del reporte. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Datos inválidos. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/pdf": components["schemas"]["RespuestaErrorDto"];
+                };
+            };
+            /** @description Sin sesión. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/pdf": components["schemas"]["RespuestaErrorDto"];
+                };
+            };
+            /** @description Sin permiso para la acción. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/pdf": components["schemas"]["RespuestaErrorDto"];
                 };
             };
         };
@@ -10827,6 +11809,25 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["RespuestaErrorDto"];
+                };
+            };
+        };
+    };
+    DependenciasAdminController_listarPublicas: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DependenciaPublicaDto"][];
                 };
             };
         };

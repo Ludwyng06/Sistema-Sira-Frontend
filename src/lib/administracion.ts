@@ -48,6 +48,12 @@ export const crearDependencia = (datos: CrearDependencia) =>
 export const actualizarDependencia = (id: string, datos: ActualizarDependencia) =>
   api<Dependencia>(`/dependencias/${encodeURIComponent(id)}`, { method: "PATCH", json: datos });
 
+export const archivarDependencia = (id: string) =>
+  api<Dependencia>(`/dependencias/${encodeURIComponent(id)}/archivar`, { method: "PATCH" });
+
+export const restaurarDependencia = (id: string) =>
+  api<Dependencia>(`/dependencias/${encodeURIComponent(id)}/restaurar`, { method: "PATCH" });
+
 export const actualizarParametro = (clave: string, valor: unknown) =>
   api<Parametro>(`/parametros/${encodeURIComponent(clave)}`, {
     method: "PATCH",
@@ -56,7 +62,9 @@ export const actualizarParametro = (clave: string, valor: unknown) =>
 
 export const listarAuditoria = (filtros: {
   entidad?: string;
+  entidadId?: string;
   accion?: string;
+  usuarioId?: string;
   desde?: string;
   hasta?: string;
   pagina?: number;

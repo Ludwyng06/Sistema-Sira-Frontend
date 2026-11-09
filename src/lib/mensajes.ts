@@ -121,8 +121,8 @@ const PLANTILLAS: Record<string, Plantilla> = {
   },
   SOLICITUD_NO_CANCELABLE: {
     titulo: "Ahora no se puede cancelar",
-    porQue: "Por su estado actual, esta solicitud ya no admite cancelación.",
-    queHacer: "Si necesitas cambiarla, comunícate con la dependencia responsable.",
+    // Sin "porQue" propio: se muestra el motivo exacto que da la API (no está confirmada, el evento ya empezó…).
+    queHacer: "Recarga la página para ver su estado actual. Si necesitas cambiarla, comunícate con la dependencia responsable.",
   },
   SOLICITUD_NO_DECIDIBLE: {
     titulo: "Esta solicitud ya no está en revisión",

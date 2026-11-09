@@ -22,7 +22,16 @@ const ESTACIONES_EXENTA: Estacion[] = [
   { clave: "confirmada", nombre: "Confirmada" },
 ];
 
-const DETENIDAS: EstadoSolicitud[] = ["RECHAZADA", "VENCIDA", "CANCELADA"];
+const DETENIDAS: EstadoSolicitud[] = ["RECHAZADA", "VENCIDA", "CANCELADA", "REEMBOLSADA"];
+
+/**
+ * Solo se cancela una solicitud CONFIRMADA (RN-14), así que la cancelación y el reembolso se marcan en la
+ * estación "Confirmada", con su propio nombre, en vez de devolver la línea a "En revisión".
+ */
+const NOMBRE_FINAL: Partial<Record<EstadoSolicitud, string>> = {
+  CANCELADA: "Cancelada",
+  REEMBOLSADA: "Reembolsada",
+};
 
 /** Estación en la que está la solicitud. Es solo presentación: el estado real lo manda la API. */
 function posicion(estado: EstadoSolicitud, estaciones: Estacion[]): { actual: number; detenida: boolean } {
@@ -34,13 +43,17 @@ function posicion(estado: EstadoSolicitud, estaciones: Estacion[]): { actual: nu
     case "ENVIADA":
     case "EN_REVISION":
     case "RECHAZADA":
-    case "CANCELADA":
       return { actual: indice("revision"), detenida };
+    case "CANCELADA":
+    case "REEMBOLSADA":
+      return { actual: indice("confirmada"), detenida };
     case "COTIZADA":
       return { actual: indice("cotizada"), detenida };
     case "PAGO_PENDIENTE":
-    case "VENCIDA":
       return { actual: indice("pago"), detenida };
+    case "VENCIDA":
+      // En uso institucional no hay pago: vence en revisión (nadie la decidió a tiempo).
+      return { actual: indice(estaciones.some((e) => e.clave === "pago") ? "pago" : "revision"), detenida };
     default:
       return { actual: estaciones.length - 1, detenida };
   }
@@ -152,7 +165,11 @@ export function LineaEstaciones({
   compacta?: boolean;
   className?: string;
 }) {
-  const estaciones = esExenta ? ESTACIONES_EXENTA : ESTACIONES_PAGO;
+  const base = esExenta ? ESTACIONES_EXENTA : ESTACIONES_PAGO;
+  const nombreFinal = NOMBRE_FINAL[estado];
+  const estaciones = nombreFinal
+    ? base.map((e) => (e.clave === "confirmada" ? { ...e, nombre: nombreFinal } : e))
+    : base;
   const { actual, detenida } = posicion(estado, estaciones);
   return (
     <LineaMetro

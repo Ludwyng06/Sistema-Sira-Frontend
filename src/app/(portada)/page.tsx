@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { BuscandoAlEnviar } from "@/components/BuscandoAlEnviar";
 import Link from "next/link";
 import { Suspense } from "react";
 import { Check, CalendarSearch, Search } from "lucide-react";
@@ -65,7 +66,7 @@ function Portada({
             Aulas, laboratorios, el auditorio y la cancha. Mira qué está libre y pídelo desde aquí, sin correos
             ni Excel.
           </p>
-          <form action="/" method="get" className="flex max-w-lg flex-col gap-3">
+          <form action="/#resultados" method="get" className="flex max-w-lg flex-col gap-3">
             <label htmlFor="asistentes" className="font-bold text-tinta">
               ¿Para cuántas personas es?
             </label>
@@ -87,6 +88,7 @@ function Portada({
                 Ver espacios donde caben
               </button>
             </div>
+            <BuscandoAlEnviar detalle="Buscando espacios donde quepan." />
           </form>
           <Link
             href="/buscar"
@@ -160,7 +162,7 @@ async function Contenido({
   return (
     <>
       {asistentes && espacios && (
-        <section aria-labelledby="titulo-espacios" className="flex flex-col gap-5">
+        <section id="resultados" aria-labelledby="titulo-espacios" className="flex scroll-mt-28 flex-col gap-5">
           <h2 id="titulo-espacios" className="text-t2 font-black">
             Espacios para {asistentes} personas
           </h2>
@@ -285,7 +287,7 @@ function Paginacion({
 }) {
   const paginas = Math.ceil(total / porPagina);
   if (paginas <= 1) return null;
-  const enlace = (n: number) => `/?asistentes=${asistentes}&pagina=${n}`;
+  const enlace = (n: number) => `/?asistentes=${asistentes}&pagina=${n}#resultados`;
   const clase =
     "inline-flex min-h-11 items-center rounded-campo border-2 border-azul px-4 font-bold text-azul-oscuro hover:bg-turquesa-suave";
   return (

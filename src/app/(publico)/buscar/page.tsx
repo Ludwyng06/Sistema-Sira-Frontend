@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { BuscandoAlEnviar } from "@/components/BuscandoAlEnviar";
 import Link from "next/link";
 import { Suspense } from "react";
 import { Search } from "lucide-react";
@@ -59,7 +60,7 @@ async function Contenido({ searchParams }: { searchParams: PageProps<"/buscar">[
   return (
     <>
       <form
-        action="/buscar"
+        action="/buscar#resultados"
         method="get"
         className="flex flex-wrap items-end gap-4 rounded-campo border border-gris-claro bg-fondo-suave p-4"
       >
@@ -84,8 +85,10 @@ async function Contenido({ searchParams }: { searchParams: PageProps<"/buscar">[
           <Search aria-hidden className="size-4" />
           Buscar
         </button>
+        <BuscandoAlEnviar detalle="Buscando espacios libres en ese horario." />
       </form>
 
+      {resultado && <span id="resultados" className="sr-only scroll-mt-28">Resultados</span>}
       {resultado &&
         (!resultado.ok ? (
           <EstadoError mensaje={resultado.mensaje} />

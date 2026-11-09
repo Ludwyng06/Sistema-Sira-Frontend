@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { BuscandoAlEnviar } from "@/components/BuscandoAlEnviar";
 import Link from "next/link";
 import { Suspense } from "react";
 import { ChevronLeft } from "lucide-react";
@@ -102,7 +103,7 @@ async function ContenidoBloque({
       </section>
 
       <form
-        action={`/sedes/${bloque.sede.codigo}/bloques/${bloque.codigo}`}
+        action={`/sedes/${bloque.sede.codigo}/bloques/${bloque.codigo}#resultados`}
         method="get"
         className="flex flex-wrap items-end gap-3 rounded-campo border border-gris-claro bg-fondo-suave p-4"
       >
@@ -145,8 +146,10 @@ async function ContenidoBloque({
         >
           Aplicar filtros
         </button>
+      <BuscandoAlEnviar detalle="Filtrando los espacios del bloque." />
       </form>
 
+      {(tipo || asistentes) && <span id="resultados" className="sr-only scroll-mt-28">Resultados</span>}
       {pisos.length === 0 ? (
         <EstadoVacio
           titulo={

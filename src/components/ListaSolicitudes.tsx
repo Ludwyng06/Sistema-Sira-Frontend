@@ -1,5 +1,7 @@
 "use client";
 
+import { AnclaResultados } from "@/components/AnclaResultados";
+import { useIrAResultados } from "@/lib/useIrAResultados";
 import Link from "next/link";
 import { useState } from "react";
 import { Esqueleto, RegionCargando } from "@/components/Esqueleto";
@@ -36,6 +38,7 @@ export function ListaSolicitudes({
       listarSolicitudes({ ambito, estado: estado || undefined, pagina, porPagina: POR_PAGINA }),
     [ambito, estado, pagina],
   );
+  const { destino: anclaResultados, ir: irAResultados, buscando: buscandoResultados } = useIrAResultados(resultado.estado !== "cargando");
 
   return (
     <div className="flex flex-col gap-6">
@@ -47,6 +50,7 @@ export function ListaSolicitudes({
           onChange={(e) => {
             setEstado(e.target.value as EstadoSolicitud | "");
             setPagina(1);
+            irAResultados();
           }}
         >
           <option value="">Todos</option>
@@ -58,6 +62,7 @@ export function ListaSolicitudes({
         </Selector>
       </div>
 
+      <AnclaResultados ref={anclaResultados} buscando={buscandoResultados} etiqueta="Resultados de las solicitudes" />
       {resultado.estado === "cargando" && (
         <RegionCargando etiqueta="Cargando solicitudes">
           <div className="flex flex-col gap-3">
@@ -110,7 +115,10 @@ export function ListaSolicitudes({
               pagina={resultado.datos.pagina}
               total={resultado.datos.total}
               porPagina={resultado.datos.porPagina}
-              alCambiar={setPagina}
+              alCambiar={(p) => {
+                irAResultados();
+                setPagina(p);
+              }}
             />
           </>
         ))}

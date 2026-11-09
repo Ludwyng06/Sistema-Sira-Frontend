@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { DetalleFranja, DetalleServicio, TotalesEstimados } from "@/components/DesgloseEstimado";
 import { Alerta, Boton } from "@/components/formularios";
 import { ErrorApi } from "@/lib/api";
 import { resolverCodigoPorId } from "@/lib/espacio-id";
@@ -29,9 +30,12 @@ interface Sugerencia {
 export function PasoResumen({
   contexto,
   alVolver,
+  alIrAAdjuntarPoliza,
 }: {
   contexto: ContextoAsistente;
   alVolver: () => void;
+  /** Vuelve al paso de identificación con «Póliza» elegida en Tipo de documento. */
+  alIrAAdjuntarPoliza: () => void;
 }) {
   const { borrador } = contexto;
   const [acepta, setAcepta] = useState(false);
@@ -132,19 +136,24 @@ export function PasoResumen({
                   {codigos.resultado.estado === "listo" ? codigos.resultado.datos[i] ?? "Espacio" : "Espacio"}
                 </span>{" "}
                 · {fecha(r.inicio)} · {hora(r.inicio)} a {hora(r.fin)}
+                <DetalleFranja reserva={r} />
               </span>
-              <span>{pesos(r.subtotal)}</span>
+              <span className="font-medium">{pesos(r.subtotal)}</span>
             </li>
           ))}
           {borrador.servicios.map((s) => (
             <li key={s.id} className="flex flex-wrap justify-between gap-2 px-4 py-2">
               <span>
                 {s.cantidad} × {s.nombre}
+                <DetalleServicio servicio={s} />
               </span>
-              <span>{pesos(s.subtotal)}</span>
+              <span className="font-medium">{pesos(s.subtotal)}</span>
             </li>
           ))}
         </ul>
+        {borrador.estimado && (
+          <TotalesEstimados estimado={borrador.estimado} institucional={borrador.declaraUsoInstitucional} />
+        )}
         <p className="text-base text-gris">
           Son valores estimados con el tarifario. El valor definitivo, o el valor de referencia si tu uso
           es institucional, lo confirma la cotización.
@@ -160,6 +169,11 @@ export function PasoResumen({
                 <li key={p.codigo}>{p.mensaje}</li>
               ))}
             </ul>
+          )}
+          {problemas.some((p) => p.codigo === "POLIZA_REQUERIDA") && (
+            <Boton variante="secundario" onClick={alIrAAdjuntarPoliza} className="mt-3">
+              Ir a adjuntar póliza
+            </Boton>
           )}
           {conflictos.length > 0 && (
             <ul className="mt-1 list-disc pl-5">

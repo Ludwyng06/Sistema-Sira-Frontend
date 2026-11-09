@@ -99,7 +99,7 @@ export function FormularioActa({
         </p>
         <BotonImprimir titulo={`Acta ${solicitud.consecutivo ?? ""} - SIRA`} className="mt-2" />
       </header>
-      <CuerpoActa solicitudId={solicitudId} tipo={tipo} elementos={elementos} />
+      <CuerpoActa key={`${solicitudId}-${tipo}`} solicitudId={solicitudId} tipo={tipo} elementos={elementos} />
     </div>
   );
 }

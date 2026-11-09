@@ -7,6 +7,11 @@ export type CrearBloqueo = Esquemas["CrearBloqueoDto"];
 export type BloqueoCreado = Esquemas["BloqueoCreadoDto"];
 export type BloqueoAnulado = Esquemas["BloqueoAnuladoDto"];
 export type ReporteImportacion = Esquemas["ReporteImportacionDto"];
+export type BloqueoResumen = Esquemas["BloqueoResumenDto"];
+
+/** Bloqueos no anulados de un espacio; con `desde`, solo los que aún tienen franjas desde ese instante. */
+export const listarBloqueos = (filtros: { espacioId?: string; desde?: string; hasta?: string }) =>
+  api<BloqueoResumen[]>("/bloqueos", { query: filtros });
 
 export function importarHorarioCsv(archivo: File) {
   const formulario = new FormData();

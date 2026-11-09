@@ -7,14 +7,19 @@ import { Alerta, Boton, Campo, Selector } from "@/components/formularios";
 import { registrar } from "@/lib/auth";
 import { VERSION_POLITICA, type Registro } from "@/lib/tipos-auth";
 import { avisar } from "@/lib/avisos";
+import { DOMINIOS_INSTITUCIONALES, esCorreoInstitucional, listarDependenciasPublicas } from "@/lib/dependencias";
+import { useConsulta } from "@/lib/useConsulta";
 
-type TipoElegible = Exclude<Registro["tipo"], "INTERNO">;
+type TipoElegible = Registro["tipo"];
 
 const TIPOS: { valor: TipoElegible; texto: string }[] = [
   { valor: "PERSONA_NATURAL", texto: "Persona natural" },
   { valor: "EMPRESA", texto: "Empresa" },
   { valor: "ENTIDAD", texto: "Entidad" },
+  { valor: "INTERNO", texto: "Miembro de la institución (docente, administrativo o estudiante)" },
 ];
+
+const LISTA_DOMINIOS = DOMINIOS_INSTITUCIONALES.map((d) => `@${d}`).join(" o ");
 
 const DOCUMENTOS: { valor: Registro["tipoDocumento"]; texto: string }[] = [
   { valor: "CC", texto: "Cédula de ciudadanía" },
@@ -33,7 +38,13 @@ export function FormularioRegistro() {
   const [enviando, setEnviando] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [errorContrasena, setErrorContrasena] = useState<string | undefined>();
-  const juridica = tipo !== "PERSONA_NATURAL";
+  const [correoEscrito, setCorreoEscrito] = useState("");
+  const juridica = tipo === "EMPRESA" || tipo === "ENTIDAD";
+  // Con correo institucional el backend registra la cuenta como INTERNO aunque se elija otro tipo (RN-07).
+  const correoInstitucional = esCorreoInstitucional(correoEscrito);
+  const esInterno = tipo === "INTERNO" || correoInstitucional;
+  const dependencias = useConsulta(() => listarDependenciasPublicas(), []);
+  const listaDependencias = dependencias.resultado.estado === "listo" ? dependencias.resultado.datos : [];
 
   async function alEnviar(evento: FormEvent<HTMLFormElement>) {
     evento.preventDefault();
@@ -44,14 +55,19 @@ export function FormularioRegistro() {
       return;
     }
     setErrorContrasena(undefined);
+    const correo = texto(datos, "correo");
+    if (tipo === "INTERNO" && !esCorreoInstitucional(correo)) {
+      setError(`Para registrarte como miembro de la institución usa tu correo ${LISTA_DOMINIOS}.`);
+      return;
+    }
     setEnviando(true);
     setError(null);
-    const correo = texto(datos, "correo");
     try {
       await registrar({
         correo,
         contrasena,
-        tipo,
+        tipo: esInterno ? "INTERNO" : tipo,
+        dependenciaId: esInterno ? opcional(datos, "dependenciaId") : undefined,
         nombres: texto(datos, "nombres"),
         apellidos: opcional(datos, "apellidos"),
         razonSocial: juridica ? opcional(datos, "razonSocial") : undefined,
@@ -137,7 +153,44 @@ export function FormularioRegistro() {
         <Campo id="municipio" etiqueta="Municipio" />
       </div>
 
-      <Campo id="correo" etiqueta="Correo electrónico" type="email" autoComplete="email" required />
+      <Campo
+        id="correo"
+        etiqueta="Correo electrónico"
+        type="email"
+        autoComplete="email"
+        required
+        ayuda={tipo === "INTERNO" ? `Usa tu correo institucional (${LISTA_DOMINIOS}).` : undefined}
+        onChange={(e) => setCorreoEscrito(e.target.value)}
+      />
+
+      {esInterno && (
+        <div className="flex flex-col gap-2 rounded-campo border border-gris-claro bg-fondo-suave p-4">
+          {correoInstitucional && tipo !== "INTERNO" && (
+            <p className="text-base text-gris">
+              Es un correo de la institución: tu cuenta quedará como <strong>miembro de la institución</strong>.
+            </p>
+          )}
+          <Selector
+            id="dependenciaId"
+            etiqueta="Dependencia, programa o proceso"
+            required
+            defaultValue=""
+            ayuda="Con ella tus solicitudes de uso institucional pueden quedar sin costo. La aprueba su jefe."
+          >
+            <option value="" disabled>
+              {dependencias.resultado.estado === "cargando" ? "Cargando dependencias…" : "Elige tu dependencia"}
+            </option>
+            {listaDependencias.map((d) => (
+              <option key={d.id} value={d.id}>
+                {d.nombre}
+              </option>
+            ))}
+          </Selector>
+          {dependencias.resultado.estado === "error" && (
+            <Alerta tipo="error">No pudimos cargar las dependencias. Recarga la página para intentarlo de nuevo.</Alerta>
+          )}
+        </div>
+      )}
       <div className="grid gap-4 sm:grid-cols-2">
         <Campo
           id="contrasena"

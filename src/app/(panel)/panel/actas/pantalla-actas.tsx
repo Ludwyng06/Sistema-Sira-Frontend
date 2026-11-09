@@ -17,6 +17,8 @@ import {
   type Solicitud,
 } from "@/lib/solicitudes";
 import { useConsulta } from "@/lib/useConsulta";
+import { useIrAResultados } from "@/lib/useIrAResultados";
+import { AnclaResultados } from "@/components/AnclaResultados";
 
 const PESTANAS = [
   { tipo: "ENTREGA", estado: "CONFIRMADA", texto: "Por entregar", accion: "Hacer acta de entrega" },
@@ -38,6 +40,7 @@ export function PantallaActas() {
     () => listarSolicitudes({ ambito: "BANDEJA", estado: pestana.estado, porPagina: 50 }),
     [pestana.estado],
   );
+  const { destino: anclaResultados, ir: irAResultados, buscando: buscandoResultados } = useIrAResultados(resultado.estado !== "cargando");
 
   async function confirmarCierre(s: Solicitud) {
     setEnviandoCierre(true);
@@ -72,7 +75,10 @@ export function PantallaActas() {
             type="button"
             role="tab"
             aria-selected={indice === i}
-            onClick={() => setIndice(i)}
+            onClick={() => {
+              setIndice(i);
+              irAResultados();
+            }}
             className={clsx(
               "rounded-campo px-4 py-2 font-medium",
               indice === i
@@ -85,6 +91,7 @@ export function PantallaActas() {
         ))}
       </div>
 
+      <AnclaResultados ref={anclaResultados} buscando={buscandoResultados} etiqueta="Solicitudes de esta pestaña" />
       {resultado.estado === "cargando" && (
         <RegionCargando etiqueta="Cargando solicitudes">
           <Esqueleto className="h-24 w-full" />

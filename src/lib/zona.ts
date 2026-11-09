@@ -21,3 +21,13 @@ export function partesBogota(iso: string | Date): { dia: string; hora: string } 
   const t = aRelojBogota(iso).toISOString();
   return { dia: t.slice(0, 10), hora: t.slice(11, 16) };
 }
+
+/** Día de Bogotá ("2026-11-10") -> instante UTC de su comienzo (00:00 -05:00). */
+export const inicioDiaBogota = (dia: string): string => new Date(`${dia}T00:00:00.000-05:00`).toISOString();
+
+/** Día de Bogotá -> instante UTC del comienzo del día siguiente (fin exclusivo del día). */
+export function finDiaBogota(dia: string): string {
+  const d = new Date(`${dia}T00:00:00.000-05:00`);
+  d.setUTCDate(d.getUTCDate() + 1);
+  return d.toISOString();
+}

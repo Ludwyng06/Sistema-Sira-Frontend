@@ -16,6 +16,9 @@ import { ResumenCotizacion } from "@/components/ResumenCotizacion";
 import { BotonDescarga } from "@/components/BotonDescarga";
 import { DocumentosSolicitud } from "@/components/DocumentosSolicitud";
 import { CalendarioEspacio } from "@/components/CalendarioEspacio";
+import { DetalleFranja, DetalleServicio, TotalesEstimados } from "@/components/DesgloseEstimado";
+import { NombreDependencia } from "@/components/NombreDependencia";
+import { SimulacionCancelacion } from "@/components/SimulacionCancelacion";
 import { Alerta, Boton } from "@/components/formularios";
 import { useSesion } from "@/components/SesionProvider";
 import { fecha, hora, pesos } from "@/lib/formato";
@@ -46,7 +49,8 @@ type Accion =
   | "reclasificar"
   | null;
 
-const ESTADOS_CANCELABLES = new Set(["ENVIADA", "EN_REVISION", "COTIZADA", "PAGO_PENDIENTE", "CONFIRMADA"]);
+/** RN-14: el backend solo deja cancelar una solicitud confirmada (en otro estado responde 409 SOLICITUD_NO_CANCELABLE). */
+const ESTADOS_CANCELABLES = new Set(["CONFIRMADA"]);
 const ESTADOS_DECIDIBLES = new Set(["ENVIADA", "EN_REVISION"]);
 
 /** Detalle de una solicitud. `modo` decide qué acciones se ofrecen. */
@@ -62,6 +66,8 @@ export function DetalleSolicitud({
   const { resultado, recargar } = useConsulta(() => obtenerSolicitud(id), [id]);
   const { tieneRol } = useSesion();
   const [accion, setAccion] = useState<Accion>(null);
+  // Hora en que se abrió la ficha: basta para saber si el evento ya empezó (la API lo vuelve a validar).
+  const [abiertaEn] = useState(() => Date.now());
 
   const volver = (
     <Link
@@ -111,7 +117,21 @@ export function DetalleSolicitud({
   const puedeAvalar = !avalAprobado && tieneRol("RESPONSABLE_ESPACIO");
   const tipoDecision: DecidirSolicitud["tipo"] =
     puedeAvalar ? "AVAL" : "APROBACION";
-  const puedeCancelar = modo === "solicitante" && ESTADOS_CANCELABLES.has(s.estado);
+  // El administrador también cancela desde la bandeja: es una cancelación por causa institucional (100 % de reembolso).
+  const cancelaInstitucion = modo === "revisor" && tieneRol("ADMINISTRADOR");
+  // La API no deja cancelar cuando el evento ya empezó (primera franja en curso o pasada).
+  const eventoEmpezado =
+    s.reservas.length > 0 && Math.min(...s.reservas.map((r) => Date.parse(r.inicio))) <= abiertaEn;
+  const cancelable = ESTADOS_CANCELABLES.has(s.estado) && (modo === "solicitante" || cancelaInstitucion);
+  const puedeCancelar = cancelable && !eventoEmpezado;
+  const ultimaDecision = s.decisiones.at(-1);
+  // Solo se destaca el motivo mientras siga vigente: rechazada, o devuelta y todavía en borrador.
+  const motivoVigente =
+    ultimaDecision?.motivo &&
+    ((s.estado === "RECHAZADA" && ultimaDecision.resultado === "RECHAZADA") ||
+      (s.estado === "BORRADOR" && ultimaDecision.resultado === "DEVUELTA"))
+      ? ultimaDecision
+      : null;
   const puedeDecidir =
     modo === "revisor" &&
     ESTADOS_DECIDIBLES.has(s.estado) &&
@@ -186,6 +206,34 @@ export function DetalleSolicitud({
         )
       )}
 
+      {motivoVigente && (
+        <Alerta
+          tipo={motivoVigente.resultado === "RECHAZADA" ? "error" : "info"}
+          titulo={motivoVigente.resultado === "RECHAZADA" ? "Motivo del rechazo" : "Solicitud devuelta para corregir"}
+          queHacer={
+            motivoVigente.resultado === "RECHAZADA"
+              ? undefined
+              : modo === "solicitante"
+                ? "Corrige lo que te pidieron y vuelve a enviar la solicitud."
+                : undefined
+          }
+        >
+          <p className="whitespace-pre-line">{motivoVigente.motivo}</p>
+          <p className="text-base text-gris">
+            {fecha(motivoVigente.decididaEn)} · {hora(motivoVigente.decididaEn)}
+          </p>
+        </Alerta>
+      )}
+
+      {modo === "solicitante" && motivoVigente?.resultado === "DEVUELTA" && (
+        <Link
+          href={`/solicitar?borrador=${encodeURIComponent(s.id)}`}
+          className="no-imprimir w-fit rounded-campo bg-azul px-5 py-3 font-bold text-white shadow-[0_2px_0_0_var(--color-azul-oscuro)] transition duration-200 hover:-translate-y-px hover:bg-azul-oscuro motion-reduce:transition-none motion-reduce:hover:translate-y-0"
+        >
+          Corregir la solicitud
+        </Link>
+      )}
+
       <section aria-labelledby="titulo-linea" className="rounded-tarjeta border border-gris-claro/60 bg-fondo-suave px-4 py-6 sm:px-8">
         <h2 id="titulo-linea" className="mb-5 text-xl font-extrabold">
           Dónde va tu solicitud
@@ -214,12 +262,16 @@ export function DetalleSolicitud({
             <p className="text-base">
               {(() => {
                 const aval = s.decisiones.find((d) => d.tipo === "AVAL" && d.resultado === "APROBADA");
-                return aval ? `Lo dio el ${fecha(aval.decididaEn)} a las ${hora(aval.decididaEn)}. ` : "";
+                return aval ? `Lo dio el ${fecha(aval.decididaEn)} a las ${hora(aval.decididaEn)} ` : "";
               })()}
               Ya puedes revisar la solicitud y aprobarla.
             </p>
           </div>
         </section>
+      )}
+
+      {cancelable && eventoEmpezado && (
+        <p className="text-sm text-gris">El evento ya empezó, así que esta solicitud ya no se puede cancelar.</p>
       )}
 
       {(puedeCancelar || puedeDecidir) && (
@@ -279,7 +331,21 @@ export function DetalleSolicitud({
             <dt className="font-medium">Evento público</dt>
             <dd>{s.eventoPublico ? "Sí" : "No"}</dd>
             <dt className="font-medium">Uso</dt>
-            <dd>{s.esExenta ? "Institucional · sin costo" : "Con tarifa"}</dd>
+            <dd>
+              {s.esExenta
+                ? "Institucional · sin costo"
+                : s.estado === "BORRADOR" && s.declaraUsoInstitucional
+                  ? "Institucional (se confirma al enviar)"
+                  : "Con tarifa"}
+            </dd>
+            {s.dependenciaId && (s.esExenta || s.declaraUsoInstitucional) && (
+              <>
+                <dt className="font-medium">Dependencia</dt>
+                <dd>
+                  <NombreDependencia id={s.dependenciaId} />
+                </dd>
+              </>
+            )}
             {s.venceEn && (
               <>
                 <dt className="font-medium">Vence</dt>
@@ -312,6 +378,7 @@ export function DetalleSolicitud({
                 <span>
                   {r.espacioCodigo && r.espacioNombre ? `${r.espacioCodigo} · ${r.espacioNombre} — ` : ""}
                   {fecha(r.inicio)} · {hora(r.inicio)} a {hora(r.fin)}
+                  {!s.esExenta && <DetalleFranja reserva={r} />}
                 </span>
                 {!s.esExenta && <span className="font-medium">{pesos(r.subtotal)}</span>}
               </li>
@@ -336,12 +403,21 @@ export function DetalleSolicitud({
               <li key={x.id} className="flex flex-wrap justify-between gap-2 px-4 py-2">
                 <span>
                   {x.cantidad} × {x.nombre}
+                  {!s.esExenta && <DetalleServicio servicio={x} />}
                 </span>
                 {!s.esExenta && <span className="font-medium">{pesos(x.subtotal)}</span>}
               </li>
             ))}
           </ul>
         </section>
+      )}
+
+      {/* Mientras no hay cotización, el estimado es lo único que dice cuánto vale lo pedido. */}
+      {!s.cotizacion && s.estimado && (s.reservas.length > 0 || s.servicios.length > 0) && (
+        <TotalesEstimados
+          estimado={s.estimado}
+          institucional={s.estado === "BORRADOR" ? s.declaraUsoInstitucional : s.esExenta}
+        />
       )}
 
       <DocumentosSolicitud solicitudId={s.id} />
@@ -401,10 +477,17 @@ export function DetalleSolicitud({
         alConfirmar={cancelar}
         alCerrar={() => setAccion(null)}
       >
-        <p className="text-gris">
-          Se libera el horario. Si ya pagaste, el valor a reembolsar depende de la política de
-          cancelación.
-        </p>
+        {cancelaInstitucion ? (
+          <p className="text-gris">
+            Es una cancelación por causa institucional: se libera el horario y, si el solicitante ya pagó, se le
+            reembolsa el 100 % del valor. Se le avisará con el motivo que escribas.
+          </p>
+        ) : (
+          <p className="text-gris">
+            Se libera el horario y se te reembolsa según la política de cancelación:
+          </p>
+        )}
+        {accion === "cancelar" && <SimulacionCancelacion solicitudId={s.id} esExenta={s.esExenta} />}
       </DialogoConfirmacion>
 
       <DialogoConfirmacion

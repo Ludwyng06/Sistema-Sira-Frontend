@@ -181,8 +181,8 @@ async function FichaDelEspacio({ params }: { params: Props["params"] }) {
           {espacio.tarifas.length === 0 ? (
             <p className="text-gris">Las tarifas se confirman en la cotización.</p>
           ) : (
-            <div className="overflow-x-auto rounded-campo border border-gris-claro">
-              <table className="w-full text-left">
+            <div className="rounded-campo border border-gris-claro">
+              <table className="tabla-completa text-left">
                 <caption className="sr-only">
                   Tarifas del espacio {espacio.codigo} por tipo de solicitante
                 </caption>
@@ -195,10 +195,10 @@ async function FichaDelEspacio({ params }: { params: Props["params"] }) {
                 <tbody className="divide-y divide-gris-claro">
                   {espacio.tarifas.map((t) => (
                     <tr key={`${t.tipoSolicitante}-${t.unidad ?? ""}`}>
-                      <th scope="row" className="px-4 py-2 font-medium">
+                      <th scope="row" data-etiqueta="Solicitante" className="px-4 py-2 font-medium">
                         {etiqueta(SOLICITANTES, t.tipoSolicitante)}
                       </th>
-                      <td className="px-4 py-2">
+                      <td data-etiqueta="Valor" className="px-4 py-2">
                         {t.valor === 0 ? "Sin costo" : pesos(t.valor)}{" "}
                         <span className="text-gris">
                           {t.unidad ? etiqueta(UNIDADES, t.unidad) : ""}

@@ -12,6 +12,7 @@ import {
   LayoutGrid,
   LogIn,
   LogOut,
+  MailWarning,
   Menu,
   Sparkles,
   X,
@@ -177,7 +178,14 @@ export function NavegacionPrincipal() {
 
   const rolPrincipal = usuario ? PRIORIDAD_ROL.find((r) => tieneRol(r)) : undefined;
   const nombre = usuario ? nombreVisible(usuario.correo) : "";
-  const totalAntes = entradas.length + (autenticado ? 1 : 0);
+  const sinVerificar = autenticado && !usuario.correoVerificado;
+  const totalAntes = entradas.length + (autenticado ? 1 : 0) + (sinVerificar ? 1 : 0);
+  // "Solicitante · Institucional" cuando el correo es del dominio de la universidad.
+  const etiquetaRol = rolPrincipal
+    ? `${ETIQUETAS_ROL[rolPrincipal]}${usuario?.esInstitucional ? " · Institucional" : ""}`
+    : usuario?.esInstitucional
+      ? "Cuenta institucional"
+      : null;
 
   return (
     <>
@@ -214,11 +222,24 @@ export function NavegacionPrincipal() {
             <li aria-hidden className="h-9 w-28 animate-pulse rounded-full bg-white/15" />
           )}
 
+          {sinVerificar && (
+            <li className="anim-aparecer" style={{ animationDelay: `${(totalAntes - 1) * 45}ms` }}>
+              <Link
+                href={`/verificar-correo?correo=${encodeURIComponent(usuario.correo)}`}
+                onClick={cerrar}
+                className={clsx(baseBoton, "bg-naranja text-tinta ring-naranja hover:brightness-105")}
+              >
+                <MailWarning aria-hidden className="size-4" />
+                Correo sin verificar
+              </Link>
+            </li>
+          )}
+
           {autenticado && (
             <li
               className="anim-aparecer flex items-center gap-2.5 min-h-11 rounded-full bg-black/15 py-1 pl-1 pr-1 ring-1 ring-inset ring-white/15 lg:pr-4"
               style={{ animationDelay: `${totalAntes * 45}ms` }}
-              title={`${nombre} · ${usuario.correo}`}
+              title={`${nombre} · ${usuario.correo}${usuario.esInstitucional ? " · cuenta institucional" : ""}`}
             >
               <span
                 aria-hidden
@@ -228,9 +249,7 @@ export function NavegacionPrincipal() {
               </span>
               <span className="hidden min-w-0 flex-col leading-tight lg:flex">
                 <span className="max-w-[10rem] truncate text-base font-bold text-white">{nombre}</span>
-                {rolPrincipal && (
-                  <span className="text-meta font-medium text-white/85">{ETIQUETAS_ROL[rolPrincipal]}</span>
-                )}
+                {etiquetaRol && <span className="text-meta font-medium text-white/85">{etiquetaRol}</span>}
               </span>
             </li>
           )}
