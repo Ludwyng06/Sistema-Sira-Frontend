@@ -50,7 +50,7 @@ function Guardia({
 
   useEffect(() => {
     if (estado === "anonimo") {
-      router.replace(`/ingresar?siguiente=${encodeURIComponent(ruta)}`);
+      router.replace(`/ingresar?siguiente=${encodeURIComponent(`${ruta}${window.location.search}`)}`);
     }
   }, [estado, router, ruta]);
 

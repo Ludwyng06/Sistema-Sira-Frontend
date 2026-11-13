@@ -27,6 +27,28 @@ export const listarOrdenes = (filtros: {
 export const crearOrden = (solicitudId: string) =>
   api<OrdenPago>("/pagos/ordenes", { method: "POST", json: { solicitudId } });
 
+export interface CheckoutPago {
+  urlCheckout: string;
+  transaccionExternaId?: string;
+}
+
+export interface EstadoPagoEnLinea {
+  estado: "PENDIENTE" | "APROBADA" | "RECHAZADA" | "ANULADA" | "ERROR" | "PAGADA";
+  referencia: string;
+  valor: number;
+}
+
+export const iniciarPagoEnLinea = (ordenId: string) =>
+  api<CheckoutPago>(`/pagos/ordenes/${encodeURIComponent(ordenId)}/pasarela`, {
+    method: "POST",
+  });
+
+/** El backend obtiene el estado confirmado por webhook; el retorno no prueba el pago. */
+export const consultarEstadoPago = (ordenId: string, signal?: AbortSignal) =>
+  api<EstadoPagoEnLinea>(`/pagos/ordenes/${encodeURIComponent(ordenId)}/estado`, {
+    signal: signal ? AbortSignal.any([signal, AbortSignal.timeout(10_000)]) : AbortSignal.timeout(10_000),
+  });
+
 export function subirSoporte(ordenId: string, archivo: File) {
   const formulario = new FormData();
   formulario.set("archivo", archivo);

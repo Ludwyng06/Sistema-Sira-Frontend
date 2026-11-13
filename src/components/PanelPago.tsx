@@ -1,32 +1,74 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { CargadorArchivos } from "@/components/CargadorArchivos";
 import { Alerta, Boton } from "@/components/formularios";
 import { fecha, hora, pesos } from "@/lib/formato";
-import { crearOrden, ETIQUETAS_ORDEN, subirSoporte, type OrdenPago } from "@/lib/pagos";
+import { crearOrden, ETIQUETAS_ORDEN, iniciarPagoEnLinea, subirSoporte, type OrdenPago } from "@/lib/pagos";
+import { ErrorApi } from "@/lib/api";
 import { guardarArchivo } from "@/lib/descarga";
 import { descargarCotizacionPdf } from "@/lib/solicitudes";
 import { avisar } from "@/lib/avisos";
 
 /**
- * Pago por consignación de una solicitud cotizada. En solicitudes exentas este componente no se
- * muestra (lo decide quien lo usa con `esExenta`, que viene del servidor).
+ * Pago en línea o por consignación de una solicitud cotizada. La exención viene del servidor.
  */
 export function PanelPago({
   solicitudId,
   consecutivo,
+  esExenta,
+  valorCotizado,
   alCambiar,
 }: {
   solicitudId: string;
   consecutivo: string | null;
+  esExenta: boolean;
+  valorCotizado: number | null;
   alCambiar: () => void;
 }) {
   const [orden, setOrden] = useState<OrdenPago | null>(null);
   const [cargando, setCargando] = useState(false);
   const [subiendo, setSubiendo] = useState(false);
+  const [abriendoPasarela, setAbriendoPasarela] = useState(false);
+  const [conflictoPago, setConflictoPago] = useState(false);
+  const iniciando = useRef(false);
+  const mensajeError = useRef<HTMLDivElement>(null);
   const [error, setError] = useState<string | null>(null);
   const [revision, setRevision] = useState<{ archivo: File; url: string } | null>(null);
+
+  useEffect(() => {
+    if (error) mensajeError.current?.focus();
+  }, [error]);
+
+  const puedePagarEnLinea = !esExenta && valorCotizado !== null && valorCotizado > 0 &&
+    !conflictoPago && (!orden || (orden.valor > 0 &&
+      (orden.estado === "PENDIENTE" || orden.estado === "RECHAZADA")));
+
+  async function pagarEnLinea() {
+    if (!puedePagarEnLinea || iniciando.current) return;
+    iniciando.current = true;
+    setAbriendoPasarela(true);
+    setError(null);
+    try {
+      const actual = orden ?? await crearOrden(solicitudId);
+      setOrden(actual);
+      if (actual.valor <= 0 || (actual.estado !== "PENDIENTE" && actual.estado !== "RECHAZADA")) {
+        setConflictoPago(true);
+        setError("Esta orden no está disponible para pago en línea. Actualiza la solicitud para consultar su estado.");
+        return;
+      }
+      const { urlCheckout } = await iniciarPagoEnLinea(actual.id);
+      const destino = new URL(urlCheckout);
+      if (destino.protocol !== "https:") throw new Error("Checkout inválido");
+      window.location.assign(destino.href);
+    } catch (e) {
+      if (e instanceof ErrorApi && e.status === 409) setConflictoPago(true);
+      setError(e instanceof ErrorApi ? e.message : "No pudimos abrir el pago en línea. Intenta de nuevo.");
+    } finally {
+      iniciando.current = false;
+      setAbriendoPasarela(false);
+    }
+  }
 
   function elegir(archivo: File) {
     if (revision) URL.revokeObjectURL(revision.url);
@@ -76,20 +118,30 @@ export function PanelPago({
     }
   }
 
+  if (esExenta) return null;
+
   return (
     <section aria-labelledby="titulo-pago" className="flex flex-col gap-4">
       <h2 id="titulo-pago" className="text-2xl font-bold">
         Pago
       </h2>
-      {error && <Alerta tipo="error">{error}</Alerta>}
+      {error && <div ref={mensajeError} tabIndex={-1}><Alerta tipo="error">{error}</Alerta></div>}
+      <p role="status" aria-live="polite" aria-atomic="true">
+        {abriendoPasarela ? "Estamos abriendo el pago seguro en Wompi…" : ""}
+      </p>
 
       <div className="flex flex-wrap gap-3">
         <Boton variante="secundario" onClick={abrirCotizacion}>
           Descargar la cotización en PDF
         </Boton>
         {!orden && (
-          <Boton onClick={obtenerOrden} cargando={cargando}>
+          <Boton onClick={obtenerOrden} cargando={cargando} disabled={abriendoPasarela}>
             Ver datos para consignar
+          </Boton>
+        )}
+        {puedePagarEnLinea && (
+          <Boton onClick={pagarEnLinea} cargando={abriendoPasarela} disabled={cargando || subiendo} aria-busy={abriendoPasarela}>
+            Pagar en línea (PSE, tarjeta, Nequi)
           </Boton>
         )}
       </div>
@@ -143,7 +195,7 @@ export function PanelPago({
                   {revision.archivo.name} · {(revision.archivo.size / 1024 / 1024).toFixed(2)} MB
                 </p>
                 <div className="flex flex-wrap gap-3">
-                  <Boton onClick={() => subir(revision.archivo)} cargando={subiendo}>
+                  <Boton onClick={() => subir(revision.archivo)} cargando={subiendo} disabled={abriendoPasarela}>
                     Enviar comprobante
                   </Boton>
                   <Boton variante="secundario" onClick={descartar} disabled={subiendo}>
@@ -155,7 +207,7 @@ export function PanelPago({
               <CargadorArchivos
                 etiqueta={`Subir comprobante de ${consecutivo ?? "la solicitud"}`}
                 alElegir={elegir}
-                deshabilitado={subiendo}
+                deshabilitado={subiendo || abriendoPasarela}
               />
             )
           ) : (

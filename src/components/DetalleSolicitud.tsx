@@ -464,7 +464,7 @@ export function DetalleSolicitud({
       </div>}
 
       {modo === "solicitante" && !s.esExenta && (s.estado === "COTIZADA" || s.estado === "PAGO_PENDIENTE") && (
-        <PanelPago solicitudId={s.id} consecutivo={s.consecutivo} alCambiar={recargar} />
+        <PanelPago solicitudId={s.id} consecutivo={s.consecutivo} esExenta={s.esExenta} valorCotizado={s.cotizacion?.total ?? null} alCambiar={recargar} />
       )}
 
       <DialogoConfirmacion
