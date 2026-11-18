@@ -33,8 +33,8 @@ export const listarEspacios = (filtros: {
   porPagina?: number;
 }) => api<Pagina<TarjetaEspacio>>("/espacios", { query: filtros });
 
-export const obtenerEspacio = (codigo: string) =>
-  api<FichaEspacio>(`/espacios/${encodeURIComponent(codigo)}`);
+export const obtenerEspacio = (codigo: string, asistentes?: number) =>
+  api<FichaEspacio>(`/espacios/${encodeURIComponent(codigo)}`, { query: { asistentes } });
 
 export const listarTiposEspacio = () => api<TipoEspacio[]>("/tipos-espacio");
 
