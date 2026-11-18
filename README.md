@@ -42,6 +42,12 @@ Variables (`.env.example`): `NEXT_PUBLIC_API_URL` (navegador) y `API_URL_INTERNA
 
 La ruta del bloque incluye la sede (`/sedes/[sede]/bloques/[bloque]`) porque el código del bloque solo es único dentro de una sede.
 
+## Pagos
+
+El sistema opera bajo la modalidad de **Pago por enlace con verificación manual** (`PASARELA_PROVEEDOR=ninguna`), adoptada por decisión del director del proyecto de grado para no añadir la complejidad de contratos comerciales ni pasarelas reales. La pantalla de la orden de pago expone el valor y la referencia (`OP-`), provee un botón directo hacia el enlace de recaudo configurable de la institución, permite adjuntar el comprobante de pago en formato PDF o imagen, y habilita un botón para notificar a Tesorería vía WhatsApp con un mensaje estructurado prellenado para su validación manual en el panel administrativo.
+
+Para consultar el detalle del flujo paso a paso, diagramas de secuencia, parámetros de configuración `PAGO_*`, modalidades de cobro (anticipo y saldo) y pasarelas de pago, ver `docs/pago-por-enlace.md` en el repositorio backend.
+
 ## Mapa de la documentación (`docs/architecture/`)
 
 | Documento | Contenido |

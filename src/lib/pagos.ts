@@ -9,6 +9,22 @@ export type PaginaOrdenes = Esquemas["PaginaOrdenesDto"];
 export type EstadoOrden = OrdenPago["estado"];
 export type Verificacion = Esquemas["VerificacionDto"];
 
+export interface InstruccionesPago {
+  ordenPagoId: string;
+  referencia: string;
+  valor: number;
+  tipo: "TOTAL" | "ANTICIPO" | "SALDO";
+  estado: EstadoOrden;
+  venceEn: string;
+  enlacePago: string | null;
+  instrucciones: string | null;
+  pasarelaEnLinea: boolean;
+  whatsapp: { numero: string; url: string } | null;
+}
+
+export const obtenerInstruccionesPago = (ordenId: string) =>
+  api<InstruccionesPago>(`/pagos/ordenes/${encodeURIComponent(ordenId)}/instrucciones`);
+
 export const ETIQUETAS_ORDEN: Record<EstadoOrden, string> = {
   PENDIENTE: "Pendiente de pago",
   EN_VERIFICACION: "Por verificar",
