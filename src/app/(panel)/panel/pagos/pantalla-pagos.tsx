@@ -31,6 +31,24 @@ import { guardarArchivo } from "@/lib/descarga";
 import { useConsulta } from "@/lib/useConsulta";
 import { avisar } from "@/lib/avisos";
 
+export type TipoOrden = "TOTAL" | "ANTICIPO" | "SALDO";
+
+export const ETIQUETAS_TIPO_ORDEN: Record<TipoOrden, string> = {
+  TOTAL: "Total",
+  ANTICIPO: "Anticipo",
+  SALDO: "Saldo",
+};
+
+export function obtenerEtiquetaTipoOrden(tipo?: string | null): string {
+  if (!tipo) return "";
+  const clave = tipo.toUpperCase() as TipoOrden;
+  return ETIQUETAS_TIPO_ORDEN[clave] ?? tipo;
+}
+
+export interface OrdenPagoConTipo extends OrdenPagoResumen {
+  tipo?: TipoOrden | string | null;
+}
+
 const PESTANAS: { estado: EstadoOrden; texto: string }[] = [
   { estado: "EN_VERIFICACION", texto: "Por verificar" },
   { estado: "APROBADA", texto: "Aprobados" },
@@ -53,7 +71,7 @@ export function PantallaPagos() {
   const [seccion, setSeccion] = useState<"ORDENES" | "REEMBOLSOS">("ORDENES");
   const [estado, setEstado] = useState<EstadoOrden>("EN_VERIFICACION");
   const [pagina, setPagina] = useState(1);
-  const [rechazando, setRechazando] = useState<OrdenPagoResumen | null>(null);
+  const [rechazando, setRechazando] = useState<OrdenPagoConTipo | null>(null);
   const [errorSoporte, setErrorSoporte] = useState<string | null>(null);
   const [soporte, setSoporte] = useState<{ id: string; url: string; tipo: string } | null>(null);
   const { resultado, recargar } = useConsulta(
@@ -68,7 +86,7 @@ export function PantallaPagos() {
   }
 
   /** El comprobante se abre junto a la orden para compararlos sin salir de la página. */
-  async function verSoporte(orden: OrdenPagoResumen) {
+  async function verSoporte(orden: OrdenPagoConTipo) {
     setErrorSoporte(null);
     try {
       const archivo = await descargarSoporte(orden.id);
@@ -79,7 +97,7 @@ export function PantallaPagos() {
     }
   }
 
-  async function aprobar(orden: OrdenPagoResumen) {
+  async function aprobar(orden: OrdenPagoConTipo) {
     try {
       await verificarPago(orden.id, "APROBADA");
       avisar.exito(`Pago ${orden.referencia} aprobado. La solicitud quedó confirmada.`);
@@ -174,7 +192,7 @@ export function PantallaPagos() {
         ) : (
           <>
             <ul className="flex flex-col gap-3">
-              {resultado.datos.datos.map((o) => (
+              {(resultado.datos.datos as OrdenPagoConTipo[]).map((o) => (
                 <li
                   key={o.id}
                   className="flex flex-col gap-3 rounded-tarjeta bg-fondo p-4 shadow-tarjeta"
@@ -182,6 +200,12 @@ export function PantallaPagos() {
                   <div className="flex flex-wrap items-baseline justify-between gap-2">
                     <p className="font-bold text-azul-oscuro">
                       Referencia {o.referencia}
+                      {o.tipo && (
+                        <>
+                          {" · "}
+                          <span className="font-semibold">{obtenerEtiquetaTipoOrden(o.tipo)}</span>
+                        </>
+                      )}
                       {o.consecutivoSolicitud && (
                         <>
                           {" · "}
@@ -197,8 +221,15 @@ export function PantallaPagos() {
                     <p className="text-xl font-bold">{pesos(o.valor)}</p>
                   </div>
                   <p className="text-base text-gris">
-                    {ETIQUETAS_ORDEN[o.estado]} · vence el {fecha(o.venceEn)} a las{" "}
-                    {hora(o.venceEn)}
+                    {ETIQUETAS_ORDEN[o.estado]}
+                    {o.tipo && (
+                      <>
+                        {" · "}
+                        <span className="font-medium text-azul-oscuro">{obtenerEtiquetaTipoOrden(o.tipo)}</span>
+                      </>
+                    )}
+                    {" · vence el "}
+                    {fecha(o.venceEn)} a las {hora(o.venceEn)}
                     {o.pagadoEn && <> · pagado el {fecha(o.pagadoEn)}</>}
                   </p>
                   {soporte?.id === o.id && (
@@ -207,6 +238,12 @@ export function PantallaPagos() {
                         <div>
                           <dt className="text-meta font-bold text-gris">Referencia de la orden</dt>
                           <dd className="text-xl font-extrabold text-azul-oscuro">{o.referencia}</dd>
+                        </div>
+                        <div>
+                          <dt className="text-meta font-bold text-gris">Tipo de orden</dt>
+                          <dd className="text-xl font-extrabold text-azul-oscuro">
+                            {o.tipo ? obtenerEtiquetaTipoOrden(o.tipo) : "No especificado"}
+                          </dd>
                         </div>
                         <div>
                           <dt className="text-meta font-bold text-gris">Valor que debe aparecer</dt>
