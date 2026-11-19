@@ -1,12 +1,12 @@
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowLeft } from "lucide-react";
 import { BordeRasgado } from "@/components/marca/BordeRasgado";
 import { Marca } from "@/components/marca/Logo";
-import { SelloEntrada } from "@/components/marca/SelloEntrada";
 import { SolRadial } from "@/components/marca/SolRadial";
 
 /**
- * Pantalla dividida. Firma: el sello de entrada. Lo estándar (campos, botón, enlaces) va a la
+ * Pantalla dividida con el escudo institucional. Lo estándar (campos, botón, enlaces) va a la
  * derecha, centrado y sin adornos.
  */
 export default function LayoutAuth({ children }: LayoutProps<"/">) {
@@ -19,16 +19,26 @@ export default function LayoutAuth({ children }: LayoutProps<"/">) {
         Saltar al formulario
       </a>
       <div className="grid min-h-dvh flex-1 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)]">
-        {/* Móvil: franja breve con la marca y el sello */}
+        {/* Móvil: franja breve con la marca y el escudo */}
         <header className="sobre-azul relative flex items-center justify-between gap-4 bg-gradient-to-r from-azul to-azul-oscuro px-4 pb-9 pt-5 text-white lg:hidden">
           <Link href="/" aria-label="Uniputumayo. Ir al inicio" className="rounded-campo">
             <Marca variante="blanco" detalle="SIRA · Reserva de espacios" />
           </Link>
-          <SelloEntrada className="size-16 shrink-0 -rotate-6 text-white/80" />
+          <div className="size-16 shrink-0 rounded-full bg-white p-1 shadow-md ring-4 ring-white/20">
+            <Image
+              src="/marca/escudo-uniputumayo.webp"
+              alt="Escudo de la Institución Universitaria del Putumayo"
+              width={640}
+              height={640}
+              sizes="56px"
+              className="size-full rounded-full object-contain"
+              priority
+            />
+          </div>
           <BordeRasgado ocupa="arriba" tamano="fino" semilla={21} className="absolute inset-x-0 bottom-0 text-fondo" />
         </header>
 
-        {/* Escritorio: hoja azul con el sello */}
+        {/* Escritorio: hoja azul con el escudo */}
         <aside className="sobre-azul relative isolate hidden bg-gradient-to-l from-azul to-azul-oscuro text-white lg:flex">
           <div aria-hidden className="absolute inset-0 -z-10 overflow-hidden">
             <SolRadial className="absolute -left-24 -top-28 size-[30rem] opacity-[0.12]" />
@@ -45,7 +55,17 @@ export default function LayoutAuth({ children }: LayoutProps<"/">) {
               <Marca variante="blanco" tamano="grande" detalle="SIRA · Reserva de espacios" />
             </Link>
             <div className="flex flex-col items-center gap-8 text-center">
-              <SelloEntrada className="size-64 xl:size-72" />
+              <div className="size-64 rounded-full bg-white p-3 shadow-md ring-4 ring-white/20 xl:size-72">
+                <Image
+                  src="/marca/escudo-uniputumayo.webp"
+                  alt="Escudo de la Institución Universitaria del Putumayo"
+                  width={640}
+                  height={640}
+                  sizes="(min-width: 1280px) 264px, 232px"
+                  className="size-full rounded-full object-contain"
+                  priority
+                />
+              </div>
               <p className="max-w-xs font-titulo text-2xl font-extrabold leading-snug">
                 Ingresa para pedir un espacio y ver cómo va tu solicitud.
               </p>
