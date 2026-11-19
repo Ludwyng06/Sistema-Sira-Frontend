@@ -41,3 +41,10 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# Documentacion de apoyo local (no se publica)
+/docs/
+/PROMPT-MAESTRO.md
+/AGENTS.md
+/SISTEMA-DE-DISENO.md
+
+
