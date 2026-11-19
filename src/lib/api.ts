@@ -29,6 +29,8 @@ export class ErrorApi extends Error {
 }
 
 const URL_SERVIDOR = process.env.API_URL_INTERNA ?? "http://localhost:3001/api";
+// En Vercel: NEXT_PUBLIC_API_URL=/api y API_URL_INTERNA=<backend>/api.
+// BACKEND_URL=<backend> activa el proxy de Next sin exponer el origen al cliente.
 const URL_CLIENTE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001/api";
 
 function urlBase(): string {
@@ -56,8 +58,9 @@ export type OpcionesApi = Omit<RequestInit, "body"> & {
   blob?: boolean;
 };
 
-function construirUrl(ruta: string, query?: OpcionesApi["query"]): string {
-  const url = `${urlBase()}${ruta.startsWith("/") ? ruta : `/${ruta}`}`;
+export function construirUrl(ruta: string, query?: OpcionesApi["query"]): string {
+  // Concatenar conserva bases relativas como /api, también en multipart y blobs.
+  const url = `${urlBase().replace(/\/+$/, "")}${ruta.startsWith("/") ? ruta : `/${ruta}`}`;
   if (!query) return url;
   const params = new URLSearchParams();
   for (const [clave, valor] of Object.entries(query)) {
