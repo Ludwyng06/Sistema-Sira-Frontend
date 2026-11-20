@@ -1,32 +1,14 @@
 import { pesos } from "@/lib/formato";
+import { desgloseReserva } from "@/lib/desglose";
 import type { EstimadoSolicitud, ReservaItem, ServicioItem } from "@/lib/solicitudes";
 
-/** Unidad de cobro de un espacio, en singular y plural. */
-const UNIDADES: Record<string, [string, string]> = {
-  HORA: ["hora", "horas"],
-  JORNADA_MANANA: ["jornada de la mañana", "jornadas de la mañana"],
-  JORNADA_TARDE: ["jornada de la tarde", "jornadas de la tarde"],
-  JORNADA_NOCHE: ["jornada de la noche", "jornadas de la noche"],
-  DIA: ["día", "días"],
-};
-
-function unidad(codigo: string | null, cantidad: number): string {
-  if (!codigo) return "";
-  const nombres = UNIDADES[codigo];
-  if (!nombres) return codigo.toLowerCase().replaceAll("_", " ");
-  return cantidad === 1 ? nombres[0] : nombres[1];
-}
-
-/**
- * "4 horas × $20.000 (+ $36.000 de recargo)". Explica cómo se llegó al subtotal de una franja, que ya trae
- * el recargo nocturno, dominical o festivo sumado.
- */
+/** Tarifa de la franja y recargos incluidos, debajo de su valor principal. */
 export function DetalleFranja({ reserva }: { reserva: ReservaItem }) {
-  if (reserva.cantidad <= 0) return null;
+  const detalle = desgloseReserva(reserva);
+  if (!detalle) return null;
   return (
     <span className="block text-base text-gris">
-      {reserva.cantidad} {unidad(reserva.unidad, reserva.cantidad)} × {pesos(reserva.valorUnitario)}
-      {reserva.recargos > 0 && ` (+ ${pesos(reserva.recargos)} de recargo)`}
+      {detalle}
     </span>
   );
 }

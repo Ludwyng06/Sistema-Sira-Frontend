@@ -195,6 +195,7 @@ function VistaCalendario({
           right: "dayGridMonth,timeGridWeek,timeGridDay",
         }}
         firstDay={1}
+        weekends
         allDaySlot={false}
         slotMinTime={`${slotMin}:00`}
         slotMaxTime={`${slotMax}:00`}

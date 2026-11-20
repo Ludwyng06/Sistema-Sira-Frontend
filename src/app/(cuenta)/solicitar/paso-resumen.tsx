@@ -136,9 +136,11 @@ export function PasoResumen({
                   {codigos.resultado.estado === "listo" ? codigos.resultado.datos[i] ?? "Espacio" : "Espacio"}
                 </span>{" "}
                 · {fecha(r.inicio)} · {hora(r.inicio)} a {hora(r.fin)}
+              </span>
+              <span className="text-right">
+                <span className="block font-medium">{pesos(r.subtotal)}</span>
                 <DetalleFranja reserva={r} />
               </span>
-              <span className="font-medium">{pesos(r.subtotal)}</span>
             </li>
           ))}
           {borrador.servicios.map((s) => (

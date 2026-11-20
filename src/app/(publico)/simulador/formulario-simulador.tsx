@@ -25,8 +25,10 @@ const UNIDADES: Record<string, string> = {
 
 const RECARGOS: Record<string, string> = {
   NOCTURNO: "Recargo nocturno",
-  DOMINICAL: "Recargo dominical",
-  FESTIVO: "Recargo por festivo",
+  DOMINICAL_DIURNO: "Recargo dominical diurno",
+  DOMINICAL_NOCTURNO: "Recargo dominical nocturno",
+  FESTIVO_DIURNO: "Recargo festivo diurno",
+  FESTIVO_NOCTURNO: "Recargo festivo nocturno",
 };
 
 export function FormularioSimulador({

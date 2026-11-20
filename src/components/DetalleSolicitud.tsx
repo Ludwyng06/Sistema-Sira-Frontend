@@ -58,10 +58,12 @@ export function DetalleSolicitud({
   id,
   modo,
   rutaVolver,
+  textoVolver,
 }: {
   id: string;
   modo: "solicitante" | "revisor";
   rutaVolver: string;
+  textoVolver?: string;
 }) {
   const { resultado, recargar } = useConsulta(() => obtenerSolicitud(id), [id]);
   const { tieneRol } = useSesion();
@@ -69,13 +71,15 @@ export function DetalleSolicitud({
   // Hora en que se abrió la ficha: basta para saber si el evento ya empezó (la API lo vuelve a validar).
   const [abiertaEn] = useState(() => Date.now());
 
+  const textoEnlace = textoVolver ?? (modo === "revisor" ? "Volver a la bandeja" : "Volver a la lista");
+
   const volver = (
     <Link
       href={rutaVolver}
       className="inline-flex min-h-11 w-fit items-center gap-1 font-bold text-azul-oscuro underline underline-offset-4"
     >
       <ChevronLeft aria-hidden className="size-4" />
-      Volver a la lista
+      {textoEnlace}
     </Link>
   );
 
@@ -378,9 +382,13 @@ export function DetalleSolicitud({
                 <span>
                   {r.espacioCodigo && r.espacioNombre ? `${r.espacioCodigo} · ${r.espacioNombre} — ` : ""}
                   {fecha(r.inicio)} · {hora(r.inicio)} a {hora(r.fin)}
-                  {!s.esExenta && <DetalleFranja reserva={r} />}
                 </span>
-                {!s.esExenta && <span className="font-medium">{pesos(r.subtotal)}</span>}
+                {!s.esExenta && (
+                  <span className="text-right">
+                    <span className="block font-medium">{pesos(r.subtotal)}</span>
+                    <DetalleFranja reserva={r} />
+                  </span>
+                )}
               </li>
             ))}
           </ul>

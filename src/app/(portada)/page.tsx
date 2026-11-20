@@ -85,7 +85,7 @@ function Portada({
                 className="inline-flex min-h-12 items-center justify-center gap-2 rounded-campo bg-azul px-6 text-lg font-bold text-white shadow-boton transition duration-200 hover:-translate-y-px hover:bg-azul-oscuro motion-reduce:transition-none motion-reduce:hover:translate-y-0"
               >
                 <Search aria-hidden className="size-5" />
-                Ver espacios donde caben
+                Ver espacios
               </button>
             </div>
             <BuscandoAlEnviar detalle="Buscando espacios donde quepan." />

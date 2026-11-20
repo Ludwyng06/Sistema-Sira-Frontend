@@ -21,5 +21,12 @@ async function Contenido({
   params: PageProps<"/panel/aprobaciones/[id]">["params"];
 }) {
   const { id } = await params;
-  return <DetalleSolicitud id={id} modo="revisor" rutaVolver="/panel/aprobaciones" />;
+  return (
+    <DetalleSolicitud
+      id={id}
+      modo="revisor"
+      rutaVolver="/panel/aprobaciones"
+      textoVolver="Volver a la bandeja"
+    />
+  );
 }

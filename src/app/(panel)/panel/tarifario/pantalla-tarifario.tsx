@@ -22,11 +22,16 @@ import {
   listarFestivos,
   listarRecargos,
   listarTarifas,
+  DESCRIPCIONES_RECARGO,
+  ORDEN_RECARGOS,
+  PORCENTAJE_RECARGO_MAXIMO,
   TIPOS_RECARGO,
   TIPOS_SOLICITANTE,
   UNIDADES_TARIFA,
+  validarPorcentajeRecargo,
   type Festivo,
   type Recargo,
+  type TipoRecargo,
   type Tarifa,
   type TipoSolicitante,
   type UnidadTarifa,
@@ -483,33 +488,62 @@ function Recargos() {
         Recargos
       </h2>
       <p className="max-w-prose text-gris">
-        Se suman al valor de las franjas nocturnas, dominicales o festivas. El nocturno aplica desde la hora que
-        indiques (hora de Bogotá).
+        Cada parte de una franja lleva un solo recargo según el día y la hora (hora de Bogotá); los recargos no
+        se suman entre sí. El festivo prevalece sobre el domingo. Las horas nocturnas van desde la hora que
+        indiques en el recargo nocturno hasta las 6:00 a. m., y esa misma hora rige para el dominical y el
+        festivo nocturnos. Si un recargo está inactivo, esas horas no llevan recargo. Porcentaje de 0 a 300, con
+        hasta 2 decimales.
       </p>
-      <div className="grid gap-4 lg:grid-cols-3">
-        {resultado.datos.map((r) => (
-          <EditorRecargo key={`${r.tipo}-${r.porcentaje}-${r.desdeHora}-${r.activo}`} recargo={r} alGuardar={recargar} />
-        ))}
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+        {ORDEN_RECARGOS.map((tipo) => {
+          const r = resultado.datos.find((x) => x.tipo === tipo);
+          return (
+            <EditorRecargo
+              key={`${tipo}-${r?.porcentaje}-${r?.desdeHora}-${r?.activo}`}
+              tipo={tipo}
+              recargo={r}
+              horaNocturna={resultado.datos.find((x) => x.tipo === "NOCTURNO")?.desdeHora ?? "18:00"}
+              alGuardar={recargar}
+            />
+          );
+        })}
       </div>
     </section>
   );
 }
 
-function EditorRecargo({ recargo, alGuardar }: { recargo: Recargo; alGuardar: () => void }) {
+function EditorRecargo({
+  tipo,
+  recargo,
+  horaNocturna,
+  alGuardar,
+}: {
+  tipo: TipoRecargo;
+  /** Ausente si el recargo aún no está configurado: al guardar se crea. */
+  recargo: Recargo | undefined;
+  horaNocturna: string;
+  alGuardar: () => void;
+}) {
   const [enviando, setEnviando] = useState(false);
-  const prefijo = `recargo-${recargo.tipo.toLowerCase()}`;
+  const [error, setError] = useState<string | null>(null);
+  const prefijo = `recargo-${tipo.toLowerCase().replace(/_/g, "-")}`;
+  const esNocturnaEspecial = tipo === "DOMINICAL_NOCTURNO" || tipo === "FESTIVO_NOCTURNO";
 
   async function guardar(evento: FormEvent<HTMLFormElement>) {
     evento.preventDefault();
     const d = new FormData(evento.currentTarget);
+    const crudo = texto(d, "porcentaje");
+    const problema = validarPorcentajeRecargo(crudo);
+    setError(problema);
+    if (problema) return;
     setEnviando(true);
     try {
-      await actualizarRecargo(recargo.tipo, {
-        porcentaje: Number(texto(d, "porcentaje")),
-        desdeHora: recargo.tipo === "NOCTURNO" ? texto(d, "desdeHora") : undefined,
+      await actualizarRecargo(tipo, {
+        porcentaje: Number(crudo.replace(",", ".")),
+        desdeHora: tipo === "NOCTURNO" ? texto(d, "desdeHora") : undefined,
         activo: d.get("activo") === "on",
       });
-      avisar.exito(`El recargo ${TIPOS_RECARGO[recargo.tipo].toLowerCase()} quedó actualizado.`);
+      avisar.exito(`El recargo ${TIPOS_RECARGO[tipo].toLowerCase()} quedó actualizado.`);
       alGuardar();
     } catch (e) {
       avisar.error(e, "No pudimos guardar el recargo.");
@@ -519,34 +553,52 @@ function EditorRecargo({ recargo, alGuardar }: { recargo: Recargo; alGuardar: ()
   }
 
   return (
-    <form onSubmit={guardar} className="flex flex-col gap-3 rounded-campo border border-gris-claro p-4">
-      <h3 className="text-xl font-bold">{TIPOS_RECARGO[recargo.tipo]}</h3>
+    <form
+      onSubmit={guardar}
+      noValidate
+      aria-labelledby={`${prefijo}-titulo`}
+      className="flex flex-col gap-3 rounded-campo border border-gris-claro p-4"
+    >
+      <h3 id={`${prefijo}-titulo`} className="text-xl font-bold">
+        {TIPOS_RECARGO[tipo]}
+      </h3>
+      <p className="text-meta text-gris">{DESCRIPCIONES_RECARGO[tipo]}</p>
+      {!recargo && <p className="text-meta text-gris">Aún no está configurado: indica el porcentaje y guárdalo.</p>}
       <Campo
         id={`${prefijo}-porcentaje`}
         name="porcentaje"
-        etiqueta="Porcentaje"
+        etiqueta="Porcentaje (%)"
         type="number"
+        inputMode="decimal"
         min={0}
-        max={100}
-        step="any"
-        defaultValue={recargo.porcentaje}
+        max={PORCENTAJE_RECARGO_MAXIMO}
+        step="0.01"
+        defaultValue={recargo?.porcentaje ?? ""}
+        ayuda="De 0 a 300, con hasta 2 decimales."
+        error={error ?? undefined}
         required
       />
-      {recargo.tipo === "NOCTURNO" && (
+      {tipo === "NOCTURNO" && (
         <CampoHora
           id={`${prefijo}-desde`}
           name="desdeHora"
           etiqueta="Aplica desde"
-          defaultValue={recargo.desdeHora ?? "18:00"}
+          defaultValue={recargo?.desdeHora ?? "18:00"}
           required
         />
       )}
+      {esNocturnaEspecial && (
+        <p className="text-meta">
+          Aplica desde las <strong>{horaNocturna}</strong>, la misma hora del recargo nocturno. Para cambiarla,
+          edita el recargo nocturno.
+        </p>
+      )}
       <label className="flex min-h-11 items-center gap-2">
-        <input name="activo" type="checkbox" defaultChecked={recargo.activo} className="size-5" />
+        <input name="activo" type="checkbox" defaultChecked={recargo?.activo ?? true} className="size-5" />
         Recargo activo
       </label>
       <Boton type="submit" cargando={enviando} className="w-fit">
-        Guardar {TIPOS_RECARGO[recargo.tipo].toLowerCase()}
+        Guardar {TIPOS_RECARGO[tipo].toLowerCase()}
       </Boton>
     </form>
   );

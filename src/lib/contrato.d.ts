@@ -3634,7 +3634,7 @@ export interface components {
              * @example NOCTURNO
              * @enum {string}
              */
-            tipo: "NOCTURNO" | "DOMINICAL" | "FESTIVO";
+            tipo: "NOCTURNO" | "DOMINICAL_DIURNO" | "DOMINICAL_NOCTURNO" | "FESTIVO_DIURNO" | "FESTIVO_NOCTURNO";
             /**
              * @description Porcentaje configurado del recargo.
              * @example 20
@@ -3814,7 +3814,7 @@ export interface components {
              * @example NOCTURNO
              * @enum {string}
              */
-            tipo: "NOCTURNO" | "DOMINICAL" | "FESTIVO";
+            tipo: "NOCTURNO" | "DOMINICAL_DIURNO" | "DOMINICAL_NOCTURNO" | "FESTIVO_DIURNO" | "FESTIVO_NOCTURNO";
             /** @example 20 */
             porcentaje: number;
             /** @example 18:00 */
@@ -8473,7 +8473,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                tipo: "NOCTURNO" | "DOMINICAL" | "FESTIVO";
+                tipo: "NOCTURNO" | "DOMINICAL_DIURNO" | "DOMINICAL_NOCTURNO" | "FESTIVO_DIURNO" | "FESTIVO_NOCTURNO";
             };
             cookie?: never;
         };

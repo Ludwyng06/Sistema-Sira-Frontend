@@ -17,7 +17,7 @@ export const ENTRADAS_PANEL: Entrada[] = [
   { href: "/panel", texto: "Tablero", roles: ["ADMINISTRADOR", "APROBADOR", "TESORERIA", "AUDITOR"] },
   {
     href: "/panel/aprobaciones",
-    texto: "Aprobaciones",
+    texto: "Bandeja de solicitudes",
     roles: ["RESPONSABLE_ESPACIO", "APROBADOR", "ADMINISTRADOR", "AUDITOR"],
   },
   { href: "/panel/pagos", texto: "Pagos", roles: ["TESORERIA", "AUDITOR", "ADMINISTRADOR"] },

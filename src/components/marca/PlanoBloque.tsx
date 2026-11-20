@@ -15,6 +15,8 @@ interface CeldaPlano {
   h: number;
   piso: 1 | 2;
   esServicio?: boolean;
+  /** Espacio del plano que SIRA no alquila: se dibuja con su etiqueta, sin enlace ni estado de reserva. */
+  noReservable?: boolean;
 }
 
 /**
@@ -62,10 +64,10 @@ const CELDAS_BLOQUE_A: CeldaPlano[] = [
   { codigo: "A-109", etiqueta: "Aula 109", x: 270, y: 232, w: 56, h: 48, piso: 1 },
   { codigo: "A-108", etiqueta: "Aula 108", x: 330, y: 232, w: 54, h: 48, piso: 1 },
   { codigo: "A-107", etiqueta: "Aula 107", x: 388, y: 232, w: 56, h: 48, piso: 1 },
-  { codigo: "A-104", etiqueta: "OF. 104", x: 492, y: 232, w: 46, h: 48, piso: 1 },
-  { codigo: "A-103", etiqueta: "OF. 103", x: 542, y: 232, w: 46, h: 48, piso: 1 },
-  { codigo: "A-102", etiqueta: "OF. 102", x: 592, y: 232, w: 46, h: 48, piso: 1 },
-  { codigo: "A-101", etiqueta: "OF. 101", x: 642, y: 232, w: 48, h: 48, piso: 1 },
+  { codigo: "A-104", etiqueta: "OF. 104", x: 492, y: 232, w: 46, h: 48, piso: 1, noReservable: true },
+  { codigo: "A-103", etiqueta: "OF. 103", x: 542, y: 232, w: 46, h: 48, piso: 1, noReservable: true },
+  { codigo: "A-102", etiqueta: "OF. 102", x: 592, y: 232, w: 46, h: 48, piso: 1, noReservable: true },
+  { codigo: "A-101", etiqueta: "OF. 101", x: 642, y: 232, w: 48, h: 48, piso: 1, noReservable: true },
 
   // Franja Sur: Aulas 115, 114, 113, 112, Baños y GRADAS (y=619851..619859)
   { codigo: "A-115", etiqueta: "Aula 115", x: 26, y: 240, w: 56, h: 48, piso: 1 },
@@ -135,10 +137,10 @@ const CELDAS_BLOQUE_C: CeldaPlano[] = [
  */
 const CELDAS_BLOQUE_D: CeldaPlano[] = [
   // Piso 1 (N 0.00m)
-  { codigo: "D-107", etiqueta: "Hemeroteca", x: 34, y: 38, w: 96, h: 48, piso: 1 },
-  { codigo: "D-108", etiqueta: "Xiloteca", x: 136, y: 38, w: 96, h: 48, piso: 1 },
+  { codigo: "D-107", etiqueta: "Hemeroteca", x: 34, y: 38, w: 96, h: 48, piso: 1, noReservable: true },
+  { codigo: "D-108", etiqueta: "Xiloteca", x: 136, y: 38, w: 96, h: 48, piso: 1, noReservable: true },
   { codigo: "D-105", etiqueta: "Lab. Ing. Forestal", subtitulo: "126.24 m² · 30 pers.", x: 34, y: 92, w: 126, h: 64, piso: 1 },
-  { codigo: "D-106", etiqueta: "Herbario", x: 166, y: 92, w: 66, h: 64, piso: 1 },
+  { codigo: "D-106", etiqueta: "Herbario", x: 166, y: 92, w: 66, h: 64, piso: 1, noReservable: true },
   { codigo: "D-104", etiqueta: "Lab. Ing. Civil", subtitulo: "172.90 m² · 30 pers.", x: 34, y: 164, w: 198, h: 72, piso: 1 },
   { codigo: "D-102", etiqueta: "Lab. Ing. Ambiental", subtitulo: "85.62 m² · 30 pers.", x: 34, y: 244, w: 112, h: 82, piso: 1 },
   { codigo: "D-103", etiqueta: "Lab. Mec. Fluidos", subtitulo: "38.03 m² · 10 pers.", x: 152, y: 244, w: 80, h: 82, piso: 1 },
@@ -171,14 +173,14 @@ const CELDAS_BLOQUE_E: CeldaPlano[] = [
  * x=1047374..1047443, y=619704..619763
  */
 const CELDAS_BLOQUE_F: CeldaPlano[] = [
-  { codigo: "F-104", etiqueta: "Meteorología y Huerta", x: 32, y: 44, w: 136, h: 96, piso: 1 },
+  { codigo: "F-104", etiqueta: "Meteorología y Huerta", x: 32, y: 44, w: 136, h: 96, piso: 1, noReservable: true },
   { codigo: "PARQ-MOTOS", etiqueta: "Parqueadero Motos", x: 178, y: 44, w: 118, h: 96, piso: 1, esServicio: true },
   { codigo: "F-103", etiqueta: "Laboratorio Central", x: 306, y: 44, w: 184, h: 96, piso: 1 },
 
-  { codigo: "F-101", etiqueta: "Biblioteca", x: 178, y: 152, w: 154, h: 168, piso: 1 },
+  { codigo: "F-101", etiqueta: "Biblioteca", x: 178, y: 152, w: 154, h: 168, piso: 1, noReservable: true },
   { codigo: "RECTORIA", etiqueta: "Rectoría · Tesorería · Presupuesto · Talento Humano", x: 342, y: 152, w: 196, h: 80, piso: 1, esServicio: true },
   { codigo: "VICERRECTORIAS", etiqueta: "Vicerrectoría Académica y Administrativa · Jurídica · Archivo", x: 342, y: 240, w: 196, h: 80, piso: 1, esServicio: true },
-  { codigo: "F-102", etiqueta: "CIECYT · Área de Trabajo", x: 548, y: 152, w: 140, h: 168, piso: 1 },
+  { codigo: "F-102", etiqueta: "CIECYT · Área de Trabajo", x: 548, y: 152, w: 140, h: 168, piso: 1, noReservable: true },
 ];
 
 const CELDAS_POR_BLOQUE: Record<string, CeldaPlano[]> = {
@@ -299,13 +301,14 @@ export function PlanoBloque({
           />
 
           {celdas.map((celda) => {
-            const espacio = espaciosPorCodigo.get(celda.codigo);
+            const inerte = Boolean(celda.esServicio || celda.noReservable);
+            const espacio = inerte ? undefined : espaciosPorCodigo.get(celda.codigo);
             const disponible = Boolean(espacio);
             const cx = celda.x + celda.w / 2;
             const cy = celda.y + celda.h / 2;
 
             const contenido = (
-              <g className="group cursor-pointer">
+              <g className={inerte ? undefined : "group cursor-pointer"}>
                 <rect
                   x={celda.x}
                   y={celda.y}
@@ -313,14 +316,14 @@ export function PlanoBloque({
                   height={celda.h}
                   rx="4"
                   fill={
-                    celda.esServicio
+                    inerte
                       ? "rgba(255,255,255,0.05)"
                       : disponible
                         ? "rgba(255,255,255,0.14)"
                         : "rgba(255,255,255,0.08)"
                   }
                   stroke={
-                    celda.esServicio
+                    inerte
                       ? "rgba(255,255,255,0.35)"
                       : disponible
                         ? "#f5a51d"
@@ -328,7 +331,7 @@ export function PlanoBloque({
                   }
                   strokeWidth={disponible ? "2" : "1.3"}
                   className={
-                    celda.esServicio
+                    inerte
                       ? ""
                       : "transition-all duration-150 group-hover:fill-naranja/30"
                   }
@@ -360,7 +363,7 @@ export function PlanoBloque({
               </g>
             );
 
-            if (!celda.esServicio && espacio) {
+            if (!inerte && espacio) {
               return (
                 <Link
                   key={celda.codigo}
@@ -372,7 +375,15 @@ export function PlanoBloque({
               );
             }
 
-            return <g key={celda.codigo}>{contenido}</g>;
+            return (
+              <g
+                key={celda.codigo}
+                data-codigo={celda.codigo}
+                data-no-reservable={celda.noReservable ? "true" : undefined}
+              >
+                {contenido}
+              </g>
+            );
           })}
         </svg>
       </div>
@@ -385,7 +396,7 @@ export function PlanoBloque({
           </span>
           <span className="inline-flex items-center gap-1.5">
             <span className="size-3 rounded-sm border border-white/40 bg-white/5" />
-            Zona común / baños / gradas / oficinas administrativas
+            Zona común o espacio no reservable (oficinas, biblioteca, colecciones)
           </span>
         </div>
         <span className="font-semibold">
